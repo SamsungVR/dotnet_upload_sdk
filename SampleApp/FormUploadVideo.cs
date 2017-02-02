@@ -122,9 +122,13 @@ namespace SampleApp {
          ctrlUploadStatus.Text = string.Format(ResourceStrings.uploadFailedWithStatus, status);
       }
 
-      public void onProgress(object closure, float progressPercent) {
+      public void onProgress(object closure, float progressPercent, long complete, long max) {
          ctrlRawProgress.Text = progressPercent.ToString();
          ctrlProgressBar.Value = (int)progressPercent;
+      }
+
+      public void onProgress(object closure, long complete) {
+         ctrlRawProgress.Text = complete.ToString();
       }
 
       public void onSuccess(object closure) {

@@ -170,7 +170,8 @@ namespace SDKLib {
                 * @param progressPercent Progress percentage between 0.0 to 100.0
                 */
 
-               void onProgress(object closure, float progressPercent);
+               void onProgress(object closure, float progressPercent, long complete, long max);
+               void onProgress(object closure, long complete);
             }
          }
 

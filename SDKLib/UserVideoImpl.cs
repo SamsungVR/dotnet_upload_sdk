@@ -297,7 +297,7 @@ namespace SDKLib {
 
                   float progress = 100f * ((float)(i) / (float)numChunks);
 
-                  dispatchUncounted(new ProgressCallbackNotifier(mCallbackHolder, progress));
+                  dispatchUncounted(new ProgressCallbackNotifier(mCallbackHolder, i, numChunks));
 
                   string signedUrl;
 
@@ -356,7 +356,7 @@ namespace SDKLib {
                      destroy(uploadRequest);
                   }
                }
-               dispatchUncounted(new ProgressCallbackNotifier(mCallbackHolder, 100f));
+               dispatchUncounted(new ProgressCallbackNotifier(mCallbackHolder));
 
                Log.d(TAG, "After successful upload, bytes remaining: " + split.availableAsLong());
                /*

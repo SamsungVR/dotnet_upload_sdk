@@ -11,16 +11,32 @@ namespace SDKLib {
 
       protected class ProgressCallbackNotifier : Util.CallbackNotifier {
 
+         private readonly long mComplete, mMax;
          private readonly float mProgress;
 
-         public ProgressCallbackNotifier(ResultCallbackHolder callbackHolder, float progress)
+         public ProgressCallbackNotifier(ResultCallbackHolder callbackHolder)
+            : this(callbackHolder, 1, 1) {
+         }
+
+         public ProgressCallbackNotifier(ResultCallbackHolder callbackHolder, long complete, long max)
             : base(callbackHolder) {
-            mProgress = progress;
+            mMax = max;
+            mComplete = complete;
+            if (mMax > 0) {
+               mProgress = (float)(100.0 * ((double)mComplete / (double)mMax));
+            } else {
+               mProgress = -1.0f;
+            }
          }
 
          protected override void notify(object callback, object closure) {
             VR.Result.ProgressCallback.If tCallback = callback as VR.Result.ProgressCallback.If;
-            tCallback.onProgress(closure, mProgress);
+
+            if (mProgress < 0.0f) {
+               tCallback.onProgress(closure, mComplete);
+            } else {
+               tCallback.onProgress(closure, mProgress, mComplete, mMax);
+            }
          }
       }
 
@@ -302,9 +318,9 @@ namespace SDKLib {
       }
 
 
-      private static readonly string HYPHENS = "--";
-      private static readonly string QUOTE = "\"";
-      private static readonly string ENDL = "\r\n";
+      internal static readonly string HYPHENS = "--";
+      internal static readonly string QUOTE = "\"";
+      internal static readonly string ENDL = "\r\n";
 
       protected static string headersToString(string[,] headers) {
          if (null == headers) {
@@ -518,5 +534,202 @@ namespace SDKLib {
 
       }
 
+
+
+      protected class HttpUploadStream : Stream {
+
+         private readonly ByteArrayHolder[] mBufs = new ByteArrayHolder[3] { new ByteArrayHolder(true), new ByteArrayHolder(false), new ByteArrayHolder(true) };
+
+         private class ByteArrayHolder {
+
+            internal readonly bool mIsPseudo;
+
+            internal ByteArrayHolder(bool isPseudo) {
+               mIsPseudo = isPseudo;
+               clear();
+            }
+
+            private byte[] mArray;
+            int mMark, mLen;
+
+            internal int set(byte[] array, int offset, int len) {
+               mLen = len;
+               mArray = array;
+               mMark = 0;
+               return mLen;
+            }
+
+            internal int available() {
+               return mLen - mMark;
+            }
+
+            internal int set(byte[] array) {
+               if (null == array) {
+                  return set(null, 0, 0);
+               } else {
+                  return set(array, 0, array.Length);
+               }
+            }
+
+            internal void clear() {
+               set(null, 0, 0);
+            }
+
+            internal int read(byte[] dst, int dstOffset, int dstCount) {
+               if (null != mArray) {
+                  int remain = available();
+                  if (remain > 0) {
+                     int toCopy = Math.Min(remain, dstCount);
+                     Array.Copy(mArray, mMark, dst, dstOffset, toCopy);
+                     mMark += toCopy;
+                     return toCopy;
+                  }
+               }
+               return 0;
+            }
+         }
+
+         public override long Position {
+            get {
+               throw new NotImplementedException();
+            }
+            set {
+               throw new NotImplementedException();
+            }
+         }
+
+         public override long Length {
+            get {
+               return 0;
+            }
+         }
+
+         public override bool CanRead {
+            get {
+               return true;
+            }
+         }
+
+         public override bool CanSeek {
+            get {
+               return false;
+            }
+         }
+
+         public override bool CanWrite {
+            get {
+               return false;
+            }
+         }
+
+         public override void Flush() {
+            throw new NotImplementedException();
+         }
+
+         public override long Seek(long offset, SeekOrigin origin) {
+            throw new NotImplementedException();
+         }
+
+         public override void SetLength(long value) {
+            throw new NotImplementedException();
+         }
+
+         public override void Write(byte[] buffer, int offset, int count) {
+            throw new NotImplementedException();
+         }
+
+         public override void Close() {
+         }
+
+         public override int Read(byte[] buffer, int byteOffset, int byteCount) {
+            if (buffer.Length < (byteOffset + byteCount)) {
+               throw new IOException();
+            }
+            int canRead = byteCount;
+            int totalRead = 0;
+
+            while (canContinue() && canRead > 0 && ensureAvailable()) {
+               int read = 0;
+               for (int i = 0; i < mBufs.Length; i += 1) {
+                  ByteArrayHolder holder = mBufs[i];
+                  if (holder.available() > 0) {
+                     int offset = byteOffset + totalRead + read;
+                     int thisRead = holder.read(buffer, offset, canRead);
+                     if (thisRead > 0) {
+                        canRead -= thisRead;
+                        onProvided(holder, buffer, offset, thisRead);
+                        read += thisRead;
+                     }
+                  }
+               }
+               totalRead += read;
+            }
+            if (totalRead < 1) {
+               totalRead = -1;
+            }
+            onProgress(mProvidedSoFar, totalRead > 0);
+            return totalRead;
+         }
+
+         private long mProvidedSoFar = 0;
+
+         private bool ensureAvailable() {
+            long available = mBufs[0].available() + mBufs[1].available() + mBufs[2].available();
+            if (available > 0) {
+               return true;
+            }
+            mBufs[0].clear();
+            mBufs[1].clear();
+            mBufs[2].clear();
+
+            int read = mInner.Read(mIOBuf, 0, mIOBuf.Length);
+            if (read < 1) {
+               return false;
+            }
+            available = 0;
+            if (mIsChunked) {
+               byte[] header = System.Text.Encoding.UTF8.GetBytes(read.ToString() + ClientWorkItem.ENDL);
+               available += mBufs[0].set(header);
+               available += mBufs[2].set(System.Text.Encoding.UTF8.GetBytes(ClientWorkItem.ENDL));
+            }
+            available += mBufs[1].set(mIOBuf, 0, read);
+            return available > 0;
+         }
+
+         protected bool isChunked() {
+            return mIsChunked;
+         }
+
+         private void onProvided(ByteArrayHolder holder, byte[] data, int offset, int len) {
+            if (!holder.mIsPseudo) {
+               onBytesProvided(data, offset, len);
+               mProvidedSoFar += len;
+            }
+         }
+
+         protected void onBytesProvided(byte[] data, int offset, int len) {
+
+         }
+
+         protected void onProgress(long providedSoFar, bool isEOF) {
+
+         }
+
+         protected bool canContinue() {
+            return true;
+         }
+
+         private readonly Stream mInner;
+         private readonly bool mIsChunked;
+         private readonly byte[] mIOBuf;
+
+         protected HttpUploadStream(Stream inner, byte[] ioBuf, bool isChunked) {
+            mInner = inner;
+            mIsChunked = isChunked;
+            mIOBuf = null == ioBuf ? new byte[8192] : ioBuf;
+         }
+
+      }
    }
+
 }
