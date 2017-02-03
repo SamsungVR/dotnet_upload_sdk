@@ -52,5 +52,12 @@ namespace SampleApp {
          }
          setControl(new FormUploadVideo());
       }
+
+      private void ctrlCreateLiveEvent_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+         if (mControl is FormCreateLiveEvent) {
+            return;
+         }
+         setControl(new FormCreateLiveEvent());
+      }
    }
 }

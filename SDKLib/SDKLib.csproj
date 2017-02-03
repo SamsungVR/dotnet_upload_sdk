@@ -53,6 +53,8 @@
     <Compile Include="ClientWorkItem.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="UserImpl.cs" />
+    <Compile Include="UserLiveEvent.cs" />
+    <Compile Include="UserLiveEventImpl.cs" />
     <Compile Include="UserVideo.cs" />
     <Compile Include="UserVideoImpl.cs" />
     <Compile Include="Util.cs" />

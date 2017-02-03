@@ -23,12 +23,14 @@ namespace SDKLib {
       private readonly ManualResetEvent mResetEvent = new ManualResetEvent(false);
       private readonly Queue<AsyncWorkItem> mWorkItems = new Queue<AsyncWorkItem>();
       private readonly byte[] mIOBuf;
+      private readonly int mTimeout;
       private AsyncWorkItem mActiveWorkItem = null;
 
       private readonly AsyncWorkItemFactory mAsyncWorkItemFactory;
 
-      public AsyncWorkQueue(AsyncWorkItemFactory factory, int ioBufSize) {
+      public AsyncWorkQueue(AsyncWorkItemFactory factory, int ioBufSize, int timeout) {
          mStateManager = new StateManager<AsyncWorkQueue>(this, State.INITIAILIZING);
+         mTimeout = timeout;
          mIOBuf = new byte[ioBufSize];
          mAsyncWorkItemFactory = factory;
          mThread = new Thread(processRequests);
@@ -36,32 +38,32 @@ namespace SDKLib {
          mThread.Start();
       }
 
-      private const int TIMEOUT = Timeout.Infinite;
-
       private void processRequests() {
          Log.d(TAG, "Started processing requests");
-         mStateManager.setState(State.INITIALIZED);
-         while (mStateManager.isInState(State.INITIALIZED)) {
-            if (!mResetEvent.WaitOne(TIMEOUT)) {
-               continue;
-            }
-            mResetEvent.Reset();
-            if (!mStateManager.isInState(State.INITIALIZED)) {
-               break;
-            }
-            lock (mWorkItems) {
-               try {
-                  mActiveWorkItem = mWorkItems.Dequeue();
-               } catch (InvalidOperationException) {
-                  mActiveWorkItem = null;
+         if (mStateManager.isInState(State.INITIAILIZING)) {
+            mStateManager.setState(State.INITIALIZED);
+
+            while (mStateManager.isInState(State.INITIALIZED)) {
+               if (!mResetEvent.WaitOne(Timeout.Infinite)) {
                   continue;
                }
+               mResetEvent.Reset();
+               if (!mStateManager.isInState(State.INITIALIZED)) {
+                  break;
+               }
+               lock (mWorkItems) {
+                  try {
+                     mActiveWorkItem = mWorkItems.Dequeue();
+                  } catch (InvalidOperationException) {
+                     mActiveWorkItem = null;
+                     continue;
+                  }
+               }
+               mActiveWorkItem.run();
+               lock (mWorkItems) {
+                  mActiveWorkItem = null;
+               }
             }
-            mActiveWorkItem.run();
-            lock (mWorkItems) {
-               mActiveWorkItem = null;
-            }
-
          }
          mResetEvent.Close();
          mStateManager.setState(State.DESTROYED);
@@ -105,7 +107,7 @@ namespace SDKLib {
       }
 
       public void join() {
-         mThread.Join(TIMEOUT);
+         mThread.Join(mTimeout);
       }
 
       public AsyncWorkItem obtainWorkItem(AsyncWorkItemType type) {
@@ -119,7 +121,6 @@ namespace SDKLib {
       public interface IterationObserver {
          bool onIterate(AsyncWorkItem workItem, object args);
       }
-
 
       public void iterateWorkItems(IterationObserver observer, object args) {
          lock (mWorkItems) {

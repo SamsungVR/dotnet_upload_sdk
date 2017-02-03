@@ -37,6 +37,30 @@ namespace SDKLib {
                      UserVideo.Permission permission, Result.UploadVideo.If callback,
                      SynchronizationContext handler, object closure);
          bool cancelUploadVideo(object closure);
+
+         /**
+          * Creates a new live event
+          *
+          * @param title Short description of the live event. This field is shown by all the different players.
+          * @param description Detailed description of the live event.
+          * @param permission See UserVideo.Permission enum. This is how the privacy settings of the new
+          *                   live event can be set
+          * @param protocol See UserLiveEvent.Protocol enum. Use this parameter to control how the inbond
+          *                 stream should be ingested
+          * @param videoStereoscopyType See UserLiveEvent.VideoStereoscopyType enum.
+          *                             Describes the video projection used in the inbound stream.
+          * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
+          *                 SDK transfers back ownership of the FD only on the callback.  Consider
+          *                 providing a Non Null callback so that the application can close the FD.
+          * @param handler A handler on which callback should be called. If null, main handler is used.
+          * @param closure An object that the application can use to uniquely identify this request.
+          *                See callback documentation.
+          * @return true if the live event got created, false otherwise
+          */
+
+         bool createLiveEvent(string title, string description, UserVideo.Permission permission,
+                                 UserLiveEvent.Source protocol, UserVideo.VideoStereoscopyType videoStereoscopyType,
+                                 User.Result.CreateLiveEvent.If callback, SynchronizationContext handler, object closure);
       }
 
       public sealed class Result {
@@ -98,6 +122,46 @@ namespace SDKLib {
 
 
          }
+
+         /**
+          * Callback delivering results of createLiveEvent. Failure status codes are self
+          * explanatory.
+          */
+
+         public sealed class CreateLiveEvent {
+
+            private CreateLiveEvent() {
+            }
+
+            public interface If : VR.Result.BaseCallback.If,
+                  VR.Result.SuccessWithResultCallback.If<UserLiveEvent> {
+            }
+
+            public static readonly int STATUS_MISSING_STREAMING_PROTOCOL = 1;
+            public static readonly int STATUS_INVALID_STREAMING_PROTOCOL = 2;
+            public static readonly int STATUS_MISSING_DURATION = 3;
+            public static readonly int STATUS_INVALID_DURATION = 4;
+            public static readonly int STATUS_INVALID_STEREOSCOPIC_TYPE = 5;
+            public static readonly int STATUS_INVALID_AUDIO_TYPE = 6;
+            public static readonly int STATUS_MISSING_START_TIME = 7;
+            public static readonly int STATUS_INVALID_START_TIME_FORMAT = 8;
+            public static readonly int STATUS_START_TIME_IN_PAST = 9;
+            public static readonly int STATUS_START_TIME_TOO_FAR_IN_FUTURE = 10;
+            public static readonly int STATUS_MISSING_INGEST_BITRATE = 11;
+            public static readonly int STATUS_INGEST_BITRATE_TOO_LOW = 12;
+            public static readonly int STATUS_INGEST_BITRATE_TOO_HIGH = 13;
+
+         }
+
+        public sealed class QueryLiveEvents {
+           
+           private QueryLiveEvents() {
+           }
+
+           public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<List<UserLiveEvent>> {
+           }
+        }
+
       }
    }
 

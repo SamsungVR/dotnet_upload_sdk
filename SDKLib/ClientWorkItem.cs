@@ -534,8 +534,6 @@ namespace SDKLib {
 
       }
 
-
-
       protected class HttpUploadStream : Stream {
 
          private readonly ByteArrayHolder[] mBufs = new ByteArrayHolder[3] { new ByteArrayHolder(true), new ByteArrayHolder(false), new ByteArrayHolder(true) };

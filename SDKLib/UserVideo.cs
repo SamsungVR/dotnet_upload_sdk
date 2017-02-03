@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
@@ -10,12 +11,24 @@ namespace SDKLib {
       private UserVideo() {
       }
 
+      public enum VideoStereoscopyType {
+         DEFAULT,
+         MONOSCOPIC,
+         TOP_BOTTOM_STEREOSCOPIC,
+         LEFT_RIGHT_STEREOSCOPIC,
+         DUAL_FISHEYE
+      };
 
       public enum Permission {
+         [Description("Private")]
          PRIVATE,
+         [Description("Unlisted")]
          UNLISTED,
+         [Description("Public")]
          PUBLIC,
+         [Description("VR Only")]
          VR_ONLY,
+         [Description("Web Only")]
          WEB_ONLY
       };
 

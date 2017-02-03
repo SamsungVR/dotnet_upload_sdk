@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.ComponentModel;
+using System.Reflection;
 using System.Threading;
 
 namespace SDKLib {
@@ -17,6 +19,50 @@ namespace SDKLib {
          return type.Name;
       }
 
+      public static string enum2String(Enum enumValue) {
+         Type type = enumValue.GetType();
+         string name = enumValue.ToString();
+
+         MemberInfo[] allMembers = type.GetMembers();
+         for (int i = allMembers.Length - 1; i >= 0; i -= 1) {
+            MemberInfo memberInfo = allMembers[i];
+            string memberName = memberInfo.Name;
+            if (null == memberName || !memberName.Equals(name)) {
+               continue;
+            }
+            object[] attributes = memberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (null == attributes || attributes.Length < 1) {
+               continue;
+            }
+            DescriptionAttribute attribute = (DescriptionAttribute)attributes[0];
+            return attribute.Description;
+         }
+         return name;
+      }
+
+      public static Enum string2Enum(Type enumClass, string enumName) {
+         if (null == enumName) {
+            return null;
+         }
+
+         MemberInfo[] allMembers = enumClass.GetMembers();
+         for (int i = allMembers.Length - 1; i >= 0; i -= 1) {
+            MemberInfo memberInfo = allMembers[i];
+            string memberName = memberInfo.Name;
+            if (enumName.Equals(memberName, StringComparison.OrdinalIgnoreCase)) {
+               return (Enum)Enum.Parse(enumClass, memberName, true);
+            }
+            object[] attributes = memberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            for (int j = attributes.Length - 1; j >= 0; j -= 1) {
+               DescriptionAttribute attribute = (DescriptionAttribute)attributes[j];
+               string descName = attribute.Description;
+               if (enumName.Equals(descName, StringComparison.OrdinalIgnoreCase)) {
+                  return (Enum)Enum.Parse(enumClass, memberName, true);
+               }
+            }
+         }
+         return null;
+      }
 
       internal static T jsonOpt<T>(JObject jsonObject, string attr, T defValue) {
          JToken token;

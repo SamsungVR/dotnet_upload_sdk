@@ -79,10 +79,10 @@ namespace SDKLib {
          mEndPoint = endPoint;
          mApiKey = apiKey;
          mHttpRequestFactory = httpRequestFactory;
-         mAsyncWorkQueue = new AsyncWorkQueue(asyncWorkItemFactory, 8 * MUL);
+         mAsyncWorkQueue = new AsyncWorkQueue(asyncWorkItemFactory, 8 * MUL, Timeout.Infinite);
          mAsyncWorkQueue.getStateManager().addThreadSafeObserver(onAsyncQueueStateChanged);
 
-         mAsyncUploadQueue = new AsyncWorkQueue(asyncWorkItemFactory, 1024 * MUL);
+         mAsyncUploadQueue = new AsyncWorkQueue(asyncWorkItemFactory, 1024 * MUL, Timeout.Infinite);
          mAsyncUploadQueue.getStateManager().addThreadSafeObserver(onAsyncQueueStateChanged);
       }
 

@@ -103,6 +103,18 @@ namespace SDKLib {
          return (string)getLocked(PROP_USER_ID);
       }
 
+
+      public bool createLiveEvent(string title, string description, UserVideo.Permission permission, UserLiveEvent.Source source,
+        UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
+                                     SynchronizationContext handler, object closure) {
+         APIClientImpl apiClient = getContainer() as APIClientImpl;
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+
+         WorkItemCreateLiveEvent workItem = (WorkItemCreateLiveEvent)workQueue.obtainWorkItem(WorkItemCreateLiveEvent.TYPE);
+         workItem.set(this, title, description, permission, source, videoStereoscopyType, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
+
       public bool uploadVideo(System.IO.Stream source, long length, string title, string description,
          UserVideo.Permission permission, User.Result.UploadVideo.If callback, System.Threading.SynchronizationContext handler, object closure) {
 
@@ -179,7 +191,7 @@ namespace SDKLib {
          return null;
       }
 
-      public abstract class WorkItemVideoUploadBase : ClientWorkItem {
+      internal abstract class WorkItemVideoUploadBase : ClientWorkItem {
 
          private ObjectHolder<bool> mCancelHolder;
 
@@ -305,9 +317,9 @@ namespace SDKLib {
             jsonParam.Add("permission", UserVideo.toString(mPermission));
 
             HttpPlugin.PostRequest request = null;
-            String videoId = null;
-            String uploadId = null;
-            String signedUrl = null;
+            string videoId = null;
+            string uploadId = null;
+            string signedUrl = null;
             int chunkSize = 0;
             int numChunks = 0;
 
@@ -364,6 +376,136 @@ namespace SDKLib {
                } else {
                   dispatchCounted(notifier);
                }
+
+            } finally {
+               destroy(request);
+            }
+
+         }
+      }
+
+      /*
+       * Create
+       */
+
+      internal class WorkItemCreateLiveEvent : ClientWorkItem {
+
+         private class WorkItemTypeCreateLiveEvent : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemCreateLiveEvent(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeCreateLiveEvent();
+
+         WorkItemCreateLiveEvent(APIClientImpl apiClient) : base(apiClient, TYPE) {
+         }
+
+         private string mTitle, mDescription;
+         UserLiveEvent.Source mSource;
+         private UserVideo.Permission mPermission;
+
+         UserVideo.VideoStereoscopyType mVideoStereoscopyType;
+         private UserImpl mUser;
+
+         public WorkItemCreateLiveEvent set(UserImpl user, string title, string description,
+             UserVideo.Permission permission, UserLiveEvent.Source source,
+             UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
+                                                  SynchronizationContext handler, object closure) {
+            base.set(callback, handler, closure);
+            mUser = user;
+            mTitle = title;
+            mPermission = permission;
+            mDescription = description;
+            mSource = source;
+            mVideoStereoscopyType = videoStereoscopyType;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mDescription = null;
+            mTitle = null;
+            mUser = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemCreateLiveEvent));
+
+         protected override void onRun() {
+            HttpPlugin.PostRequest request = null;
+
+            try {
+
+               JObject jsonParam = new JObject();
+
+               String userId = mUser.getUserId();
+
+               jsonParam.Add("title", mTitle);
+               jsonParam.Add("description", mDescription);
+               jsonParam.Add("permission", Util.enum2String(mPermission));
+               switch (mVideoStereoscopyType) {
+                  case UserVideo.VideoStereoscopyType.TOP_BOTTOM_STEREOSCOPIC:
+                     jsonParam.Add("stereoscopic_type", "top-bottom");
+                     break;
+                  case UserVideo.VideoStereoscopyType.LEFT_RIGHT_STEREOSCOPIC:
+                     jsonParam.Add("stereoscopic_type", "left-right");
+                     break;
+                  case UserVideo.VideoStereoscopyType.DUAL_FISHEYE:
+                     jsonParam.Add("stereoscopic_type", "dual-fisheye");
+                     break;
+
+               }
+               jsonParam.Add("source", Util.enum2String(mSource));
+
+               string jsonStr = jsonParam.ToString(Newtonsoft.Json.Formatting.None);
+               byte[] data = System.Text.Encoding.UTF8.GetBytes(jsonStr);
+
+               string[,] headers = {
+                        {HEADER_CONTENT_LENGTH, data.Length.ToString()},
+                        {UserImpl.HEADER_SESSION_TOKEN, mUser.getSessionToken()},
+                        {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()},
+                        {HEADER_CONTENT_TYPE, "application/json" + ClientWorkItem.CONTENT_TYPE_CHARSET_SUFFIX_UTF8}
+                };
+
+               request = newPostRequest(string.Format("user/%s/video", userId), headers);
+               if (null == request) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
+                  return;
+               }
+
+               writeBytes(request, data, jsonStr);
+
+               if (isCancelled()) {
+                  dispatchCancelled();
+                  return;
+               }
+
+               HttpStatusCode rsp = getResponseCode(request);
+               string data2 = readHttpStream(request, "code: " + rsp);
+               if (null == data2) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
+                  return;
+               }
+               JObject jsonObject = JObject.Parse(data2);
+
+               if (isHTTPSuccess(rsp)) {
+                  JObject liveEvent = jsonObject;
+
+                  string videoId = Util.jsonGet<string>(jsonObject, "video_id");
+                  string ingestUrl = Util.jsonGet<string>(jsonObject, "ingest_url");
+                  string viewUrl = Util.jsonGet<string>(jsonObject, "view_url");
+
+                  UserLiveEventImpl eventObj = new UserLiveEventImpl(mUser, videoId, mTitle,
+                          mPermission, mSource, mDescription,
+                          mVideoStereoscopyType, ingestUrl, viewUrl);
+                  dispatchSuccessWithResult(eventObj);
+                  return;
+
+               }
+
+               int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+               dispatchFailure(status);
 
             } finally {
                destroy(request);
