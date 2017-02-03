@@ -65,6 +65,12 @@
     <Compile Include="App.cs" />
     <Compile Include="EndPointConfig.cs" />
     <Compile Include="EndPointConfigManager.cs" />
+    <Compile Include="FormCreateLiveEvent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FormCreateLiveEvent.designer.cs">
+      <DependentUpon>FormCreateLiveEvent.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormEndPointConfig.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -150,6 +156,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FormCreateLiveEvent.resx">
+      <DependentUpon>FormCreateLiveEvent.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormEndPointConfig.resx">
       <DependentUpon>FormEndPointConfig.cs</DependentUpon>
     </EmbeddedResource>

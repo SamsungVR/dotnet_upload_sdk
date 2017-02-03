@@ -79,7 +79,7 @@ namespace SDKLib {
 
             public static readonly int INVALID_LIVE_EVENT_ID = 1;
 
-            public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<UserLiveEvent> {
+            public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<UserLiveEvent.If> {
             }
          }
 

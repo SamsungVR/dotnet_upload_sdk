@@ -399,7 +399,8 @@ namespace SDKLib {
 
          public static readonly AsyncWorkItemType TYPE = new WorkItemTypeCreateLiveEvent();
 
-         WorkItemCreateLiveEvent(APIClientImpl apiClient) : base(apiClient, TYPE) {
+         WorkItemCreateLiveEvent(APIClientImpl apiClient)
+            : base(apiClient, TYPE) {
          }
 
          private string mTitle, mDescription;
@@ -412,7 +413,8 @@ namespace SDKLib {
          public WorkItemCreateLiveEvent set(UserImpl user, string title, string description,
              UserVideo.Permission permission, UserLiveEvent.Source source,
              UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
-                                                  SynchronizationContext handler, object closure) {
+             SynchronizationContext handler, object closure) {
+
             base.set(callback, handler, closure);
             mUser = user;
             mTitle = title;
@@ -467,8 +469,8 @@ namespace SDKLib {
                         {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()},
                         {HEADER_CONTENT_TYPE, "application/json" + ClientWorkItem.CONTENT_TYPE_CHARSET_SUFFIX_UTF8}
                 };
-
-               request = newPostRequest(string.Format("user/%s/video", userId), headers);
+               string url = string.Format("user/{0}/video", userId);
+               request = newPostRequest(url, headers);
                if (null == request) {
                   dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
                   return;
@@ -492,16 +494,16 @@ namespace SDKLib {
                if (isHTTPSuccess(rsp)) {
                   JObject liveEvent = jsonObject;
 
-                  string videoId = Util.jsonGet<string>(jsonObject, "video_id");
-                  string ingestUrl = Util.jsonGet<string>(jsonObject, "ingest_url");
-                  string viewUrl = Util.jsonGet<string>(jsonObject, "view_url");
+                  string videoId = Util.jsonOpt<string>(jsonObject, "video_id", null);
+                  string ingestUrl = Util.jsonOpt<string>(jsonObject, "ingest_url", null);
+                  string viewUrl = Util.jsonOpt<string>(jsonObject, "view_url", null);
 
-                  UserLiveEventImpl eventObj = new UserLiveEventImpl(mUser, videoId, mTitle,
-                          mPermission, mSource, mDescription,
-                          mVideoStereoscopyType, ingestUrl, viewUrl);
-                  dispatchSuccessWithResult(eventObj);
-                  return;
-
+                  if (null != videoId) {
+                     UserLiveEventImpl eventObj = new UserLiveEventImpl(mUser, videoId, mTitle, mPermission, 
+                        mSource, mDescription, mVideoStereoscopyType, ingestUrl, viewUrl);
+                     dispatchSuccessWithResult<UserLiveEvent.If>(eventObj);
+                     return;
+                  }
                }
 
                int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);

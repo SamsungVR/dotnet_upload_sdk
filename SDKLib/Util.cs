@@ -19,15 +19,18 @@ namespace SDKLib {
          return type.Name;
       }
 
+      private static System.Globalization.CultureInfo sCultureENUS = System.Globalization.CultureInfo.CreateSpecificCulture("en-US");
+
       public static string enum2String(Enum enumValue) {
          Type type = enumValue.GetType();
          string name = enumValue.ToString();
+         string nameLower = name.ToLower(sCultureENUS);
 
          MemberInfo[] allMembers = type.GetMembers();
          for (int i = allMembers.Length - 1; i >= 0; i -= 1) {
             MemberInfo memberInfo = allMembers[i];
-            string memberName = memberInfo.Name;
-            if (null == memberName || !memberName.Equals(name)) {
+            string memberNameLower = memberInfo.Name.ToLower(sCultureENUS);
+            if (null == memberNameLower || !memberNameLower.Equals(nameLower)) {
                continue;
             }
             object[] attributes = memberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
@@ -40,28 +43,31 @@ namespace SDKLib {
          return name;
       }
 
-      public static Enum string2Enum(Type enumClass, string enumName) {
+      public static T string2Enum<T>(Type enumClass, string enumName, T def) {
          if (null == enumName) {
-            return null;
+            return def;
          }
+         string enumNameLower = enumName.ToLower(sCultureENUS);
 
          MemberInfo[] allMembers = enumClass.GetMembers();
          for (int i = allMembers.Length - 1; i >= 0; i -= 1) {
             MemberInfo memberInfo = allMembers[i];
             string memberName = memberInfo.Name;
-            if (enumName.Equals(memberName, StringComparison.OrdinalIgnoreCase)) {
-               return (Enum)Enum.Parse(enumClass, memberName, true);
+            string memberNameLower = memberName.ToLower(sCultureENUS);
+            if (enumNameLower.Equals(memberNameLower)) {
+               return (T)Enum.Parse(enumClass, memberName, true);
             }
             object[] attributes = memberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
             for (int j = attributes.Length - 1; j >= 0; j -= 1) {
                DescriptionAttribute attribute = (DescriptionAttribute)attributes[j];
                string descName = attribute.Description;
-               if (enumName.Equals(descName, StringComparison.OrdinalIgnoreCase)) {
-                  return (Enum)Enum.Parse(enumClass, memberName, true);
+               string descNameLower = descName.ToLower(sCultureENUS);
+               if (enumNameLower.Equals(descNameLower)) {
+                  return (T)Enum.Parse(enumClass, memberName, true);
                }
             }
          }
-         return null;
+         return def;
       }
 
       internal static T jsonOpt<T>(JObject jsonObject, string attr, T defValue) {
@@ -135,7 +141,7 @@ namespace SDKLib {
          }
 
          protected override void notify(object callback, object closure) {
-            VR.Result.SuccessCallback.If tCallback = callback as VR.Result.SuccessCallback.If;
+            VR.Result.SuccessCallback.If tCallback = (VR.Result.SuccessCallback.If)callback;
             tCallback.onSuccess(closure);
          }
       }
@@ -155,7 +161,7 @@ namespace SDKLib {
          }
 
          protected override void notify(object callback, object closure) {
-            VR.Result.SuccessWithResultCallback.If<Y> tCallback = callback as VR.Result.SuccessWithResultCallback.If<Y>;
+            VR.Result.SuccessWithResultCallback.If<Y> tCallback = (VR.Result.SuccessWithResultCallback.If<Y>)callback;
             tCallback.onSuccess(closure, mRef);
          }
       }

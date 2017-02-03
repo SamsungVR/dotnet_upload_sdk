@@ -226,7 +226,7 @@ namespace SDKLib {
            private GetUserBySessionId() {
            }
 
-           public interface If : BaseCallback.If, SuccessWithResultCallback.If<User> {
+           public interface If : BaseCallback.If, SuccessWithResultCallback.If<User.If> {
            }
 
         }
@@ -241,7 +241,7 @@ namespace SDKLib {
            private GetUserBySessionToken() {
            }
 
-           public interface If : BaseCallback.If, SuccessWithResultCallback.If<User> {
+           public interface If : BaseCallback.If, SuccessWithResultCallback.If<User.If> {
            }
         }
 

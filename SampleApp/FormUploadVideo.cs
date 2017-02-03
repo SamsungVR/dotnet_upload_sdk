@@ -118,7 +118,7 @@ namespace SampleApp {
       }
 
       public void onFailure(object closure, int status) {
-         setupForRetry();      
+         setupForRetry();
          ctrlUploadStatus.Text = string.Format(ResourceStrings.uploadFailedWithStatus, status);
       }
 

@@ -133,8 +133,7 @@ namespace SDKLib {
             private CreateLiveEvent() {
             }
 
-            public interface If : VR.Result.BaseCallback.If,
-                  VR.Result.SuccessWithResultCallback.If<UserLiveEvent> {
+            public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<UserLiveEvent.If> {
             }
 
             public static readonly int STATUS_MISSING_STREAMING_PROTOCOL = 1;

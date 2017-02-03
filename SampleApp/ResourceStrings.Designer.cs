@@ -142,6 +142,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Successfully created live event {0}.
+        /// </summary>
+        internal static string liveCreateSuccess {
+            get {
+                return ResourceManager.GetString("liveCreateSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Logged in as {0}.
         /// </summary>
         internal static string loggedInAs {
