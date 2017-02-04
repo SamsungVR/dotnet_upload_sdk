@@ -141,8 +141,10 @@ namespace SDKLib {
          }
 
          protected override void notify(object callback, object closure) {
-            VR.Result.SuccessCallback.If tCallback = (VR.Result.SuccessCallback.If)callback;
-            tCallback.onSuccess(closure);
+            VR.Result.SuccessCallback.If tCallback = callback as VR.Result.SuccessCallback.If;
+            if (null != tCallback) {
+               tCallback.onSuccess(closure);
+            }
          }
       }
 
@@ -161,8 +163,10 @@ namespace SDKLib {
          }
 
          protected override void notify(object callback, object closure) {
-            VR.Result.SuccessWithResultCallback.If<Y> tCallback = (VR.Result.SuccessWithResultCallback.If<Y>)callback;
-            tCallback.onSuccess(closure, mRef);
+            VR.Result.SuccessWithResultCallback.If<Y> tCallback = callback as VR.Result.SuccessWithResultCallback.If<Y>;
+            if (null != tCallback) {
+               tCallback.onSuccess(closure, mRef);
+            }
          }
       }
 
@@ -178,7 +182,9 @@ namespace SDKLib {
 
          protected override void notify(object callback, object closure) {
             VR.Result.BaseCallback.If tCallback = callback as VR.Result.BaseCallback.If;
-            tCallback.onFailure(closure, mStatus);
+            if (null != tCallback) {
+               tCallback.onFailure(closure, mStatus);
+            }
          }
       }
 

@@ -157,7 +157,7 @@ namespace SDKLib {
            private QueryLiveEvents() {
            }
 
-           public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<List<UserLiveEvent>> {
+           public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<List<UserLiveEvent.If>> {
            }
         }
 

@@ -115,6 +115,15 @@ namespace SDKLib {
          return workQueue.enqueue(workItem);
       }
 
+      public bool queryLiveEvents(User.Result.QueryLiveEvents.If callback, SynchronizationContext handler, object closure) {
+         APIClientImpl apiClient = getContainer() as APIClientImpl;
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+
+         WorkItemQueryLiveEvents workItem = (WorkItemQueryLiveEvents)workQueue.obtainWorkItem(WorkItemQueryLiveEvents.TYPE);
+         workItem.set(this, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
+
       public bool uploadVideo(System.IO.Stream source, long length, string title, string description,
          UserVideo.Permission permission, User.Result.UploadVideo.If callback, System.Threading.SynchronizationContext handler, object closure) {
 
@@ -172,6 +181,18 @@ namespace SDKLib {
       }
 
       public override List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject) {
+         if (type == UserLiveEventImpl.sType) {
+            JToken temp;
+            if (!jsonObject.TryGetValue("videos", out temp)) {
+               return null;
+            }
+            JArray jsonItems = temp as JArray;
+            if (null == temp) {
+               return null;
+            }
+            return mContainerImpl.processQueryListOfContainedFromServiceLocked(type, jsonItems, null);
+         }
+
          return null;
       }
 
@@ -499,7 +520,7 @@ namespace SDKLib {
                   string viewUrl = Util.jsonOpt<string>(jsonObject, "view_url", null);
 
                   if (null != videoId) {
-                     UserLiveEventImpl eventObj = new UserLiveEventImpl(mUser, videoId, mTitle, mPermission, 
+                     UserLiveEventImpl eventObj = new UserLiveEventImpl(mUser, videoId, mTitle, mPermission,
                         mSource, mDescription, mVideoStereoscopyType, ingestUrl, viewUrl);
                      dispatchSuccessWithResult<UserLiveEvent.If>(eventObj);
                      return;
@@ -509,6 +530,87 @@ namespace SDKLib {
                int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
                dispatchFailure(status);
 
+            } finally {
+               destroy(request);
+            }
+
+         }
+      }
+
+      internal class WorkItemQueryLiveEvents : ClientWorkItem {
+
+         private class WorkItemTypeQueryLiveEvents : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemQueryLiveEvents(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeQueryLiveEvents();
+
+         WorkItemQueryLiveEvents(APIClientImpl apiClient)
+            : base(apiClient, TYPE) {
+         }
+
+         private UserImpl mUser;
+
+         public WorkItemQueryLiveEvents set(UserImpl user, User.Result.QueryLiveEvents.If callback,
+             SynchronizationContext handler, object closure) {
+            base.set(callback, handler, closure);
+            mUser = user;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mUser = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemQueryLiveEvents));
+
+         protected override void onRun() {
+            HttpPlugin.GetRequest request = null;
+
+            string[,] headers = {
+                    {UserImpl.HEADER_SESSION_TOKEN, mUser.getSessionToken()},
+                    {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
+            };
+
+            try {
+
+               string userId = mUser.getUserId();
+
+               request = newGetRequest(string.Format("user/{0}/video?source=live", userId), headers);
+
+               if (null == request) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
+                  return;
+
+               }
+
+               if (isCancelled()) {
+                  return;
+               }
+
+               HttpStatusCode rsp = getResponseCode(request);
+               String data = readHttpStream(request, "code: " + rsp);
+               if (null == data) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
+                  return;
+               }
+               JObject jsonObject = JObject.Parse(data);
+               if (isHTTPSuccess(rsp)) {
+                  List<Contained.If> result = mUser.containerOnQueryListOfContainedFromServiceLocked(UserLiveEventImpl.sType, jsonObject);
+                  if (null != result) {
+                     dispatchSuccessWithResult(result);
+                  } else {
+                     dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
+                  }
+                  return;
+               }
+
+               int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+               dispatchFailure(status);
             } finally {
                destroy(request);
             }
