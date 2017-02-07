@@ -160,11 +160,29 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancelled.
+        /// </summary>
+        internal static string requestCancelled {
+            get {
+                return ResourceManager.GetString("requestCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Request in progress.
         /// </summary>
         internal static string requestInProgress {
             get {
                 return ResourceManager.GetString("requestInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Success.
+        /// </summary>
+        internal static string requestSuccess {
+            get {
+                return ResourceManager.GetString("requestSuccess", resourceCulture);
             }
         }
         

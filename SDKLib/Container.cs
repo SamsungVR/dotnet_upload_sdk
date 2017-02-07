@@ -11,17 +11,17 @@ namespace SDKLib {
       }
 
       public interface If {
-         List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject);
-         bool containerOnQueryOfContainedFromServiceLocked(Contained.CType type, Contained.If contained, JObject jsonObject);
-         Contained.If containerOnCreateOfContainedInServiceLocked(Contained.CType type, JObject jsonObject);
-         Contained.If containerOnUpdateOfContainedToServiceLocked(Contained.CType type, Contained.If contained);
-         Contained.If containerOnDeleteOfContainedFromServiceLocked(Contained.CType type, Contained.If contained);
+         List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
+         bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) where U : Contained.If;
+         U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
+         U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
+         U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
       }
 
       public abstract class BaseImpl<T> : Observable.BaseImpl<T>, Container.If where T : class {
 
-         private Dictionary<Contained.CType, Dictionary<object, Contained.If>> mContainedMap =
-            new Dictionary<Contained.CType, Dictionary<object, Contained.If>>();
+         private Dictionary<Contained.CType, Dictionary<object, object>> mContainedMap =
+            new Dictionary<Contained.CType, Dictionary<object, object>>();
          private bool mRememberContained;
          private Container.If mSelf;
 
@@ -34,29 +34,29 @@ namespace SDKLib {
             : this(null, rememberContained) {
          }
 
-         protected virtual Dictionary<object, Contained.If> getContainedItemsNoLock(Contained.CType type, bool create) {
-            Dictionary<object, Contained.If> containedItems;
+         protected virtual Dictionary<object, object> getContainedItemsNoLock<U>(Contained.CType type, bool create) where U : Contained.If {
+            Dictionary<object, object> containedItems;
 
             if (!mContainedMap.TryGetValue(type, out containedItems) && create) {
-               containedItems = new Dictionary<object, Contained.If>();
+               containedItems = new Dictionary<object, object>();
                mContainedMap.Add(type, containedItems);
             }
             return containedItems;
          }
 
-         protected virtual Dictionary<object, Contained.If> getContainedItemsLocked(Contained.CType type, bool create) {
+         protected virtual Dictionary<object, object> getContainedItemsLocked<U>(Contained.CType type, bool create) where U : Contained.If {
             lock (mContainedMap) {
-               return getContainedItemsNoLock(type, create);
+               return getContainedItemsNoLock<U>(type, create);
             }
          }
 
-         protected virtual Dictionary<object, Contained.If> getContainedItemsLocked(Contained.CType type) {
-            return getContainedItemsLocked(type, true);
+         protected virtual Dictionary<object, object> getContainedItemsLocked<U>(Contained.CType type) where U : Contained.If {
+            return getContainedItemsLocked<U>(type, true);
          }
 
 
-         protected virtual Contained.If newInstance(Contained.CType type, JObject jsonObject) {
-            Contained.If result = type.newInstance(mSelf, jsonObject);
+         protected virtual U newInstance<U>(Contained.CType type, JObject jsonObject) where U : Contained.If {
+            U result = (U)type.newInstance(mSelf, jsonObject);
             if (null != result) {
                result.containedOnCreateInServiceLocked();
             }
@@ -67,22 +67,22 @@ namespace SDKLib {
           * Contained List
           */
 
-         protected virtual List<Contained.If> processQueryListOfContainedFromServiceNoLock(Contained.CType type,
-            Dictionary<object, Contained.If> containedItems, JArray jsonItems, List<Contained.If> result) {
+         protected virtual List<U> processQueryListOfContainedFromServiceNoLock<U>(Contained.CType type,
+            Dictionary<object, object> containedItems, JArray jsonItems, List<U> result) where U : Contained.If {
             if (null == jsonItems) {
                return null;
             }
 
             if (null == result) {
-               result = new List<Contained.If>();
+               result = new List<U>();
             } else {
                result.Clear();
             }
 
-            List<Contained.If> toRemove = new List<Contained.If>();
+            List<object> toRemove = new List<object>();
             if (mRememberContained) {
                if (null == containedItems) {
-                  containedItems = getContainedItemsLocked(type);
+                  containedItems = getContainedItemsLocked<U>(type);
                }
                toRemove.AddRange(containedItems.Values);
             }
@@ -94,20 +94,20 @@ namespace SDKLib {
                   continue;
                }
                if (!mRememberContained) {
-                  Contained.If contained = newInstance(type, jsonObject);
+                  U contained = newInstance<U>(type, jsonObject);
                   if (null != contained) {
                      result.Add(contained);
                   }
                } else {
-                  Contained.If contained = containedItems[id];
+                  object contained = containedItems[id];
                   if (null == contained) {
-                     contained = newInstance(type, jsonObject);
+                     contained = newInstance<U>(type, jsonObject);
                      if (null == contained) {
                         continue;
                      }
                      containedItems.Add(id, contained);
                   } else {
-                     contained.containedOnQueryFromServiceLocked(jsonObject);
+                     ((Contained.If)contained).containedOnQueryFromServiceLocked(jsonObject);
                      toRemove.Remove(contained);
                   }
 
@@ -116,43 +116,45 @@ namespace SDKLib {
             if (mRememberContained) {
 
                for (int i = 0; i < toRemove.Count; i += 1) {
-                  Contained.If item = toRemove[i];
+                  Contained.If item = (Contained.If)toRemove[i];
                   if (containedItems.Remove(item.containedGetIdLocked())) {
                      item.containedOnDeleteFromServiceLocked();
                   }
                }
-               result.AddRange(containedItems.Values);
+               foreach (object o in containedItems.Values) {
+                  result.Add((U)o);
+               }
             }
             return result;
          }
 
-         public virtual List<Contained.If> processQueryListOfContainedFromServiceLocked(
-                 Contained.CType type, JArray jsonItems, List<Contained.If> result) {
-            Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
+         public virtual List<U> processQueryListOfContainedFromServiceLocked<U>(
+                 Contained.CType type, JArray jsonItems, List<U> result) where U : Contained.If {
+            Dictionary<object, object> containedItems = getContainedItemsLocked<U>(type);
             lock (containedItems) {
-               return processQueryListOfContainedFromServiceNoLock(type, containedItems, jsonItems, result);
+               return processQueryListOfContainedFromServiceNoLock<U>(type, containedItems, jsonItems, result);
             }
          }
 
-         protected virtual Contained.If getContainedByIdNoLock(Contained.CType type, Dictionary<object, Contained.If> containedItems, object id) {
+         protected virtual U getContainedByIdNoLock<U>(Contained.CType type, Dictionary<object, object> containedItems, object id) where U : Contained.If {
             if (!mRememberContained) {
-               return null;
+               return default(U);
             }
             if (null == containedItems) {
-               containedItems = getContainedItemsLocked(type);
+               containedItems = getContainedItemsLocked<U>(type);
             }
 
-            Contained.If contained;
+            object contained;
             if (containedItems.TryGetValue(id, out contained)) {
-               return contained;
+               return (U)contained;
             }
-            return null;
+            return default(U);
          }
 
-         protected virtual Contained.If getContainedByIdLocked(Contained.CType type, object id) {
-            Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
+         protected virtual U getContainedByIdLocked<U>(Contained.CType type, object id) where U : Contained.If {
+            Dictionary<object, object> containedItems = getContainedItemsLocked<U>(type);
             lock (containedItems) {
-               return getContainedByIdNoLock(type, containedItems, id);
+               return getContainedByIdNoLock<U>(type, containedItems, id);
             }
          }
 
@@ -161,14 +163,14 @@ namespace SDKLib {
           */
 
 
-         protected virtual Contained.If processDeleteOfContainedFromServiceNoLock(
-                 Contained.CType type, Dictionary<object, Contained.If> containedItems, Contained.If contained) {
+         protected virtual U processDeleteOfContainedFromServiceNoLock<U>(
+                 Contained.CType type, Dictionary<object, object> containedItems, U contained) where U : Contained.If {
             if (mRememberContained) {
                if (null == containedItems) {
-                  containedItems = getContainedItemsLocked(type);
+                  containedItems = getContainedItemsLocked<U>(type);
                }
                if (!containedItems.Remove(contained.containedGetIdLocked())) {
-                  contained = null;
+                  contained = default(U);
                }
             }
             if (null != contained) {
@@ -177,9 +179,8 @@ namespace SDKLib {
             return contained;
          }
 
-         protected virtual Contained.If processDeleteOfContainedFromServiceLocked(
-                 Contained.CType type, Contained.If contained) {
-            Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
+         protected virtual U processDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If {
+            Dictionary<object, object> containedItems = getContainedItemsLocked<U>(type);
             lock (containedItems) {
                return processDeleteOfContainedFromServiceNoLock(type, containedItems, contained);
             }
@@ -189,40 +190,40 @@ namespace SDKLib {
           * Contained Create
           */
 
-         protected virtual Contained.If processCreateOfContainedInServiceNoLock(
-                 Contained.CType type, Dictionary<object, Contained.If> containedItems, JObject jsonObject,
-                 bool updateIfExists) {
+         protected virtual U processCreateOfContainedInServiceNoLock<U>(
+                 Contained.CType type, Dictionary<object, object> containedItems, JObject jsonObject,
+                 bool updateIfExists) where U : Contained.If {
 
             object id = type.getContainedId(jsonObject);
             if (null == id) {
-               return null;
+               return default(U);
             }
-            Contained.If contained;
+            object contained;
 
             if (mRememberContained) {
                if (null == containedItems) {
-                  containedItems = getContainedItemsLocked(type);
+                  containedItems = getContainedItemsLocked<U>(type);
                }
                if (containedItems.TryGetValue(id, out contained)) {
                   if (!updateIfExists) {
-                     return null;
+                     return default(U);
                   }
-                  contained.containedOnQueryFromServiceLocked(jsonObject);
-                  return contained;
+                  ((Contained.If)contained).containedOnQueryFromServiceLocked(jsonObject);
+                  return (U)contained;
                }
             }
-            contained = newInstance(type, jsonObject);
+            contained = newInstance<U>(type, jsonObject);
             if (null != contained && mRememberContained) {
                containedItems.Add(id, contained);
             }
-            return contained;
+            return (U)contained;
          }
 
-         protected virtual Contained.If processCreateOfContainedInServiceLocked(
-                 Contained.CType type, JObject jsonObject, bool updateIfExists) {
-            Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
+         protected virtual U processCreateOfContainedInServiceLocked<U>(
+                 Contained.CType type, JObject jsonObject, bool updateIfExists) where U : Contained.If {
+            Dictionary<object, object> containedItems = getContainedItemsLocked<U>(type);
             lock (containedItems) {
-               return processCreateOfContainedInServiceNoLock(type, containedItems, jsonObject, updateIfExists);
+               return processCreateOfContainedInServiceNoLock<U>(type, containedItems, jsonObject, updateIfExists);
             }
          }
 
@@ -230,16 +231,18 @@ namespace SDKLib {
           * Contained Update
           */
 
-         protected virtual Contained.If processUpdateOfContainedToServiceNoLock(Contained.CType type,
-            Dictionary<object, Contained.If> containedItems, Contained.If contained) {
+         protected virtual U processUpdateOfContainedToServiceNoLock<U>(Contained.CType type,
+            Dictionary<object, object> containedItems, U contained) where U : Contained.If {
             if (mRememberContained) {
                if (null == containedItems) {
-                  containedItems = getContainedItemsLocked(type);
+                  containedItems = getContainedItemsLocked<U>(type);
                }
                object id = contained.containedGetIdLocked();
-               if (!containedItems.TryGetValue(id, out contained)) {
-                  return null;
+               object check;
+               if (!containedItems.TryGetValue(id, out check)) {
+                  return default(U);
                }
+               contained = (U)check;
             }
             if (null != contained) {
                contained.containedOnUpdateToServiceLocked();
@@ -247,11 +250,10 @@ namespace SDKLib {
             return contained;
          }
 
-         protected virtual Contained.If processUpdateOfContainedToServiceLocked(
-                 Contained.CType type, Contained.If contained) {
-            Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
+         protected virtual U processUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If {
+            Dictionary<object, object> containedItems = getContainedItemsLocked<U>(type);
             lock (containedItems) {
-               return processUpdateOfContainedToServiceNoLock(type, containedItems, contained);
+               return processUpdateOfContainedToServiceNoLock<U>(type, containedItems, contained);
             }
          }
 
@@ -259,24 +261,24 @@ namespace SDKLib {
           * Contained Query
           */
 
-         protected virtual bool processQueryOfContainedFromServiceNoLock(
-                 Contained.CType type, Dictionary<object, Contained.If> containedItems, Contained.If contained,
-                 JObject jsonObject, bool addIfMissing) {
+         protected virtual bool processQueryOfContainedFromServiceNoLock<U>(
+                 Contained.CType type, Dictionary<object, object> containedItems, U contained,
+                 JObject jsonObject, bool addIfMissing) where U : Contained.If {
 
             if (mRememberContained) {
                if (null == containedItems) {
-                  containedItems = getContainedItemsLocked(type);
+                  containedItems = getContainedItemsLocked<U>(type);
                }
 
                object id = contained.containedGetIdLocked();
-               Contained.If existing;
+               object existing;
                if (!containedItems.TryGetValue(id, out existing)) {
                   if (!addIfMissing) {
                      return false;
                   }
                   containedItems.Add(id, contained);
                } else {
-                  contained = existing;
+                  contained = (U)existing;
                }
             }
             if (contained.containedOnQueryFromServiceLocked(jsonObject)) {
@@ -285,20 +287,20 @@ namespace SDKLib {
             return false;
          }
 
-         protected virtual bool processQueryOfContainedFromServiceLocked(
-                 Contained.CType type, Contained.If contained, JObject jsonObject, bool addIfMissing) {
-            Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
+         protected virtual bool processQueryOfContainedFromServiceLocked<U>(
+                 Contained.CType type, U contained, JObject jsonObject, bool addIfMissing) where U : Contained.If {
+            Dictionary<object, object> containedItems = getContainedItemsLocked<U>(type);
             lock (containedItems) {
-               return processQueryOfContainedFromServiceNoLock(type, containedItems, contained,
+               return processQueryOfContainedFromServiceNoLock<U>(type, containedItems, contained,
                        jsonObject, addIfMissing);
             }
          }
 
-         public abstract List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject);
-         public abstract bool containerOnQueryOfContainedFromServiceLocked(Contained.CType type, Contained.If contained, JObject jsonObject);
-         public abstract Contained.If containerOnCreateOfContainedInServiceLocked(Contained.CType type, JObject jsonObject);
-         public abstract Contained.If containerOnUpdateOfContainedToServiceLocked(Contained.CType type, Contained.If contained);
-         public abstract Contained.If containerOnDeleteOfContainedFromServiceLocked(Contained.CType type, Contained.If contained);
+         public abstract List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
+         public abstract bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) where U : Contained.If;
+         public abstract U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
+         public abstract U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
+         public abstract U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
 
       }
    }

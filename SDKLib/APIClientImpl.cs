@@ -151,26 +151,26 @@ namespace SDKLib {
          return true;
       }
 
-      public override List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject) {
+      public override List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) {
          return null;
       }
 
-      public override bool containerOnQueryOfContainedFromServiceLocked(Contained.CType type, Contained.If contained, JObject jsonObject) {
+      public override bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
          return false;
       }
 
-      public override Contained.If containerOnCreateOfContainedInServiceLocked(Contained.CType type, JObject jsonObject) {
-         Contained.If result = processCreateOfContainedInServiceLocked(type, jsonObject, true);
+      public override U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) {
+         U result = processCreateOfContainedInServiceLocked<U>(type, jsonObject, true);
          Log.d(TAG, "Add contained: " + result);
          return result;
       }
 
-      public override Contained.If containerOnUpdateOfContainedToServiceLocked(Contained.CType type, Contained.If contained) {
-         return null;
+      public override U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) {
+         return default(U);
       }
 
-      public override Contained.If containerOnDeleteOfContainedFromServiceLocked(Contained.CType type, Contained.If contained) {
-         return null;
+      public override U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) {
+         return default(U);
       }
 
    }
@@ -244,10 +244,10 @@ namespace SDKLib {
             JObject jsonObject = JObject.Parse(data2);
 
             if (isHTTPSuccess(rsp)) {
-               User.If user = (User.If)mAPIClient.containerOnCreateOfContainedInServiceLocked(UserImpl.sType, jsonObject);
+               UserImpl user = mAPIClient.containerOnCreateOfContainedInServiceLocked<UserImpl>(UserImpl.sType, jsonObject);
 
                if (null != user) {
-                  dispatchSuccessWithResult(user);
+                  dispatchSuccessWithResult<User.If>(user);
                } else {
                   dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
                }

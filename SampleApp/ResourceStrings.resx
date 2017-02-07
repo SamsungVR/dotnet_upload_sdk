@@ -151,8 +151,14 @@
   <data name="loggedInAs" xml:space="preserve">
     <value>Logged in as {0}</value>
   </data>
+  <data name="requestCancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
   <data name="requestInProgress" xml:space="preserve">
     <value>Request in progress</value>
+  </data>
+  <data name="requestSuccess" xml:space="preserve">
+    <value>Success</value>
   </data>
   <data name="unableToQueueRequest" xml:space="preserve">
     <value>Unable to queue request, retry in a bit</value>

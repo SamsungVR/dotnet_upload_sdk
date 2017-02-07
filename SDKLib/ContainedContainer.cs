@@ -18,23 +18,23 @@ namespace SDKLib {
                : base(self, rememberContained) {
             }
 
-            public override List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject) {
+            public override List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) {
                throw new NotImplementedException();
             }
 
-            public override bool containerOnQueryOfContainedFromServiceLocked(Contained.CType type, Contained.If contained, JObject jsonObject) {
+            public override bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
                throw new NotImplementedException();
             }
 
-            public override Contained.If containerOnCreateOfContainedInServiceLocked(Contained.CType type, JObject jsonObject) {
+            public override U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) {
                throw new NotImplementedException();
             }
 
-            public override Contained.If containerOnUpdateOfContainedToServiceLocked(Contained.CType type, Contained.If contained) {
+            public override U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) {
                throw new NotImplementedException();
             }
 
-            public override Contained.If containerOnDeleteOfContainedFromServiceLocked(Contained.CType type, Contained.If contained) {
+            public override U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) {
                throw new NotImplementedException();
             }
          }
@@ -113,18 +113,11 @@ namespace SDKLib {
          abstract public void containedOnUpdateToServiceLocked();
          abstract public object containedGetIdLocked();
 
-         abstract public List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject);
-         abstract public bool containerOnQueryOfContainedFromServiceLocked(Contained.CType type, Contained.If contained, JObject jsonObject);
-
-         abstract public Contained.If containerOnCreateOfContainedInServiceLocked(Contained.CType type, JObject jsonObject);
-
-         abstract public Contained.If containerOnUpdateOfContainedToServiceLocked(Contained.CType type, Contained.If contained);
-
-         abstract public Contained.If containerOnDeleteOfContainedFromServiceLocked(Contained.CType type, Contained.If contained);
+         abstract public List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
+         abstract public bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) where U : Contained.If;
+         abstract public U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
+         abstract public U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
+         abstract public U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
       }
-
-
-
    }
-
 }

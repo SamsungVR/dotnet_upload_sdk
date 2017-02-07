@@ -23,6 +23,19 @@ namespace SampleApp {
          mCallbackQueryLiveEvents = new CallbackQueryLiveEvents(this);
       }
 
+      List<UserLiveEvent.If> mLiveEvents;
+
+      private void setLiveEvents(List<UserLiveEvent.If> liveEvents) {
+         mLiveEvents = liveEvents;
+         ctrlEventsList.Items.Clear();
+         if (null != mLiveEvents) {
+            for (int i = 0; i < mLiveEvents.Count; i += 1) {
+               UserLiveEvent.If liveEvent = mLiveEvents[i];
+               ctrlEventsList.Items.Add(liveEvent.getId());
+            }
+         }
+      }
+
       public class CallbackQueryLiveEvents : User.Result.QueryLiveEvents.If {
 
          private readonly FormListLiveEvents mFormListLiveEvents;
@@ -33,19 +46,18 @@ namespace SampleApp {
 
          public void onSuccess(object closure, List<UserLiveEvent.If> liveEvents) {
             Log.d(TAG, "onSuccess event: " + liveEvents);
-            mFormListLiveEvents.ctrlEventsList.Clear();
-            for (int i = 0; i < liveEvents.Count; i += 1) {
-               UserLiveEvent.If liveEvent = liveEvents[i];
-               mFormListLiveEvents.ctrlEventsList.Items.Add(liveEvent.getId());
-            }
+            mFormListLiveEvents.ctrlStatus.Text = ResourceStrings.requestSuccess;
+            mFormListLiveEvents.setLiveEvents(liveEvents);
          }
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "onError status: " + status);
+            mFormListLiveEvents.ctrlStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
          }
 
          public void onCancelled(object closure) {
             Log.d(TAG, "onCancelled");
+            mFormListLiveEvents.ctrlStatus.Text = ResourceStrings.requestCancelled;
          }
 
          public void onException(object closure, Exception ex) {
@@ -53,12 +65,7 @@ namespace SampleApp {
             Console.WriteLine(ex.Message);
             Console.WriteLine(ex.StackTrace);
          }
-
-
       };
-
-      
-
 
       private void ctrlQuery_Click(object sender, EventArgs e) {
          User.If user = App.getInstance().getUser();
@@ -66,6 +73,19 @@ namespace SampleApp {
             return;
          }
          user.queryLiveEvents(mCallbackQueryLiveEvents, App.getInstance().getHandler(), null);
+      }
+
+      private void onSelected(UserLiveEvent.If liveEvent) {
+      }
+
+      private void ctrlEventsList_SelectedIndexChanged(object sender, EventArgs e) {
+         UserLiveEvent.If selectedItem = null;
+
+         int index = ctrlEventsList.SelectedIndex;
+         if (null != mLiveEvents && index < mLiveEvents.Count) {
+            selectedItem = mLiveEvents[index];
+         }
+         
       }
    }
 }

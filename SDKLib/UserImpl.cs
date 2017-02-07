@@ -180,7 +180,7 @@ namespace SDKLib {
          return ret;
       }
 
-      public override List<Contained.If> containerOnQueryListOfContainedFromServiceLocked(Contained.CType type, JObject jsonObject) {
+      public override List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) {
          if (type == UserLiveEventImpl.sType) {
             JToken temp;
             if (!jsonObject.TryGetValue("videos", out temp)) {
@@ -190,26 +190,26 @@ namespace SDKLib {
             if (null == temp) {
                return null;
             }
-            return mContainerImpl.processQueryListOfContainedFromServiceLocked(type, jsonItems, null);
+            return mContainerImpl.processQueryListOfContainedFromServiceLocked<U>(type, jsonItems, null);
          }
 
          return null;
       }
 
-      public override bool containerOnQueryOfContainedFromServiceLocked(Contained.CType type, Contained.If contained, JObject jsonObject) {
+      public override bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
          return false;
       }
 
-      public override Contained.If containerOnDeleteOfContainedFromServiceLocked(Contained.CType type, Contained.If contained) {
-         return null;
+      public override U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) {
+         return default(U);
       }
 
-      public override Contained.If containerOnCreateOfContainedInServiceLocked(Contained.CType type, JObject jsonObject) {
-         return null;
+      public override U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) {
+         return default(U);
       }
 
-      public override Contained.If containerOnUpdateOfContainedToServiceLocked(Contained.CType type, Contained.If contained) {
-         return null;
+      public override U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) {
+         return default(U);
       }
 
       internal abstract class WorkItemVideoUploadBase : ClientWorkItem {
@@ -600,7 +600,7 @@ namespace SDKLib {
                }
                JObject jsonObject = JObject.Parse(data);
                if (isHTTPSuccess(rsp)) {
-                  List<Contained.If> resultTmp = (List<Contained.If>)(object)mUser.containerOnQueryListOfContainedFromServiceLocked(UserLiveEventImpl.sType, jsonObject);
+                  List<UserLiveEventImpl> resultTmp = mUser.containerOnQueryListOfContainedFromServiceLocked<UserLiveEventImpl>(UserLiveEventImpl.sType, jsonObject);
                   if (null != resultTmp) {
                      List<UserLiveEvent.If> result = new List<UserLiveEvent.If>();
                      foreach (object temp in resultTmp) {

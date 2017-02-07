@@ -25,7 +25,8 @@
       private void InitializeComponent() {
          this.ctrlQuery = new System.Windows.Forms.Button();
          this.ctrlStatus = new System.Windows.Forms.Label();
-         this.ctrlEventsList = new System.Windows.Forms.ListView();
+         this.ctrlEventsList = new System.Windows.Forms.ListBox();
+         this.groupBox1 = new System.Windows.Forms.GroupBox();
          this.SuspendLayout();
          // 
          // ctrlQuery
@@ -40,24 +41,33 @@
          // 
          // ctrlStatus
          // 
-         this.ctrlStatus.Location = new System.Drawing.Point(11, 48);
+         this.ctrlStatus.Location = new System.Drawing.Point(11, 39);
          this.ctrlStatus.Name = "ctrlStatus";
          this.ctrlStatus.Size = new System.Drawing.Size(325, 23);
          this.ctrlStatus.TabIndex = 2;
-         this.ctrlStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.ctrlStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
          // 
          // ctrlEventsList
          // 
-         this.ctrlEventsList.Location = new System.Drawing.Point(14, 89);
-         this.ctrlEventsList.MultiSelect = false;
+         this.ctrlEventsList.FormattingEnabled = true;
+         this.ctrlEventsList.Location = new System.Drawing.Point(14, 65);
          this.ctrlEventsList.Name = "ctrlEventsList";
-         this.ctrlEventsList.ShowGroups = false;
-         this.ctrlEventsList.Size = new System.Drawing.Size(322, 181);
+         this.ctrlEventsList.Size = new System.Drawing.Size(322, 95);
          this.ctrlEventsList.TabIndex = 3;
-         this.ctrlEventsList.UseCompatibleStateImageBehavior = false;
+         this.ctrlEventsList.SelectedIndexChanged += new System.EventHandler(this.ctrlEventsList_SelectedIndexChanged);
+         // 
+         // groupBox1
+         // 
+         this.groupBox1.Location = new System.Drawing.Point(14, 166);
+         this.groupBox1.Name = "groupBox1";
+         this.groupBox1.Size = new System.Drawing.Size(322, 294);
+         this.groupBox1.TabIndex = 4;
+         this.groupBox1.TabStop = false;
+         this.groupBox1.Text = "Event Details";
          // 
          // FormListLiveEvents
          // 
+         this.Controls.Add(this.groupBox1);
          this.Controls.Add(this.ctrlEventsList);
          this.Controls.Add(this.ctrlStatus);
          this.Controls.Add(this.ctrlQuery);
@@ -71,6 +81,7 @@
 
       private System.Windows.Forms.Button ctrlQuery;
       private System.Windows.Forms.Label ctrlStatus;
-      private System.Windows.Forms.ListView ctrlEventsList;
+      private System.Windows.Forms.ListBox ctrlEventsList;
+      private System.Windows.Forms.GroupBox groupBox1;
    }
 }
