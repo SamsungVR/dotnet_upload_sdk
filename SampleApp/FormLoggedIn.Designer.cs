@@ -25,13 +25,13 @@
       private void InitializeComponent() {
          this.ctrlCurrentAction = new System.Windows.Forms.Panel();
          this.panel2 = new System.Windows.Forms.Panel();
+         this.ctrlListLiveEvents = new System.Windows.Forms.LinkLabel();
+         this.ctrlCreateLiveEvent = new System.Windows.Forms.LinkLabel();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
          this.ctrlProfilePic = new System.Windows.Forms.PictureBox();
          this.ctrlEmail = new System.Windows.Forms.Label();
          this.ctrlUsername = new System.Windows.Forms.Label();
          this.ctrlUploadVideo = new System.Windows.Forms.LinkLabel();
-         this.ctrlCreateLiveEvent = new System.Windows.Forms.LinkLabel();
-         this.ctrlListLiveEvents = new System.Windows.Forms.LinkLabel();
          this.panel2.SuspendLayout();
          this.groupBox1.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.ctrlProfilePic)).BeginInit();
@@ -57,6 +57,28 @@
          this.panel2.Name = "panel2";
          this.panel2.Size = new System.Drawing.Size(200, 501);
          this.panel2.TabIndex = 2;
+         // 
+         // ctrlListLiveEvents
+         // 
+         this.ctrlListLiveEvents.AutoSize = true;
+         this.ctrlListLiveEvents.Location = new System.Drawing.Point(7, 160);
+         this.ctrlListLiveEvents.Name = "ctrlListLiveEvents";
+         this.ctrlListLiveEvents.Size = new System.Drawing.Size(77, 13);
+         this.ctrlListLiveEvents.TabIndex = 3;
+         this.ctrlListLiveEvents.TabStop = true;
+         this.ctrlListLiveEvents.Text = "List live events";
+         this.ctrlListLiveEvents.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlListLiveEvents_LinkClicked);
+         // 
+         // ctrlCreateLiveEvent
+         // 
+         this.ctrlCreateLiveEvent.AutoSize = true;
+         this.ctrlCreateLiveEvent.Location = new System.Drawing.Point(7, 132);
+         this.ctrlCreateLiveEvent.Name = "ctrlCreateLiveEvent";
+         this.ctrlCreateLiveEvent.Size = new System.Drawing.Size(87, 13);
+         this.ctrlCreateLiveEvent.TabIndex = 2;
+         this.ctrlCreateLiveEvent.TabStop = true;
+         this.ctrlCreateLiveEvent.Text = "Create live event";
+         this.ctrlCreateLiveEvent.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlCreateLiveEvent_LinkClicked);
          // 
          // groupBox1
          // 
@@ -105,27 +127,6 @@
          this.ctrlUploadVideo.TabStop = true;
          this.ctrlUploadVideo.Text = "Upload video";
          this.ctrlUploadVideo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlUploadVideo_LinkClicked);
-         // 
-         // ctrlCreateLiveEvent
-         // 
-         this.ctrlCreateLiveEvent.AutoSize = true;
-         this.ctrlCreateLiveEvent.Location = new System.Drawing.Point(7, 132);
-         this.ctrlCreateLiveEvent.Name = "ctrlCreateLiveEvent";
-         this.ctrlCreateLiveEvent.Size = new System.Drawing.Size(87, 13);
-         this.ctrlCreateLiveEvent.TabIndex = 2;
-         this.ctrlCreateLiveEvent.TabStop = true;
-         this.ctrlCreateLiveEvent.Text = "Create live event";
-         this.ctrlCreateLiveEvent.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlCreateLiveEvent_LinkClicked);
-         // 
-         // ctrlListLiveEvents
-         // 
-         this.ctrlListLiveEvents.AutoSize = true;
-         this.ctrlListLiveEvents.Location = new System.Drawing.Point(7, 160);
-         this.ctrlListLiveEvents.Name = "ctrlListLiveEvents";
-         this.ctrlListLiveEvents.Size = new System.Drawing.Size(77, 13);
-         this.ctrlListLiveEvents.TabIndex = 3;
-         this.ctrlListLiveEvents.TabStop = true;
-         this.ctrlListLiveEvents.Text = "List live events";
          // 
          // FormLoggedIn
          // 

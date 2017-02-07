@@ -59,5 +59,13 @@ namespace SampleApp {
          }
          setControl(new FormCreateLiveEvent());
       }
+
+      private void ctrlListLiveEvents_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+         if (mControl is FormListLiveEvents) {
+            return;
+         }
+         setControl(new FormListLiveEvents());
+
+      }
    }
 }

@@ -600,9 +600,13 @@ namespace SDKLib {
                }
                JObject jsonObject = JObject.Parse(data);
                if (isHTTPSuccess(rsp)) {
-                  List<Contained.If> result = mUser.containerOnQueryListOfContainedFromServiceLocked(UserLiveEventImpl.sType, jsonObject);
-                  if (null != result) {
-                     dispatchSuccessWithResult(result);
+                  List<Contained.If> resultTmp = (List<Contained.If>)(object)mUser.containerOnQueryListOfContainedFromServiceLocked(UserLiveEventImpl.sType, jsonObject);
+                  if (null != resultTmp) {
+                     List<UserLiveEvent.If> result = new List<UserLiveEvent.If>();
+                     foreach (object temp in resultTmp) {
+                        result.Add(temp as UserLiveEvent.If);
+                     }
+                     dispatchSuccessWithResult<List<UserLiveEvent.If>>(result);
                   } else {
                      dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
                   }

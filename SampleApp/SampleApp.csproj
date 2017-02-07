@@ -77,6 +77,12 @@
     <Compile Include="FormEndPointConfig.Designer.cs">
       <DependentUpon>FormEndPointConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormListLiveEvents.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FormListLiveEvents.designer.cs">
+      <DependentUpon>FormListLiveEvents.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormSnapToContent.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -167,6 +173,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormIndeterminateProgress.resx">
       <DependentUpon>FormIndeterminateProgress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormListLiveEvents.resx">
+      <DependentUpon>FormListLiveEvents.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormLoggedIn.resx">
       <DependentUpon>FormLoggedIn.cs</DependentUpon>

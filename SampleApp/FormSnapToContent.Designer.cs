@@ -18,6 +18,7 @@
          this.MaximizeBox = false;
          this.Name = "FormSnapToContent";
          this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+         this.Load += new System.EventHandler(this.FormSnapToContent_Load);
          this.ResumeLayout(false);
 
       }

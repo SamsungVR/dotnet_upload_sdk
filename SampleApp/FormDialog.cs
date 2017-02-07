@@ -18,5 +18,9 @@ namespace SampleApp {
          App.getInstance().onFormDialogClosed();
       }
 
+      private void FormDialog_Load(object sender, EventArgs e) {
+
+      }
+
    }
 }

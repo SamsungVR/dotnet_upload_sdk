@@ -13,7 +13,7 @@ namespace SampleApp {
 
    public partial class FormCreateLiveEvent : UserControl {
 
-      private static readonly string TAG = Util.getLogTag(typeof(FormLogin));
+      private static readonly string TAG = Util.getLogTag(typeof(FormCreateLiveEvent));
 
       private readonly CallbackCreateLiveEvent mCallbackCreateLiveEvent;
 

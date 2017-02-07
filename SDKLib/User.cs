@@ -61,6 +61,22 @@ namespace SDKLib {
          bool createLiveEvent(string title, string description, UserVideo.Permission permission,
                                  UserLiveEvent.Source protocol, UserVideo.VideoStereoscopyType videoStereoscopyType,
                                  User.Result.CreateLiveEvent.If callback, SynchronizationContext handler, object closure);
+
+         /**
+          * Queries the live events of the user
+          *
+          * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
+          *                 SDK transfers back ownership of the FD only on the callback.  Consider
+          *                 providing a Non Null callback so that the application can close the FD.
+          * @param handler A handler on which callback should be called. If null, main handler is used.
+          * @param closure An object that the application can use to uniquely identify this request.
+          *                See callback documentation.
+          * @return true if the upload was schedule, false otherwise
+          */
+
+
+         bool queryLiveEvents(Result.QueryLiveEvents.If callback, SynchronizationContext handler, object closure);
+
       }
 
       public sealed class Result {

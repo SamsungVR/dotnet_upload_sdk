@@ -34,7 +34,7 @@ namespace SDKLib {
          }
 
          public override object getContainedId(JObject jsonObject) {
-            return jsonObject.GetValue(PROP_ID);
+            return jsonObject.GetValue(PROP_ID) + "";
          }
 
          public override void notifyCreate(object callback, Container.If container, SDKLib.Contained.If contained) {
@@ -62,7 +62,7 @@ namespace SDKLib {
                return (string)rawValue;
             }
             if (PROP_VIEWER_COUNT.Equals(key) || PROP_LIVE_STARTED.Equals(key) || PROP_LIVE_STOPPED.Equals(key)) {
-               return long.Parse((string)rawValue);
+               return long.Parse(rawValue.ToString());
             }
 
             if (PROP_METADATA.Equals(key)) {

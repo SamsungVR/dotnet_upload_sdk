@@ -39,6 +39,7 @@
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
          this.Text = "Sample App for VR SDK";
          this.TopMost = true;
+         this.Load += new System.EventHandler(this.FormDialog_Load);
          this.ResumeLayout(false);
 
       }

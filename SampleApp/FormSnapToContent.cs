@@ -30,6 +30,10 @@ namespace SampleApp {
          }
       }
 
+      private void FormSnapToContent_Load(object sender, EventArgs e) {
+
+      }
+
 
    }
 }

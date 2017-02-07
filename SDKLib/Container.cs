@@ -126,7 +126,7 @@ namespace SDKLib {
             return result;
          }
 
-         protected virtual List<Contained.If> processQueryListOfContainedFromServiceLocked(
+         public virtual List<Contained.If> processQueryListOfContainedFromServiceLocked(
                  Contained.CType type, JArray jsonItems, List<Contained.If> result) {
             Dictionary<object, Contained.If> containedItems = getContainedItemsLocked(type);
             lock (containedItems) {
