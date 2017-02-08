@@ -40,12 +40,24 @@ namespace SDKLib {
             }
          }
 
-         public virtual string getProperty(string rawKey) {
-            int index = mProperties.IndexOf(rawKey);
-            if (index < 0) {
-               return null;
+         public List<string> getProperties() {
+            return mProperties;
+         }
+
+         public virtual bool validateValue(out string outKey, out object outValue, string inKey, JObject jsonObject) {
+            outKey = inKey;
+            outValue = validateValue(outKey, jsonObject);
+            return true;
+         }
+
+         public virtual object validateValue(string key, JObject jsonObject) {
+            object rawValue = null;
+            JToken token;
+
+            if (jsonObject.TryGetValue(key, out token)) {
+               rawValue = token.ToObject<object>();
             }
-            return mProperties[index];
+            return validateValue(key, token, rawValue);
          }
 
          public virtual object validateValue(string key, JToken token, object rawValue) {
@@ -76,16 +88,14 @@ namespace SDKLib {
 
          public virtual bool processQueryFromServiceNoLock(JObject jsonObject) {
             bool changed = false;
-            foreach (KeyValuePair<string, JToken> pair in jsonObject) {
-               string rawKey = pair.Key;
-               string key = mType.getProperty(rawKey);
-               if (null == key) {
-                  continue;
+            List<string> properties = mType.getProperties();
+            foreach (string key in properties) {
+               string outKey = null;
+               object outValue = null;
+
+               if (mType.validateValue(out outKey, out outValue, key, jsonObject)) {
+                  changed |= setNoLock(outKey, outValue);
                }
-               JToken token = pair.Value;
-               object rawValue = token.ToObject<object>();
-               object value = mType.validateValue(key, token, rawValue);
-               changed |= setNoLock(key, value);
             }
             return changed;
          }
@@ -118,6 +128,7 @@ namespace SDKLib {
 
          public virtual bool changeNoLock(string key, object oldValue, object newValue) {
             Log.d(TAG, "Changing key: " + key + " oldValue: " + oldValue + " newValue: " + newValue + " on: " + this);
+            mValues.Remove(key);
             mValues.Add(key, newValue);
             return true;
          }
@@ -141,7 +152,11 @@ namespace SDKLib {
          }
 
          public virtual object getNoLock(string key) {
-            return mValues[key];
+            object value;
+            if (!mValues.TryGetValue(key, out value)) {
+               return null;
+            }
+            return value;
          }
 
          public virtual object getLocked(string key) {

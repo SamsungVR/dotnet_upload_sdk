@@ -19,14 +19,16 @@ namespace SDKLib {
          PROP_SOURCE = "source", PROP_STEREOSCOPIC_TYPE = "stereoscopic_type", PROP_DESCRIPTION = "description",
          PROP_INGEST_URL = "ingest_url", PROP_VIEW_URL = "view_url", PROP_STATE = "state", PROP_THUMBNAIL_URL = "thumbnail_url",
          PROP_VIEWER_COUNT = "viewer_count", PROP_LIVE_STARTED = "live_started", PROP_LIVE_STOPPED = "live_stopped",
-         PROP_METADATA = "metadata";
+         PROP_METADATA_STEREOSCOPIC_TYPE = "metadata_stereoscopic_type";
 
       public class CType : Contained.CType {
 
          public CType()
-            : base(new string[] { PROP_ID, PROP_TITLE, PROP_PERMISSION, PROP_SOURCE, PROP_STEREOSCOPIC_TYPE,
-                  PROP_DESCRIPTION, PROP_INGEST_URL, PROP_VIEW_URL, PROP_STATE, PROP_THUMBNAIL_URL,
-                  PROP_VIEWER_COUNT, PROP_LIVE_STARTED, PROP_LIVE_STOPPED, PROP_METADATA}) {
+            : base(new string[] { PROP_METADATA_STEREOSCOPIC_TYPE,
+               PROP_ID, PROP_TITLE, PROP_DESCRIPTION, PROP_INGEST_URL, PROP_VIEW_URL, PROP_THUMBNAIL_URL,
+               PROP_VIEWER_COUNT, PROP_LIVE_STARTED, PROP_LIVE_STOPPED,
+               PROP_STEREOSCOPIC_TYPE,
+               PROP_PERMISSION, PROP_SOURCE, PROP_STATE}) {
          }
 
          public override SDKLib.Contained.If newInstance(Container.If container, JObject jsonObject) {
@@ -53,53 +55,67 @@ namespace SDKLib {
          public override void notifyListQueried(object callback, Container.If container, List<SDKLib.Contained.If> contained) {
          }
 
-         public override object validateValue(string key, JToken token, object rawValue) {
-            if (null == rawValue) {
-               return null;
+         public override bool validateValue(out string outKey, out object outValue, string inKey, JObject jsonObject) {
+            if (PROP_METADATA_STEREOSCOPIC_TYPE.Equals(inKey)) {
+               JToken metadata = null;
+               outValue = null;
+               outKey = inKey;
+
+               if (!jsonObject.TryGetValue("metadata", out metadata)) {
+                  return false;
+               }
+               string st_type = (string)metadata["stereoscopic_type"];
+               if (null == st_type) {
+                  return false;
+               }
+               UserVideo.VideoStereoscopyType temp;
+
+               if (Util.string2Enum<UserVideo.VideoStereoscopyType>(out temp, st_type)) {
+                  outValue = temp;
+                  return true;
+               }
+               return false;
             }
+            return base.validateValue(out outKey, out outValue, inKey, jsonObject);
+         }
+
+         public override object validateValue(string key, JToken token, object rawValue) {
             if (PROP_ID.Equals(key) || PROP_TITLE.Equals(key) || PROP_DESCRIPTION.Equals(key) ||
                PROP_INGEST_URL.Equals(key) || PROP_VIEW_URL.Equals(key) || PROP_THUMBNAIL_URL.Equals(key)) {
-               return (string)rawValue;
+               return rawValue;
             }
             if (PROP_VIEWER_COUNT.Equals(key) || PROP_LIVE_STARTED.Equals(key) || PROP_LIVE_STOPPED.Equals(key)) {
                return long.Parse(rawValue.ToString());
             }
-
-            if (PROP_METADATA.Equals(key)) {
-               string st_type = (string)token["stereoscopic_type"];
-               if (null == st_type) {
-                  Log.d("VRSDK", "NULL, returning MONOSCOPIC");
-                  return UserVideo.VideoStereoscopyType.MONOSCOPIC;
-               }
-               Log.d("VRSDK", "other " + st_type);
-               if ("top-bottom".Equals(st_type)) {
-                  Log.d("VRSDK", "returning TOP_BOTTOM_STEREOSCOPIC");
-                  return UserVideo.VideoStereoscopyType.TOP_BOTTOM_STEREOSCOPIC;
-               }
-               if ("left-right".Equals(st_type)) {
-                  Log.d("VRSDK", "returning LEFT_RIGHT_STEREOSCOPIC");
-                  return UserVideo.VideoStereoscopyType.LEFT_RIGHT_STEREOSCOPIC;
-               }
-               if ("dual-fisheye".Equals(st_type)) {
-                  Log.d("VRSDK", "returning DUAL_FISHEYE");
-                  return UserVideo.VideoStereoscopyType.DUAL_FISHEYE;
-               }
-               Log.d("VRSDK", "default returning LEFT_RIGHT_STEREOSCOPIC");
-               return UserVideo.VideoStereoscopyType.MONOSCOPIC;
-            }
             if (PROP_STEREOSCOPIC_TYPE.Equals(key)) {
-               string value = (string)rawValue;
-               if ("top-bottom".Equals(value))
-                  return UserVideo.VideoStereoscopyType.TOP_BOTTOM_STEREOSCOPIC;
-               if ("left-right".Equals(value))
-                  return UserVideo.VideoStereoscopyType.LEFT_RIGHT_STEREOSCOPIC;
-               if ("dual-fisheye".Equals(value))
-                  return UserVideo.VideoStereoscopyType.DUAL_FISHEYE;
-               return UserVideo.VideoStereoscopyType.MONOSCOPIC;
+               UserVideo.VideoStereoscopyType temp;
+               if (Util.string2Enum<UserVideo.VideoStereoscopyType>(out temp, rawValue as string)) {
+                  return temp;
+               }
+               return null;
             }
-
+            if (PROP_PERMISSION.Equals(key)) {
+               UserVideo.Permission temp;
+               if (Util.string2Enum<UserVideo.Permission>(out temp, rawValue as string)) {
+                  return temp;
+               }
+               return null;
+            }
+            if (PROP_SOURCE.Equals(key)) {
+               UserLiveEvent.Source temp;
+               if (Util.string2Enum<UserLiveEvent.Source>(out temp, rawValue as string)) {
+                  return temp;
+               }
+               return null;
+            }
+            if (PROP_STATE.Equals(key)) {
+               UserLiveEvent.State temp;
+               if (Util.string2Enum<UserLiveEvent.State>(out temp, rawValue as string)) {
+                  return temp;
+               }
+               return null;
+            }
             return null;
-
          }
       }
 
@@ -156,32 +172,36 @@ namespace SDKLib {
       }
 
       public string getId() {
-         return (string)getLocked(PROP_ID);
+         return getLocked(PROP_ID) as string;
       }
 
       public string getTitle() {
-         return (string)getLocked(PROP_TITLE);
+         return getLocked(PROP_TITLE) as string;
       }
 
 
       public string getDescription() {
-         return (string)getLocked(PROP_DESCRIPTION);
+         return getLocked(PROP_DESCRIPTION) as string;
       }
-
-
 
       public string getProducerUrl() {
          return (string)getLocked(PROP_INGEST_URL);
       }
-
 
       public string getViewUrl() {
          return (string)getLocked(PROP_VIEW_URL);
       }
 
       public UserVideo.VideoStereoscopyType getVideoStereoscopyType() {
-         UserVideo.VideoStereoscopyType val = (UserVideo.VideoStereoscopyType)getLocked(PROP_METADATA);
-         return val;
+         object result = getLocked(PROP_STEREOSCOPIC_TYPE);
+         if (null != result) {
+            return (UserVideo.VideoStereoscopyType)result;
+         }
+         result = getLocked(PROP_METADATA_STEREOSCOPIC_TYPE);
+         if (null != result) {
+            return (UserVideo.VideoStereoscopyType)result;
+         }
+         return UserVideo.VideoStereoscopyType.MONOSCOPIC;
       }
 
       public UserLiveEvent.State getState() {

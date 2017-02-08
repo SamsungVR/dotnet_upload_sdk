@@ -61,9 +61,15 @@ namespace SampleApp {
          if (null == user) {
             return;
          }
-         UserVideo.Permission permission = Util.string2Enum(typeof(UserVideo.Permission), ctrlPermission.Text, UserVideo.Permission.PRIVATE);
-         UserLiveEvent.Source source = Util.string2Enum(typeof(UserLiveEvent.Source), ctrlSource.Text, UserLiveEvent.Source.RTMP);
-         UserVideo.VideoStereoscopyType stereoscopyType = Util.string2Enum(typeof(UserVideo.VideoStereoscopyType), ctrlVideoStereoscopyType.Text, UserVideo.VideoStereoscopyType.DEFAULT);
+         UserVideo.Permission permission;
+         Util.string2Enum<UserVideo.Permission>(out permission, ctrlPermission.Text, UserVideo.Permission.PRIVATE);
+
+         UserLiveEvent.Source source;
+         Util.string2Enum<UserLiveEvent.Source>(out source, ctrlSource.Text, UserLiveEvent.Source.RTMP);
+
+         UserVideo.VideoStereoscopyType stereoscopyType;
+         Util.string2Enum<UserVideo.VideoStereoscopyType>(out stereoscopyType, ctrlVideoStereoscopyType.Text, UserVideo.VideoStereoscopyType.DEFAULT);
+
          user.createLiveEvent(ctrlTitle.Text, ctrlDescription.Text, permission, source, stereoscopyType,
             mCallbackCreateLiveEvent, App.getInstance().getHandler(), null);
       }

@@ -43,31 +43,37 @@ namespace SDKLib {
          return name;
       }
 
-      public static T string2Enum<T>(Type enumClass, string enumName, T def) {
-         if (null == enumName) {
-            return def;
-         }
-         string enumNameLower = enumName.ToLower(sCultureENUS);
-
-         MemberInfo[] allMembers = enumClass.GetMembers();
-         for (int i = allMembers.Length - 1; i >= 0; i -= 1) {
-            MemberInfo memberInfo = allMembers[i];
-            string memberName = memberInfo.Name;
-            string memberNameLower = memberName.ToLower(sCultureENUS);
-            if (enumNameLower.Equals(memberNameLower)) {
-               return (T)Enum.Parse(enumClass, memberName, true);
-            }
-            object[] attributes = memberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            for (int j = attributes.Length - 1; j >= 0; j -= 1) {
-               DescriptionAttribute attribute = (DescriptionAttribute)attributes[j];
-               string descName = attribute.Description;
-               string descNameLower = descName.ToLower(sCultureENUS);
-               if (enumNameLower.Equals(descNameLower)) {
-                  return (T)Enum.Parse(enumClass, memberName, true);
+      public static bool string2Enum<T>(out T result, string enumName, T def) {
+         if (null != enumName) {
+            string enumNameLower = enumName.ToLower(sCultureENUS);
+            Type enumClass = typeof(T);
+            MemberInfo[] allMembers = enumClass.GetMembers();
+            for (int i = allMembers.Length - 1; i >= 0; i -= 1) {
+               MemberInfo memberInfo = allMembers[i];
+               string memberName = memberInfo.Name;
+               string memberNameLower = memberName.ToLower(sCultureENUS);
+               if (enumNameLower.Equals(memberNameLower)) {
+                  result = (T)Enum.Parse(enumClass, memberName, true);
+                  return true;
+               }
+               object[] attributes = memberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+               for (int j = attributes.Length - 1; j >= 0; j -= 1) {
+                  DescriptionAttribute attribute = (DescriptionAttribute)attributes[j];
+                  string descName = attribute.Description;
+                  string descNameLower = descName.ToLower(sCultureENUS);
+                  if (enumNameLower.Equals(descNameLower)) {
+                     result = (T)Enum.Parse(enumClass, memberName, true);
+                     return true;
+                  }
                }
             }
          }
-         return def;
+         result = def;
+         return false;
+      }
+
+      public static bool string2Enum<T>(out T result, string enumName) {
+         return string2Enum<T>(out result, enumName, default(T));
       }
 
       internal static T jsonOpt<T>(JObject jsonObject, string attr, T defValue) {

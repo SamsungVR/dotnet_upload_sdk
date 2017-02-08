@@ -27,6 +27,8 @@
          this.ctrlStatus = new System.Windows.Forms.Label();
          this.ctrlEventsList = new System.Windows.Forms.ListBox();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
+         this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
+         this.groupBox1.SuspendLayout();
          this.SuspendLayout();
          // 
          // ctrlQuery
@@ -58,12 +60,21 @@
          // 
          // groupBox1
          // 
+         this.groupBox1.Controls.Add(this.ctrlLiveEventDetail);
          this.groupBox1.Location = new System.Drawing.Point(14, 166);
          this.groupBox1.Name = "groupBox1";
          this.groupBox1.Size = new System.Drawing.Size(322, 294);
          this.groupBox1.TabIndex = 4;
          this.groupBox1.TabStop = false;
          this.groupBox1.Text = "Event Details";
+         // 
+         // ctrlLiveEventDetail
+         // 
+         this.ctrlLiveEventDetail.FormattingEnabled = true;
+         this.ctrlLiveEventDetail.Location = new System.Drawing.Point(7, 20);
+         this.ctrlLiveEventDetail.Name = "ctrlLiveEventDetail";
+         this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 186);
+         this.ctrlLiveEventDetail.TabIndex = 0;
          // 
          // FormListLiveEvents
          // 
@@ -73,6 +84,7 @@
          this.Controls.Add(this.ctrlQuery);
          this.Name = "FormListLiveEvents";
          this.Size = new System.Drawing.Size(350, 480);
+         this.groupBox1.ResumeLayout(false);
          this.ResumeLayout(false);
 
       }
@@ -83,5 +95,6 @@
       private System.Windows.Forms.Label ctrlStatus;
       private System.Windows.Forms.ListBox ctrlEventsList;
       private System.Windows.Forms.GroupBox groupBox1;
+      private System.Windows.Forms.ListBox ctrlLiveEventDetail;
    }
 }

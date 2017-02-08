@@ -21,6 +21,7 @@ namespace SampleApp {
          InitializeComponent();
 
          mCallbackQueryLiveEvents = new CallbackQueryLiveEvents(this);
+         onSelected(null);
       }
 
       List<UserLiveEvent.If> mLiveEvents;
@@ -68,6 +69,7 @@ namespace SampleApp {
       };
 
       private void ctrlQuery_Click(object sender, EventArgs e) {
+         onSelected(null);
          User.If user = App.getInstance().getUser();
          if (null == user) {
             return;
@@ -75,7 +77,24 @@ namespace SampleApp {
          user.queryLiveEvents(mCallbackQueryLiveEvents, App.getInstance().getHandler(), null);
       }
 
+      private string nullFix(object obj) {
+         return null == obj ? "null" : obj.ToString();
+      }
+
       private void onSelected(UserLiveEvent.If liveEvent) {
+         ctrlLiveEventDetail.Items.Clear();
+         if (null != liveEvent) {
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getTitle()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getDescription()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getProducerUrl()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getViewUrl()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getSource()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getState()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getVideoStereoscopyType()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getThumbnailUrl()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getStartedTime()));
+            ctrlLiveEventDetail.Items.Add(nullFix(liveEvent.getViewerCount()));
+         }
       }
 
       private void ctrlEventsList_SelectedIndexChanged(object sender, EventArgs e) {
@@ -85,7 +104,7 @@ namespace SampleApp {
          if (null != mLiveEvents && index < mLiveEvents.Count) {
             selectedItem = mLiveEvents[index];
          }
-         
+         onSelected(selectedItem);
       }
    }
 }

@@ -44,6 +44,14 @@ namespace SDKLib {
          string getDescription();
          string getProducerUrl();
          string getViewUrl();
+         UserVideo.VideoStereoscopyType getVideoStereoscopyType();
+         UserLiveEvent.State getState();
+         long getViewerCount();
+         UserLiveEvent.Source getSource();
+         UserVideo.Permission getPermission();
+         long getStartedTime();
+         long getFinishedTime();
+         string getThumbnailUrl();
 
          /**
           * Queries the the details if the specific live event

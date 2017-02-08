@@ -13,9 +13,13 @@ namespace SDKLib {
 
       public enum VideoStereoscopyType {
          DEFAULT,
+         [Description("monoscopic")]
          MONOSCOPIC,
+         [Description("top-bottom")]
          TOP_BOTTOM_STEREOSCOPIC,
+         [Description("left-right")]
          LEFT_RIGHT_STEREOSCOPIC,
+         [Description("dual-fisheye")]
          DUAL_FISHEYE
       };
 
