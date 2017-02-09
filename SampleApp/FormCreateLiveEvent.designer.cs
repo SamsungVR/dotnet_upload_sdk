@@ -82,7 +82,6 @@
          this.ctrlSource.Name = "ctrlSource";
          this.ctrlSource.Size = new System.Drawing.Size(287, 21);
          this.ctrlSource.TabIndex = 11;
-
          // 
          // label2
          // 
@@ -110,6 +109,7 @@
          // ctrlDescription
          // 
          this.ctrlDescription.Location = new System.Drawing.Point(15, 88);
+         this.ctrlDescription.Multiline = true;
          this.ctrlDescription.Name = "ctrlDescription";
          this.ctrlDescription.Size = new System.Drawing.Size(287, 20);
          this.ctrlDescription.TabIndex = 8;
@@ -126,6 +126,7 @@
          // ctrlTitle
          // 
          this.ctrlTitle.Location = new System.Drawing.Point(15, 39);
+         this.ctrlTitle.Multiline = true;
          this.ctrlTitle.Name = "ctrlTitle";
          this.ctrlTitle.Size = new System.Drawing.Size(287, 20);
          this.ctrlTitle.TabIndex = 6;

@@ -88,7 +88,6 @@
          this.ctrlProgressBar.Name = "ctrlProgressBar";
          this.ctrlProgressBar.Size = new System.Drawing.Size(287, 23);
          this.ctrlProgressBar.TabIndex = 0;
-
          // 
          // ctrlOptionsGroup
          // 
@@ -111,6 +110,7 @@
          // ctrlDescription
          // 
          this.ctrlDescription.Location = new System.Drawing.Point(18, 193);
+         this.ctrlDescription.Multiline = true;
          this.ctrlDescription.Name = "ctrlDescription";
          this.ctrlDescription.Size = new System.Drawing.Size(287, 20);
          this.ctrlDescription.TabIndex = 8;
@@ -127,6 +127,7 @@
          // ctrlTitle
          // 
          this.ctrlTitle.Location = new System.Drawing.Point(18, 140);
+         this.ctrlTitle.Multiline = true;
          this.ctrlTitle.Name = "ctrlTitle";
          this.ctrlTitle.Size = new System.Drawing.Size(287, 20);
          this.ctrlTitle.TabIndex = 6;

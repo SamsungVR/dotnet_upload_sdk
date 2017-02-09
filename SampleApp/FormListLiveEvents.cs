@@ -16,11 +16,13 @@ namespace SampleApp {
       private static readonly string TAG = Util.getLogTag(typeof(FormListLiveEvents));
 
       private readonly CallbackQueryLiveEvents mCallbackQueryLiveEvents;
+      private readonly CallbackQueryLiveEvent mCallbackQueryLiveEvent;
 
       public FormListLiveEvents() {
          InitializeComponent();
 
          mCallbackQueryLiveEvents = new CallbackQueryLiveEvents(this);
+         mCallbackQueryLiveEvent = new CallbackQueryLiveEvent(this);
          onSelected(null);
       }
 
@@ -28,11 +30,18 @@ namespace SampleApp {
 
       private void setLiveEvents(List<UserLiveEvent.If> liveEvents) {
          mLiveEvents = liveEvents;
+         refreshLiveEvents(-1);
+      }
+
+      private void refreshLiveEvents(int selectIndex) {
          ctrlEventsList.Items.Clear();
          if (null != mLiveEvents) {
             for (int i = 0; i < mLiveEvents.Count; i += 1) {
                UserLiveEvent.If liveEvent = mLiveEvents[i];
                ctrlEventsList.Items.Add(liveEvent.getId());
+            }
+            if (-1 != selectIndex) {
+               ctrlEventsList.SelectedIndex = selectIndex;
             }
          }
       }
@@ -97,14 +106,74 @@ namespace SampleApp {
          }
       }
 
-      private void ctrlEventsList_SelectedIndexChanged(object sender, EventArgs e) {
-         UserLiveEvent.If selectedItem = null;
-
+      private UserLiveEvent.If getSelectedLiveEvent() {
          int index = ctrlEventsList.SelectedIndex;
-         if (null != mLiveEvents && index < mLiveEvents.Count) {
-            selectedItem = mLiveEvents[index];
+         if (null != mLiveEvents && index >= 0 && index < mLiveEvents.Count) {
+            return mLiveEvents[index];
          }
+         return null;
+      }
+
+      private void ctrlEventsList_SelectedIndexChanged(object sender, EventArgs e) {
+         UserLiveEvent.If selectedItem = getSelectedLiveEvent();
          onSelected(selectedItem);
+      }
+
+      public class CallbackQueryLiveEvent : UserLiveEvent.Result.Query.If {
+
+         private readonly FormListLiveEvents mFormListLiveEvents;
+
+         public CallbackQueryLiveEvent(FormListLiveEvents formListLiveEvents) {
+            mFormListLiveEvents = formListLiveEvents;
+         }
+
+         public void onSuccess(object closure, UserLiveEvent.If liveEvent) {
+            Log.d(TAG, "onSuccess event: " + liveEvent);
+            mFormListLiveEvents.ctrlStatus.Text = ResourceStrings.requestSuccess;
+
+            if (null != mFormListLiveEvents.mLiveEvents) {
+               bool found = false;
+               for (int i = mFormListLiveEvents.mLiveEvents.Count - 1; i >= 0; i -= 1) {
+                  UserLiveEvent.If iLiveEvent = mFormListLiveEvents.mLiveEvents[i];
+                  if (liveEvent.getId().Equals(iLiveEvent.getId())) {
+                     mFormListLiveEvents.mLiveEvents.RemoveAt(i);
+                     found = true;
+                  }
+               }
+               if (found) {
+                  mFormListLiveEvents.mLiveEvents.Insert(0, liveEvent);
+                  mFormListLiveEvents.refreshLiveEvents(0);
+               }
+            }
+            
+         }
+
+         public void onFailure(object closure, int status) {
+            Log.d(TAG, "onError status: " + status);
+            mFormListLiveEvents.ctrlStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
+         }
+
+         public void onCancelled(object closure) {
+            Log.d(TAG, "onCancelled");
+            mFormListLiveEvents.ctrlStatus.Text = ResourceStrings.requestCancelled;
+         }
+
+         public void onException(object closure, Exception ex) {
+            mFormListLiveEvents.ctrlStatus.Text = ex.Message;
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+         }
+      };
+
+      private void ctrlRefresh_Click(object sender, EventArgs e) {
+         UserLiveEvent.If selectedItem = getSelectedLiveEvent();
+         if (null != selectedItem) {
+            ctrlEventsList.Items.Clear();
+            ctrlLiveEventDetail.Items.Clear();
+
+            selectedItem.getUser().queryLiveEvent(selectedItem.getId(), mCallbackQueryLiveEvent,
+               App.getInstance().getHandler(), null);
+         }
       }
    }
 }

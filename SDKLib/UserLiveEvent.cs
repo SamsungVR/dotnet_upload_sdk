@@ -53,6 +53,8 @@ namespace SDKLib {
          long getFinishedTime();
          string getThumbnailUrl();
 
+         User.If getUser();
+
          /**
           * Queries the the details if the specific live event
           *

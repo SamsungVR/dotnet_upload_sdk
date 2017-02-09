@@ -155,8 +155,8 @@ namespace SDKLib {
          return null;
       }
 
-      public override bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
-         return false;
+      public override U containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
+         return default(U);
       }
 
       public override U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) {

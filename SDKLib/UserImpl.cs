@@ -124,6 +124,15 @@ namespace SDKLib {
          return workQueue.enqueue(workItem);
       }
 
+    public bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
+         APIClientImpl apiClient = getContainer() as APIClientImpl;
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+
+        UserLiveEventImpl.WorkItemQuery workItem = (UserLiveEventImpl.WorkItemQuery)workQueue.obtainWorkItem(UserLiveEventImpl.WorkItemQuery.TYPE);
+        workItem.set(this, liveEventId, null, callback, handler, closure);
+        return workQueue.enqueue(workItem);
+    }
+
       public bool uploadVideo(System.IO.Stream source, long length, string title, string description,
          UserVideo.Permission permission, User.Result.UploadVideo.If callback, System.Threading.SynchronizationContext handler, object closure) {
 
@@ -196,19 +205,31 @@ namespace SDKLib {
          return null;
       }
 
-      public override bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
-         return false;
+      public override U containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
+         if (UserLiveEventImpl.sType == type) {
+            return mContainerImpl.processQueryOfContainedFromServiceLocked<U>(type, contained, jsonObject, false);
+         }
+         return default(U);
       }
 
       public override U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) {
+         if (UserLiveEventImpl.sType == type) {
+            return mContainerImpl.processDeleteOfContainedFromServiceLocked<U>(type, contained);
+         }
          return default(U);
       }
 
       public override U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) {
+         if (UserLiveEventImpl.sType == type) {
+            return mContainerImpl.processCreateOfContainedInServiceLocked<U>(type, jsonObject, false);
+         }
          return default(U);
       }
 
       public override U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) {
+         if (UserLiveEventImpl.sType == type) {
+            return mContainerImpl.processUpdateOfContainedToServiceLocked<U>(type, contained);
+         }
          return default(U);
       }
 

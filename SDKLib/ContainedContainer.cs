@@ -22,7 +22,7 @@ namespace SDKLib {
                throw new NotImplementedException();
             }
 
-            public override bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
+            public override U containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) {
                throw new NotImplementedException();
             }
 
@@ -114,7 +114,7 @@ namespace SDKLib {
          abstract public object containedGetIdLocked();
 
          abstract public List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
-         abstract public bool containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) where U : Contained.If;
+         abstract public U containerOnQueryOfContainedFromServiceLocked<U>(Contained.CType type, U contained, JObject jsonObject) where U : Contained.If;
          abstract public U containerOnCreateOfContainedInServiceLocked<U>(Contained.CType type, JObject jsonObject) where U : Contained.If;
          abstract public U containerOnUpdateOfContainedToServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;
          abstract public U containerOnDeleteOfContainedFromServiceLocked<U>(Contained.CType type, U contained) where U : Contained.If;

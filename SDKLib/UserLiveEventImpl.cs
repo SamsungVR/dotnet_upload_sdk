@@ -239,6 +239,104 @@ namespace SDKLib {
          return (string)getLocked(PROP_THUMBNAIL_URL);
       }
 
+      internal class WorkItemQuery : ClientWorkItem {
+
+         private class WorkItemTypeQuery : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemQuery(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeQuery();
+
+
+         public WorkItemQuery(APIClientImpl apiClient)
+            : base(apiClient, TYPE) {
+         }
+
+         private UserImpl mUser;
+         private string mUserLiveEventId;
+         private UserLiveEventImpl mUserLiveEventImpl;
+
+
+         public WorkItemQuery set(UserImpl user, string userLiveEventId, UserLiveEventImpl userLiveEventImpl,
+                UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
+            base.set(callback, handler, closure);
+            mUserLiveEventImpl = userLiveEventImpl;
+            mUserLiveEventId = userLiveEventId;
+            mUser = user;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mUser = null;
+            mUserLiveEventId = null;
+            mUserLiveEventImpl = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemQuery));
+
+
+         protected override void onRun() {
+            HttpPlugin.GetRequest request = null;
+            UserImpl user = mUser;
+            string[,] headers = {
+                    {UserImpl.HEADER_SESSION_TOKEN, user.getSessionToken()},
+                    {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
+            };
+            try {
+               String liveEventId = mUserLiveEventId;
+               if (liveEventId == null) {
+                  Log.d(TAG, "onRun : " + " liveEventId is null! this wont work!");
+                  return;
+
+               }
+               String userId = user.getUserId();
+               request = newGetRequest(string.Format("user/{0}/video/{1}", userId, liveEventId), headers);
+               if (null == request) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
+                  return;
+               }
+
+               if (isCancelled()) {
+                  dispatchCancelled();
+                  return;
+               }
+
+               HttpStatusCode rsp = getResponseCode(request);
+               String data = readHttpStream(request, "code: " + rsp);
+
+               if (null == data) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
+                  return;
+               }
+
+               Log.d(TAG, "onSuccess : " + data);
+               JObject jsonObject = JObject.Parse(data);
+
+               if (isHTTPSuccess(rsp)) {
+                  JObject liveEvent = Util.jsonOpt<JObject>(jsonObject, "video", null);
+                  UserLiveEventImpl result = mUser.containerOnQueryOfContainedFromServiceLocked<UserLiveEventImpl>(
+                          UserLiveEventImpl.sType, mUserLiveEventImpl, liveEvent);
+                  if (null != result) {
+                     dispatchSuccessWithResult<UserLiveEvent.If>(result);
+                  } else {
+                     dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
+                  }
+                  return;
+               }
+               int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+               dispatchFailure(status);
+
+            } finally {
+               destroy(request);
+            }
+
+         }
+      }
+
    }
 
 }

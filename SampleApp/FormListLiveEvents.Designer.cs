@@ -28,6 +28,7 @@
          this.ctrlEventsList = new System.Windows.Forms.ListBox();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
          this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
+         this.ctrlRefresh = new System.Windows.Forms.Button();
          this.groupBox1.SuspendLayout();
          this.SuspendLayout();
          // 
@@ -60,6 +61,7 @@
          // 
          // groupBox1
          // 
+         this.groupBox1.Controls.Add(this.ctrlRefresh);
          this.groupBox1.Controls.Add(this.ctrlLiveEventDetail);
          this.groupBox1.Location = new System.Drawing.Point(14, 166);
          this.groupBox1.Name = "groupBox1";
@@ -75,6 +77,16 @@
          this.ctrlLiveEventDetail.Name = "ctrlLiveEventDetail";
          this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 186);
          this.ctrlLiveEventDetail.TabIndex = 0;
+         // 
+         // ctrlRefresh
+         // 
+         this.ctrlRefresh.Location = new System.Drawing.Point(7, 212);
+         this.ctrlRefresh.Name = "ctrlRefresh";
+         this.ctrlRefresh.Size = new System.Drawing.Size(75, 23);
+         this.ctrlRefresh.TabIndex = 1;
+         this.ctrlRefresh.Text = "Refresh";
+         this.ctrlRefresh.UseVisualStyleBackColor = true;
+         this.ctrlRefresh.Click += new System.EventHandler(this.ctrlRefresh_Click);
          // 
          // FormListLiveEvents
          // 
@@ -96,5 +108,6 @@
       private System.Windows.Forms.ListBox ctrlEventsList;
       private System.Windows.Forms.GroupBox groupBox1;
       private System.Windows.Forms.ListBox ctrlLiveEventDetail;
+      private System.Windows.Forms.Button ctrlRefresh;
    }
 }

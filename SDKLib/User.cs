@@ -77,6 +77,18 @@ namespace SDKLib {
 
          bool queryLiveEvents(Result.QueryLiveEvents.If callback, SynchronizationContext handler, object closure);
 
+         /**
+          * Given an live event id, return the corresponding live event
+          *
+          * @param callback This may be NULL.
+          * @param closure An object that the application can use to uniquely identify this request.
+          *                See callback documentation.
+          * @return true if the request was queued, false otherwise
+          */
+
+
+         bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure);
+
       }
 
       public sealed class Result {
