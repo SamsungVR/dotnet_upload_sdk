@@ -239,6 +239,31 @@ namespace SDKLib {
          return (string)getLocked(PROP_THUMBNAIL_URL);
       }
 
+
+      public bool query(UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
+         UserImpl user = getContainer() as UserImpl;
+         APIClientImpl apiClient = user.getContainer() as APIClientImpl;
+
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+
+         WorkItemQuery workItem = (WorkItemQuery)workQueue.obtainWorkItem(WorkItemQuery.TYPE);
+         workItem.set(user, getId(), this, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
+
+      public bool finish(UserLiveEvent.Result.Finish.If callback, SynchronizationContext handler, object closure) {
+         UserImpl user = getContainer() as UserImpl;
+         APIClientImpl apiClient = user.getContainer() as APIClientImpl;
+
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+
+
+         WorkItemFinish workItem = (WorkItemFinish)workQueue.obtainWorkItem(WorkItemFinish.TYPE);
+         workItem.set(this, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
+
+
       internal class WorkItemQuery : ClientWorkItem {
 
          private class WorkItemTypeQuery : AsyncWorkItemType {
@@ -337,6 +362,95 @@ namespace SDKLib {
          }
       }
 
+      /*
+       * Finish
+       */
+
+      internal class WorkItemFinish : ClientWorkItem {
+
+
+         private class WorkItemTypeQuery : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemFinish(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeQuery();
+
+
+         WorkItemFinish(APIClientImpl apiClient)
+            : base(apiClient, TYPE) {
+         }
+
+         private UserLiveEventImpl mUserLiveEvent;
+
+         public WorkItemFinish set(UserLiveEventImpl userLiveEvent, UserLiveEvent.Result.Finish.If callback, 
+            SynchronizationContext handler, object closure) {
+
+            base.set(callback, handler, closure);
+            mUserLiveEvent = userLiveEvent;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mUserLiveEvent = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemFinish));
+
+         protected override void onRun() {
+            HttpPlugin.PutRequest request = null;
+            User.If user = mUserLiveEvent.getUser();
+
+            JObject jsonParam = new JObject();
+            jsonParam.Add("state", UserLiveEvent.State.LIVE_FINISHED_ARCHIVED.ToString());
+
+            string jsonStr = jsonParam.ToString(Newtonsoft.Json.Formatting.None);
+            byte[] bdata = System.Text.Encoding.UTF8.GetBytes(jsonStr);
+
+            string[,] headers = {
+                    {UserImpl.HEADER_SESSION_TOKEN, user.getSessionToken()},
+                    {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()},
+                    {HEADER_CONTENT_TYPE, "application/json"},
+                    {HEADER_CONTENT_LENGTH, bdata.Length.ToString()},
+            };
+            try {
+               String liveEventId = mUserLiveEvent.getId();
+               String userId = user.getUserId();
+               request = newPutRequest(string.Format("user/{0}/video/{1}", userId, liveEventId), headers);
+
+               if (null == request) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
+                  return;
+               }
+
+               writeBytes(request, bdata, jsonStr);
+               if (isCancelled()) {
+                  dispatchCancelled();
+                  return;
+               }
+
+               HttpStatusCode rsp = getResponseCode(request);
+               if (isHTTPSuccess(rsp)) {
+                  dispatchSuccess();
+                  return;
+               }
+               string data = readHttpStream(request, "code: " + rsp);
+               if (null == data) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
+                  return;
+               }
+               JObject jsonObject = JObject.Parse(data);
+               int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+               dispatchFailure(status);
+
+            } finally {
+               destroy(request);
+            }
+         }
+      }
    }
 
 }

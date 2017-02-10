@@ -22,12 +22,6 @@ namespace SDKLib {
          LIVE_ARCHIVING
       }
 
-      public enum FinishAction {
-         ARCHIVE,
-         DELETE
-      }
-
-
       public enum Source {
          [Description("rtmp")]
          RTMP,
@@ -65,7 +59,24 @@ namespace SDKLib {
           * @return true if the query succeeded, false otherwise
           */
 
-         //bool query(Result.Query.If callback, SynchronizationContext handler, object closure);
+         bool query(Result.Query.If callback, SynchronizationContext handler, object closure);
+
+         /**
+          * Sets the state of the live event FINISHED.
+          *
+          * @param action  The action the server should take after marking the live event finished.
+          *                Currently FINISHED_ARCHIVED is the only accepted value, which instructs
+          *                the server to make the entire finished live event playble as streaming VOD
+          * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
+          *                 SDK transfers back ownership of the FD only on the callback.  Consider
+          *                 providing a Non Null callback so that the application can close the FD.
+          * @param handler A handler on which callback should be called. If null, main handler is used.
+          * @param closure An object that the application can use to uniquely identify this request.
+          *                See callback documentation.
+          * @return true if the live event got deleted, false otherwise
+          */
+
+         bool finish(Result.Finish.If callback, SynchronizationContext handler, object closure);
 
       }
 

@@ -27,8 +27,9 @@
          this.ctrlStatus = new System.Windows.Forms.Label();
          this.ctrlEventsList = new System.Windows.Forms.ListBox();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
-         this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
          this.ctrlRefresh = new System.Windows.Forms.Button();
+         this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
+         this.ctrlFinish = new System.Windows.Forms.Button();
          this.groupBox1.SuspendLayout();
          this.SuspendLayout();
          // 
@@ -61,6 +62,7 @@
          // 
          // groupBox1
          // 
+         this.groupBox1.Controls.Add(this.ctrlFinish);
          this.groupBox1.Controls.Add(this.ctrlRefresh);
          this.groupBox1.Controls.Add(this.ctrlLiveEventDetail);
          this.groupBox1.Location = new System.Drawing.Point(14, 166);
@@ -69,14 +71,6 @@
          this.groupBox1.TabIndex = 4;
          this.groupBox1.TabStop = false;
          this.groupBox1.Text = "Event Details";
-         // 
-         // ctrlLiveEventDetail
-         // 
-         this.ctrlLiveEventDetail.FormattingEnabled = true;
-         this.ctrlLiveEventDetail.Location = new System.Drawing.Point(7, 20);
-         this.ctrlLiveEventDetail.Name = "ctrlLiveEventDetail";
-         this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 186);
-         this.ctrlLiveEventDetail.TabIndex = 0;
          // 
          // ctrlRefresh
          // 
@@ -87,6 +81,24 @@
          this.ctrlRefresh.Text = "Refresh";
          this.ctrlRefresh.UseVisualStyleBackColor = true;
          this.ctrlRefresh.Click += new System.EventHandler(this.ctrlRefresh_Click);
+         // 
+         // ctrlLiveEventDetail
+         // 
+         this.ctrlLiveEventDetail.FormattingEnabled = true;
+         this.ctrlLiveEventDetail.Location = new System.Drawing.Point(7, 20);
+         this.ctrlLiveEventDetail.Name = "ctrlLiveEventDetail";
+         this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 186);
+         this.ctrlLiveEventDetail.TabIndex = 0;
+         // 
+         // ctrlFinish
+         // 
+         this.ctrlFinish.Location = new System.Drawing.Point(88, 212);
+         this.ctrlFinish.Name = "ctrlFinish";
+         this.ctrlFinish.Size = new System.Drawing.Size(75, 23);
+         this.ctrlFinish.TabIndex = 2;
+         this.ctrlFinish.Text = "Finish";
+         this.ctrlFinish.UseVisualStyleBackColor = true;
+         this.ctrlFinish.Click += new System.EventHandler(this.ctrlFinish_Click);
          // 
          // FormListLiveEvents
          // 
@@ -109,5 +121,6 @@
       private System.Windows.Forms.GroupBox groupBox1;
       private System.Windows.Forms.ListBox ctrlLiveEventDetail;
       private System.Windows.Forms.Button ctrlRefresh;
+      private System.Windows.Forms.Button ctrlFinish;
    }
 }
