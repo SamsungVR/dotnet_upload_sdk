@@ -264,6 +264,17 @@ namespace SDKLib {
       }
 
 
+      public bool delete(UserLiveEvent.Result.Delete.If callback, SynchronizationContext handler, object closure) {
+         UserImpl user = getContainer() as UserImpl;
+         APIClientImpl apiClient = user.getContainer() as APIClientImpl;
+
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         WorkItemDelete workItem = (WorkItemDelete)workQueue.obtainWorkItem(WorkItemDelete.TYPE);
+         workItem.set(this, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
+
+
       internal class WorkItemQuery : ClientWorkItem {
 
          private class WorkItemTypeQuery : AsyncWorkItemType {
@@ -385,7 +396,7 @@ namespace SDKLib {
 
          private UserLiveEventImpl mUserLiveEvent;
 
-         public WorkItemFinish set(UserLiveEventImpl userLiveEvent, UserLiveEvent.Result.Finish.If callback, 
+         public WorkItemFinish set(UserLiveEventImpl userLiveEvent, UserLiveEvent.Result.Finish.If callback,
             SynchronizationContext handler, object closure) {
 
             base.set(callback, handler, closure);
@@ -451,6 +462,92 @@ namespace SDKLib {
             }
          }
       }
+
+      /*
+       * Delete
+       */
+
+      internal class WorkItemDelete : ClientWorkItem {
+
+         private class WorkItemTypeDelete : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemDelete(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeDelete();
+
+         WorkItemDelete(APIClientImpl apiClient)
+            : base(apiClient, TYPE) {
+         }
+
+         private UserLiveEventImpl mUserLiveEvent;
+
+         public WorkItemDelete set(UserLiveEventImpl userLiveEvent, UserLiveEvent.Result.Delete.If callback,
+             SynchronizationContext handler, object closure) {
+            base.set(callback, handler, closure);
+            mUserLiveEvent = userLiveEvent;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mUserLiveEvent = null;
+         }
+
+         private static readonly String TAG = Util.getLogTag(typeof(WorkItemDelete));
+
+         protected override void onRun() {
+            User.If user = mUserLiveEvent.getUser();
+            HttpPlugin.DeleteRequest request = null;
+            string[,] headers = {
+                    {UserImpl.HEADER_SESSION_TOKEN, user.getSessionToken()},
+                    {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
+            };
+            try {
+               String liveEventId = mUserLiveEvent.getId();
+
+               String userId = user.getUserId();
+
+               request = newDeleteRequest(string.Format("user/{0}/video/{1}", userId, liveEventId), headers);
+               if (null == request) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
+                  return;
+               }
+
+               if (isCancelled()) {
+                  dispatchCancelled();
+                  return;
+               }
+
+               HttpStatusCode rsp = getResponseCode(request);
+
+               if (isHTTPSuccess(rsp)) {
+                  if (null != mUserLiveEvent.getContainer().containerOnDeleteOfContainedFromServiceLocked(
+                          UserLiveEventImpl.sType, mUserLiveEvent)) {
+                     dispatchSuccess();
+                  } else {
+                     dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
+                  }
+                  return;
+               }
+               String data = readHttpStream(request, "code: " + rsp);
+               if (null == data) {
+                  dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
+                  return;
+               }
+               JObject jsonObject = new JObject(data);
+               int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+               dispatchFailure(status);
+
+            } finally {
+               destroy(request);
+            }
+
+         }
+      }
+
    }
 
 }

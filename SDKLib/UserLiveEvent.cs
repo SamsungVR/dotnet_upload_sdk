@@ -78,6 +78,17 @@ namespace SDKLib {
 
          bool finish(Result.Finish.If callback, SynchronizationContext handler, object closure);
 
+         /**
+          * Deletes a new live event
+          *
+          * @param callback This may be NULL..
+          * @param handler A handler on which callback should be called. If null, main handler is used.
+          * @param closure An object that the application can use to uniquely identify this request.
+          *                See callback documentation.
+          * @return true if the live event got deleted, false otherwise
+          */
+
+         bool delete(Result.Delete.If callback, SynchronizationContext handler, object closure);
       }
 
       public sealed class Result {

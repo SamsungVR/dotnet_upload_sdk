@@ -27,9 +27,10 @@
          this.ctrlStatus = new System.Windows.Forms.Label();
          this.ctrlEventsList = new System.Windows.Forms.ListBox();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
+         this.ctrlFinish = new System.Windows.Forms.Button();
          this.ctrlRefresh = new System.Windows.Forms.Button();
          this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
-         this.ctrlFinish = new System.Windows.Forms.Button();
+         this.ctrlDelete = new System.Windows.Forms.Button();
          this.groupBox1.SuspendLayout();
          this.SuspendLayout();
          // 
@@ -62,6 +63,7 @@
          // 
          // groupBox1
          // 
+         this.groupBox1.Controls.Add(this.ctrlDelete);
          this.groupBox1.Controls.Add(this.ctrlFinish);
          this.groupBox1.Controls.Add(this.ctrlRefresh);
          this.groupBox1.Controls.Add(this.ctrlLiveEventDetail);
@@ -71,6 +73,16 @@
          this.groupBox1.TabIndex = 4;
          this.groupBox1.TabStop = false;
          this.groupBox1.Text = "Event Details";
+         // 
+         // ctrlFinish
+         // 
+         this.ctrlFinish.Location = new System.Drawing.Point(88, 212);
+         this.ctrlFinish.Name = "ctrlFinish";
+         this.ctrlFinish.Size = new System.Drawing.Size(75, 23);
+         this.ctrlFinish.TabIndex = 2;
+         this.ctrlFinish.Text = "Finish";
+         this.ctrlFinish.UseVisualStyleBackColor = true;
+         this.ctrlFinish.Click += new System.EventHandler(this.ctrlFinish_Click);
          // 
          // ctrlRefresh
          // 
@@ -90,15 +102,15 @@
          this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 186);
          this.ctrlLiveEventDetail.TabIndex = 0;
          // 
-         // ctrlFinish
+         // ctrlDelete
          // 
-         this.ctrlFinish.Location = new System.Drawing.Point(88, 212);
-         this.ctrlFinish.Name = "ctrlFinish";
-         this.ctrlFinish.Size = new System.Drawing.Size(75, 23);
-         this.ctrlFinish.TabIndex = 2;
-         this.ctrlFinish.Text = "Finish";
-         this.ctrlFinish.UseVisualStyleBackColor = true;
-         this.ctrlFinish.Click += new System.EventHandler(this.ctrlFinish_Click);
+         this.ctrlDelete.Location = new System.Drawing.Point(169, 212);
+         this.ctrlDelete.Name = "ctrlDelete";
+         this.ctrlDelete.Size = new System.Drawing.Size(75, 23);
+         this.ctrlDelete.TabIndex = 3;
+         this.ctrlDelete.Text = "Delete";
+         this.ctrlDelete.UseVisualStyleBackColor = true;
+         this.ctrlDelete.Click += new System.EventHandler(this.ctrlDelete_Click);
          // 
          // FormListLiveEvents
          // 
@@ -122,5 +134,6 @@
       private System.Windows.Forms.ListBox ctrlLiveEventDetail;
       private System.Windows.Forms.Button ctrlRefresh;
       private System.Windows.Forms.Button ctrlFinish;
+      private System.Windows.Forms.Button ctrlDelete;
    }
 }

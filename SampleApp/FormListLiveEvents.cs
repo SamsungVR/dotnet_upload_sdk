@@ -18,6 +18,7 @@ namespace SampleApp {
       private readonly CallbackQueryLiveEvents mCallbackQueryLiveEvents;
       private readonly CallbackQueryLiveEvent mCallbackQueryLiveEvent;
       private readonly CallbackFinishLiveEvent mCallbackFinishLiveEvent;
+      private readonly CallbackDeleteLiveEvent mCallbackDeleteLiveEvent;
 
       public FormListLiveEvents() {
          InitializeComponent();
@@ -25,6 +26,7 @@ namespace SampleApp {
          mCallbackQueryLiveEvents = new CallbackQueryLiveEvents(this);
          mCallbackQueryLiveEvent = new CallbackQueryLiveEvent(this);
          mCallbackFinishLiveEvent = new CallbackFinishLiveEvent(this);
+         mCallbackDeleteLiveEvent = new CallbackDeleteLiveEvent(this);
          onSelected(null);
       }
 
@@ -198,6 +200,35 @@ namespace SampleApp {
          }
       };
 
+      public class CallbackDeleteLiveEvent : UserLiveEvent.Result.Delete.If {
+
+         private readonly FormListLiveEvents mFormListLiveEvents;
+
+         public CallbackDeleteLiveEvent(FormListLiveEvents formListLiveEvents) {
+            mFormListLiveEvents = formListLiveEvents;
+         }
+
+         public void onSuccess(object closure) {
+            Log.d(TAG, "onSuccess");
+            mFormListLiveEvents.ctrlStatus.Text = ResourceStrings.requestSuccess;
+         }
+
+         public void onFailure(object closure, int status) {
+            Log.d(TAG, "onError status: " + status);
+            mFormListLiveEvents.ctrlStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
+         }
+
+         public void onCancelled(object closure) {
+            Log.d(TAG, "onCancelled");
+            mFormListLiveEvents.ctrlStatus.Text = ResourceStrings.requestCancelled;
+         }
+
+         public void onException(object closure, Exception ex) {
+            mFormListLiveEvents.ctrlStatus.Text = ex.Message;
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+         }
+      };
 
       private void ctrlRefresh_Click(object sender, EventArgs e) {
          UserLiveEvent.If selectedItem = getSelectedLiveEvent();
@@ -215,6 +246,16 @@ namespace SampleApp {
          if (null != selectedItem) {
             ctrlStatus.Text = ResourceStrings.requestInProgress;
             selectedItem.finish(mCallbackFinishLiveEvent, App.getInstance().getHandler(), null);
+         }
+
+      }
+
+      private void ctrlDelete_Click(object sender, EventArgs e) {
+         UserLiveEvent.If selectedItem = getSelectedLiveEvent();
+
+         if (null != selectedItem) {
+            ctrlStatus.Text = ResourceStrings.requestInProgress;
+            selectedItem.delete(mCallbackDeleteLiveEvent, App.getInstance().getHandler(), null);
          }
 
       }
