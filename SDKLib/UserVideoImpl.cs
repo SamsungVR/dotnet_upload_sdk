@@ -57,8 +57,8 @@ namespace SDKLib {
             mUploadId = uploadId;
             mChunkSize = chunkSize;
             mNumChunks = numChunks;
-            return retryUploadNoLock(cancelHolder, source, length, 
-               (User.Result.UploadVideo.If)callbackHolder.getCallbackNoLock(), 
+            return retryUploadNoLock(cancelHolder, source, length,
+               (User.Result.UploadVideo.If)callbackHolder.getCallbackNoLock(),
                callbackHolder.getHandlerNoLock(), callbackHolder.getClosureNoLock());
          }
       }

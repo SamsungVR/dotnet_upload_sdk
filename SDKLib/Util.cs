@@ -8,6 +8,8 @@ namespace SDKLib {
 
    public static class Util {
 
+      internal static readonly bool DEBUG = true;
+
       public static string getLogTag(object who) {
          System.Type type;
 
@@ -174,6 +176,26 @@ namespace SDKLib {
                tCallback.onSuccess(closure, mRef);
             }
          }
+      }
+
+      /* http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java */
+
+      internal static string bytesToHex(byte[] bytes, char[] hexArray) {
+         char[] hexChars = new char[bytes.Length * 2];
+         for (int j = 0; j < bytes.Length; j += 1) {
+            int offset = j * 2;
+            int v = bytes[j] & 0xFF;
+            hexChars[offset] = hexArray[(v >> 4) & 0x0F];
+            hexChars[offset + 1] = hexArray[v & 0x0F];
+         }
+         return new string(hexChars);
+      }
+
+      private static readonly char[] sUCHexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+      private static readonly char[] sLCHexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+      internal static string bytesToHex(byte[] bytes, bool upperCase) {
+         return bytesToHex(bytes, upperCase ? sUCHexArray : sLCHexArray);
       }
 
       internal class FailureCallbackNotifier : Util.CallbackNotifier {

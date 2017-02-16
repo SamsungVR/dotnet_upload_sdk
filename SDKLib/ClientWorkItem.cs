@@ -83,6 +83,10 @@ namespace SDKLib {
       private int mDispatchedCount;
       protected readonly ResultCallbackHolder mCallbackHolder = new ResultCallbackHolder();
 
+      public ResultCallbackHolder getCallbackHolder() {
+         return mCallbackHolder;
+      }
+
       protected virtual void dispatchCounted(Util.CallbackNotifier notifier) {
          dispatchUncounted(notifier);
          mDispatchedCount += 1;
@@ -92,7 +96,7 @@ namespace SDKLib {
       protected virtual void onDispatchCounted(int count) {
       }
 
-      protected virtual void dispatchUncounted(Util.CallbackNotifier notifier) {
+      public virtual void dispatchUncounted(Util.CallbackNotifier notifier) {
          notifier.post();
       }
 
@@ -198,6 +202,8 @@ namespace SDKLib {
       internal static readonly string HEADER_CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
       internal static readonly string HEADER_COOKIE = "Cookie";
       internal static readonly string CONTENT_TYPE_CHARSET_SUFFIX_UTF8 = "; charset=utf-8";
+      internal static readonly string HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
+      internal static readonly string TRANSFER_ENCODING_CHUNKED = "chunked";
 
       private T newEndPointRequest<T>(string urlSuffix, HttpMethod method, string[,] headers) where T : HttpPlugin.BaseRequest {
          T result = default(T);
@@ -257,6 +263,10 @@ namespace SDKLib {
          request.output(bis, mIOBuf);
          bis.Close();
 
+      }
+
+      public byte[] getIOBuf() {
+         return mIOBuf;
       }
 
       private string readHttpStream(Stream stream, string debugMsg) {
@@ -534,7 +544,7 @@ namespace SDKLib {
 
       }
 
-      protected class HttpUploadStream : Stream {
+      internal class HttpUploadStream : Stream {
 
          private readonly ByteArrayHolder[] mBufs = new ByteArrayHolder[3] { new ByteArrayHolder(true), new ByteArrayHolder(false), new ByteArrayHolder(true) };
 
@@ -705,15 +715,15 @@ namespace SDKLib {
             }
          }
 
-         protected void onBytesProvided(byte[] data, int offset, int len) {
+         protected virtual void onBytesProvided(byte[] data, int offset, int len) {
 
          }
 
-         protected void onProgress(long providedSoFar, bool isEOF) {
+         protected virtual void onProgress(long providedSoFar, bool isEOF) {
 
          }
 
-         protected bool canContinue() {
+         protected virtual bool canContinue() {
             return true;
          }
 

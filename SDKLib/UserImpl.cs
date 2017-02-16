@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace SDKLib {
 
@@ -60,10 +61,17 @@ namespace SDKLib {
       }
 
       public static readonly CType sType = new CType();
+      private MD5 mMD5Digest = null;
 
       private UserImpl(APIClientImpl apiClient, JObject jsonObject)
          : base(new CType(), apiClient, jsonObject, false) {
+         mMD5Digest = MD5.Create();
       }
+
+      public MD5 getMD5Digest() {
+         return mMD5Digest;
+      }
+
 
       public override object containedGetIdLocked() {
          return getLocked(PROP_USER_ID);
@@ -124,14 +132,14 @@ namespace SDKLib {
          return workQueue.enqueue(workItem);
       }
 
-    public bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
+      public bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
          APIClientImpl apiClient = getContainer() as APIClientImpl;
          AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
 
-        UserLiveEventImpl.WorkItemQuery workItem = (UserLiveEventImpl.WorkItemQuery)workQueue.obtainWorkItem(UserLiveEventImpl.WorkItemQuery.TYPE);
-        workItem.set(this, liveEventId, null, callback, handler, closure);
-        return workQueue.enqueue(workItem);
-    }
+         UserLiveEventImpl.WorkItemQuery workItem = (UserLiveEventImpl.WorkItemQuery)workQueue.obtainWorkItem(UserLiveEventImpl.WorkItemQuery.TYPE);
+         workItem.set(this, liveEventId, null, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
 
       public bool uploadVideo(System.IO.Stream source, long length, string title, string description,
          UserVideo.Permission permission, User.Result.UploadVideo.If callback, System.Threading.SynchronizationContext handler, object closure) {

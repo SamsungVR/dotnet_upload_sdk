@@ -89,6 +89,25 @@ namespace SDKLib {
           */
 
          bool delete(Result.Delete.If callback, SynchronizationContext handler, object closure);
+
+         /**
+           * Upload a video
+           *
+           * @param source Ownership of this FD passes onto the SDK from this point onwards till the
+           *               results are delivered via callback. The SDK may use a FileChannel to change the
+           *               file pointer position.  The SDK will not close the FD. It is the application's
+           *               responsibility to close the FD on success, failure, cancel or exception.
+           * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
+           *                 SDK transfers back ownership of the FD only on the callback.  Consider
+           *                 providing a Non Null callback so that the application can close the FD.
+           * @param handler A handler on which callback should be called. If null, main handler is used.
+           * @param closure An object that the application can use to uniquely identify this request.
+           *                See callback documentation.
+           * @return true if the upload was started, false otherwise
+           */
+
+         bool uploadSegmentFromFD(Stream source, long length,
+             UserLiveEvent.Result.UploadSegment.If callback, SynchronizationContext handler, object closure);
       }
 
       public sealed class Result {
@@ -194,7 +213,31 @@ namespace SDKLib {
             }
          }
 
+         /**
+          * This callback is used to provide status update for uploading a live event segment.
+          */
+
+         public sealed class UploadSegment {
+
+            private UploadSegment() {
+            }
+
+            public static readonly int INVALID_LIVE_EVENT_ID = 1;
+
+            public static readonly int STATUS_SEGMENT_NO_MD5_IMPL = 101;
+            public static readonly int STATUS_SEGMENT_UPLOAD_FAILED = 102;
+            public static readonly int STATUS_SEGMENT_END_NOTIFY_FAILED = 103;
+
+            public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessCallback.If,
+                 VR.Result.ProgressCallback.If {
+
+               /**
+                * The server issued a video id for this upload.  The contents
+                * of the video may not have been uploaded yet.
+                */
+               void onSegmentIdAvailable(object closure, UserLiveEventSegment.If segment);
+            }
+         }
       }
    }
-
 }

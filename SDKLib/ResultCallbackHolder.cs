@@ -34,10 +34,15 @@ namespace SDKLib {
          }
       }
 
-      public virtual void setNoLock(object callback, SynchronizationContext handler, object closure) {
+      public virtual ResultCallbackHolder setNoLock(object callback, SynchronizationContext handler, object closure) {
          mClosure = closure;
          mHandlerWeakRef.Target = handler;
          mCallbackWeakRef.Target = callback;
+         return this;
+      }
+
+      public virtual ResultCallbackHolder setNoLock(ResultCallbackHolder other) {
+         return setNoLock(other.getCallbackNoLock(), other.getHandlerNoLock(), other.getClosureNoLock());
       }
 
       public object getClosureNoLock() {

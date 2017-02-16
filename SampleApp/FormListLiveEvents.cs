@@ -19,6 +19,7 @@ namespace SampleApp {
       private readonly CallbackQueryLiveEvent mCallbackQueryLiveEvent;
       private readonly CallbackFinishLiveEvent mCallbackFinishLiveEvent;
       private readonly CallbackDeleteLiveEvent mCallbackDeleteLiveEvent;
+      private readonly CallbackUploadSegment mCallbackUploadSegment;
 
       public FormListLiveEvents() {
          InitializeComponent();
@@ -27,6 +28,8 @@ namespace SampleApp {
          mCallbackQueryLiveEvent = new CallbackQueryLiveEvent(this);
          mCallbackFinishLiveEvent = new CallbackFinishLiveEvent(this);
          mCallbackDeleteLiveEvent = new CallbackDeleteLiveEvent(this);
+         mCallbackUploadSegment = new CallbackUploadSegment(this);
+
          onSelected(null);
       }
 
@@ -150,7 +153,7 @@ namespace SampleApp {
                   mFormListLiveEvents.refreshLiveEvents(0);
                }
             }
-            
+
          }
 
          public void onFailure(object closure, int status) {
@@ -257,7 +260,103 @@ namespace SampleApp {
             ctrlStatus.Text = ResourceStrings.requestInProgress;
             selectedItem.delete(mCallbackDeleteLiveEvent, App.getInstance().getHandler(), null);
          }
-
       }
+
+      private void ctrlSelectFile_Click(object sender, EventArgs e) {
+         DialogResult result = ctrlVideoChooser.ShowDialog();
+         if (DialogResult.OK == result) {
+            ctrlSelectedFile.Text = ctrlVideoChooser.FileName;
+         } else {
+            ctrlSelectedFile.Text = string.Empty;
+         }
+      }
+
+      private UserLiveEventSegment.If mSegment = null;
+
+      public class CallbackUploadSegment : UserLiveEvent.Result.UploadSegment.If {
+
+         private readonly FormListLiveEvents mFormListLiveEvents;
+
+         public CallbackUploadSegment(FormListLiveEvents formListLiveEvents) {
+            mFormListLiveEvents = formListLiveEvents;
+         }
+
+         public void onSuccess(object closure) {
+            mFormListLiveEvents.onUploadComplete();
+         }
+
+         public void onProgress(object closure, float progressPercent, long complete, long max) {
+            mFormListLiveEvents.ctrlRawProgress.Text = progressPercent.ToString();
+            mFormListLiveEvents.ctrlProgressBar.Value = (int)progressPercent;
+         }
+
+         public void onProgress(object o, long completed) {
+            mFormListLiveEvents.ctrlRawProgress.Text = completed.ToString();
+         }
+
+         public void onFailure(object closure, int status) {
+            mFormListLiveEvents.onUploadComplete();            
+         }
+
+         public void onCancelled(object closure) {
+            mFormListLiveEvents.onUploadComplete();
+         }
+
+         public void onException(object closure, Exception ex) {
+            mFormListLiveEvents.onUploadComplete();
+            mFormListLiveEvents.ctrlStatus.Text = ex.Message;
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+         }
+
+         public void onSegmentIdAvailable(object closure, UserLiveEventSegment.If segment) {
+            mFormListLiveEvents.mSegment = segment;
+         }
+      };
+
+      private Stream mSource;
+      private long mLength;
+
+      private void ctrlUpload_Click(object sender, EventArgs e) {
+         UserLiveEvent.If selectedItem = getSelectedLiveEvent();
+         if (null == selectedItem || null != mSource) {
+            return;
+         }
+
+         string fileName = ctrlSelectedFile.Text;
+         FileInfo fileInfo = new FileInfo(fileName);
+         if (!fileInfo.Exists) {
+            ctrlStatus.Text = ResourceStrings.uploadFileDoesNotExist;
+            return;
+         }
+         FileStream stream = null;
+         try {
+            stream = fileInfo.OpenRead();
+         } catch (Exception) {
+            ctrlStatus.Text = ResourceStrings.uploadFileOpenFailed;
+            return;
+         }
+         long length = fileInfo.Length;
+         ctrlStatus.Text = ResourceStrings.requestInProgress;
+         if (selectedItem.uploadSegmentFromFD(stream, length, mCallbackUploadSegment, App.getInstance().getHandler(), this)) {
+            mSource = stream;
+            mLength = length;
+            onBeginUpload();
+
+         }
+      }
+
+      private void onBeginUpload() {
+         ctrlStatus.Text = ResourceStrings.uploadInProgress;
+      }
+
+      private void onUploadComplete() {
+         mSegment = null;
+         if (null != mSource) {
+            mSource.Close();
+            mSource = null;
+         }
+      }
+
    }
 }

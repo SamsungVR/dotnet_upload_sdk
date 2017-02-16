@@ -44,6 +44,8 @@
     <Compile Include="Contained.cs" />
     <Compile Include="ContainedContainer.cs" />
     <Compile Include="Container.cs" />
+    <Compile Include="UserLiveEventSegmentImpl.cs" />
+    <Compile Include="UserLiveEventSegment.cs" />
     <Compile Include="HttpPlugin.cs" />
     <Compile Include="ObjectHolder.cs" />
     <Compile Include="Observable.cs" />
