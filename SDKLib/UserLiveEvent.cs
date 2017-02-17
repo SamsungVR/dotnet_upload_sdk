@@ -108,6 +108,17 @@ namespace SDKLib {
 
          bool uploadSegmentFromFD(Stream source, long length,
              UserLiveEvent.Result.UploadSegment.If callback, SynchronizationContext handler, object closure);
+
+         /**
+          * Cancels an already started segment upload
+          *
+          * @param closure An object that the application can use to uniquely identify this request.
+          *                See callback documentation.
+          * @return true if the upload was successful, false otherwise
+          */
+
+         bool cancelUploadSegment(object closure);
+
       }
 
       public sealed class Result {

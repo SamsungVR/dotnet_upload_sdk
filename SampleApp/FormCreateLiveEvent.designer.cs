@@ -38,6 +38,9 @@
          this.ctrlCreate = new System.Windows.Forms.Button();
          this.ctrlStatus = new System.Windows.Forms.Label();
          this.ctrlStatusGroup = new System.Windows.Forms.GroupBox();
+         this.label6 = new System.Windows.Forms.Label();
+         this.ctrlCopyRTMPUrlToCB = new System.Windows.Forms.Button();
+         this.ctrlRTMPUrl = new System.Windows.Forms.TextBox();
          this.ctrlOptionsGroup.SuspendLayout();
          this.ctrlActionsGroup.SuspendLayout();
          this.ctrlStatusGroup.SuspendLayout();
@@ -55,9 +58,9 @@
          this.ctrlOptionsGroup.Controls.Add(this.label3);
          this.ctrlOptionsGroup.Controls.Add(this.label1);
          this.ctrlOptionsGroup.Controls.Add(this.ctrlPermission);
-         this.ctrlOptionsGroup.Location = new System.Drawing.Point(14, 15);
+         this.ctrlOptionsGroup.Location = new System.Drawing.Point(14, 3);
          this.ctrlOptionsGroup.Name = "ctrlOptionsGroup";
-         this.ctrlOptionsGroup.Size = new System.Drawing.Size(322, 286);
+         this.ctrlOptionsGroup.Size = new System.Drawing.Size(322, 279);
          this.ctrlOptionsGroup.TabIndex = 2;
          this.ctrlOptionsGroup.TabStop = false;
          this.ctrlOptionsGroup.Text = "Options";
@@ -78,9 +81,9 @@
             "RTMP",
             "SEGMENTED_TS",
             "SEGMENTED_MP4"});
-         this.ctrlSource.Location = new System.Drawing.Point(18, 246);
+         this.ctrlSource.Location = new System.Drawing.Point(20, 246);
          this.ctrlSource.Name = "ctrlSource";
-         this.ctrlSource.Size = new System.Drawing.Size(287, 21);
+         this.ctrlSource.Size = new System.Drawing.Size(283, 21);
          this.ctrlSource.TabIndex = 11;
          // 
          // label2
@@ -101,9 +104,9 @@
             "TOP_BOTTOM_STEREOSCOPIC",
             "LEFT_RIGHT_STEREOSCOPIC",
             "DUAL_FISHEYE"});
-         this.ctrlVideoStereoscopyType.Location = new System.Drawing.Point(18, 192);
+         this.ctrlVideoStereoscopyType.Location = new System.Drawing.Point(20, 192);
          this.ctrlVideoStereoscopyType.Name = "ctrlVideoStereoscopyType";
-         this.ctrlVideoStereoscopyType.Size = new System.Drawing.Size(287, 21);
+         this.ctrlVideoStereoscopyType.Size = new System.Drawing.Size(283, 21);
          this.ctrlVideoStereoscopyType.TabIndex = 9;
          // 
          // ctrlDescription
@@ -158,24 +161,24 @@
             "PUBLIC",
             "VR_ONLY",
             "WEB_ONLY"});
-         this.ctrlPermission.Location = new System.Drawing.Point(16, 140);
+         this.ctrlPermission.Location = new System.Drawing.Point(20, 140);
          this.ctrlPermission.Name = "ctrlPermission";
-         this.ctrlPermission.Size = new System.Drawing.Size(287, 21);
+         this.ctrlPermission.Size = new System.Drawing.Size(283, 21);
          this.ctrlPermission.TabIndex = 0;
          // 
          // ctrlActionsGroup
          // 
          this.ctrlActionsGroup.Controls.Add(this.ctrlCreate);
-         this.ctrlActionsGroup.Location = new System.Drawing.Point(14, 307);
+         this.ctrlActionsGroup.Location = new System.Drawing.Point(14, 288);
          this.ctrlActionsGroup.Name = "ctrlActionsGroup";
-         this.ctrlActionsGroup.Size = new System.Drawing.Size(322, 71);
+         this.ctrlActionsGroup.Size = new System.Drawing.Size(322, 54);
          this.ctrlActionsGroup.TabIndex = 4;
          this.ctrlActionsGroup.TabStop = false;
          this.ctrlActionsGroup.Text = "Actions";
          // 
          // ctrlCreate
          // 
-         this.ctrlCreate.Location = new System.Drawing.Point(18, 34);
+         this.ctrlCreate.Location = new System.Drawing.Point(18, 19);
          this.ctrlCreate.Name = "ctrlCreate";
          this.ctrlCreate.Size = new System.Drawing.Size(65, 23);
          this.ctrlCreate.TabIndex = 0;
@@ -185,7 +188,8 @@
          // 
          // ctrlStatus
          // 
-         this.ctrlStatus.Location = new System.Drawing.Point(18, 26);
+         this.ctrlStatus.ForeColor = System.Drawing.Color.Red;
+         this.ctrlStatus.Location = new System.Drawing.Point(17, 16);
          this.ctrlStatus.Name = "ctrlStatus";
          this.ctrlStatus.Size = new System.Drawing.Size(287, 23);
          this.ctrlStatus.TabIndex = 2;
@@ -193,13 +197,43 @@
          // 
          // ctrlStatusGroup
          // 
+         this.ctrlStatusGroup.Controls.Add(this.ctrlRTMPUrl);
+         this.ctrlStatusGroup.Controls.Add(this.ctrlCopyRTMPUrlToCB);
+         this.ctrlStatusGroup.Controls.Add(this.label6);
          this.ctrlStatusGroup.Controls.Add(this.ctrlStatus);
-         this.ctrlStatusGroup.Location = new System.Drawing.Point(14, 384);
+         this.ctrlStatusGroup.Location = new System.Drawing.Point(14, 348);
          this.ctrlStatusGroup.Name = "ctrlStatusGroup";
-         this.ctrlStatusGroup.Size = new System.Drawing.Size(322, 65);
+         this.ctrlStatusGroup.Size = new System.Drawing.Size(322, 118);
          this.ctrlStatusGroup.TabIndex = 3;
          this.ctrlStatusGroup.TabStop = false;
          this.ctrlStatusGroup.Text = "Status";
+         // 
+         // label6
+         // 
+         this.label6.AutoSize = true;
+         this.label6.Location = new System.Drawing.Point(13, 49);
+         this.label6.Name = "label6";
+         this.label6.Size = new System.Drawing.Size(54, 13);
+         this.label6.TabIndex = 3;
+         this.label6.Text = "RTMP Url";
+         // 
+         // ctrlCopyRTMPUrlToCB
+         // 
+         this.ctrlCopyRTMPUrlToCB.Location = new System.Drawing.Point(131, 89);
+         this.ctrlCopyRTMPUrlToCB.Name = "ctrlCopyRTMPUrlToCB";
+         this.ctrlCopyRTMPUrlToCB.Size = new System.Drawing.Size(171, 23);
+         this.ctrlCopyRTMPUrlToCB.TabIndex = 5;
+         this.ctrlCopyRTMPUrlToCB.Text = "Copy RTMP Url To Clipboard";
+         this.ctrlCopyRTMPUrlToCB.UseVisualStyleBackColor = true;
+         this.ctrlCopyRTMPUrlToCB.Click += new System.EventHandler(this.ctrlCopyRTMPUrlToCB_Click);
+         // 
+         // ctrlRTMPUrl
+         // 
+         this.ctrlRTMPUrl.Location = new System.Drawing.Point(15, 66);
+         this.ctrlRTMPUrl.Name = "ctrlRTMPUrl";
+         this.ctrlRTMPUrl.ReadOnly = true;
+         this.ctrlRTMPUrl.Size = new System.Drawing.Size(287, 20);
+         this.ctrlRTMPUrl.TabIndex = 6;
          // 
          // FormCreateLiveEvent
          // 
@@ -212,6 +246,7 @@
          this.ctrlOptionsGroup.PerformLayout();
          this.ctrlActionsGroup.ResumeLayout(false);
          this.ctrlStatusGroup.ResumeLayout(false);
+         this.ctrlStatusGroup.PerformLayout();
          this.ResumeLayout(false);
 
       }
@@ -233,5 +268,8 @@
       private System.Windows.Forms.Button ctrlCreate;
       private System.Windows.Forms.Label ctrlStatus;
       private System.Windows.Forms.GroupBox ctrlStatusGroup;
+      private System.Windows.Forms.Label label6;
+      private System.Windows.Forms.Button ctrlCopyRTMPUrlToCB;
+      private System.Windows.Forms.TextBox ctrlRTMPUrl;
    }
 }

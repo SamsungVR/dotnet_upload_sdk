@@ -352,9 +352,28 @@ namespace SampleApp {
 
       private void onUploadComplete() {
          mSegment = null;
+         ctrlRawProgress.Text = string.Empty;
+         ctrlProgressBar.Value = 0;
          if (null != mSource) {
             mSource.Close();
             mSource = null;
+         }
+      }
+
+      private void ctrlCancel_Click(object sender, EventArgs e) {
+         bool result = false;
+         if (null != mSegment) {
+            result = mSegment.cancelUpload(this);
+         } else {
+            UserLiveEvent.If selectedItem = getSelectedLiveEvent();
+            if (null == selectedItem) {
+               return;
+            }
+            result = selectedItem.cancelUploadSegment(this);
+         }
+         if (result) {
+            onUploadComplete();
+            ctrlStatus.Text = ResourceStrings.uploadCancelled;
          }
       }
 

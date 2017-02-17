@@ -34,14 +34,17 @@ namespace SampleApp {
          public void onSuccess(object closure, UserLiveEvent.If eventObj) {
             Log.d(TAG, "onSuccess event: " + eventObj);
             mFormCreateLiveEvent.ctrlStatus.Text = string.Format(ResourceStrings.liveCreateSuccess, eventObj.getId());
+            mFormCreateLiveEvent.ctrlRTMPUrl.Text = eventObj.getProducerUrl();
          }
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "onError status: " + status);
+            mFormCreateLiveEvent.ctrlStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
          }
 
          public void onCancelled(object closure) {
             Log.d(TAG, "onCancelled");
+            mFormCreateLiveEvent.ctrlStatus.Text = ResourceStrings.requestCancelled;
          }
 
          public void onException(object closure, Exception ex) {
@@ -53,14 +56,14 @@ namespace SampleApp {
 
       };
 
-      
-
-
       private void ctrlCreate_Click(object sender, EventArgs e) {
+         ctrlRTMPUrl.Text = string.Empty;
+
          User.If user = App.getInstance().getUser();
          if (null == user) {
             return;
          }
+         
          UserVideo.Permission permission;
          Util.string2Enum<UserVideo.Permission>(out permission, ctrlPermission.Text, UserVideo.Permission.PRIVATE);
 
@@ -72,6 +75,10 @@ namespace SampleApp {
 
          user.createLiveEvent(ctrlTitle.Text, ctrlDescription.Text, permission, source, stereoscopyType,
             mCallbackCreateLiveEvent, App.getInstance().getHandler(), null);
+      }
+
+      private void ctrlCopyRTMPUrlToCB_Click(object sender, EventArgs e) {
+         Clipboard.SetText(ctrlRTMPUrl.Text);
       }
    }
 }

@@ -135,8 +135,9 @@ namespace SDKLib {
 
          protected BaseRequestImpl(string method, string url, string[,] headers) {
             mHttpRequest = HttpWebRequest.Create(url) as HttpWebRequest;
-            mHttpRequest.Timeout = 10000;
-            mHttpRequest.ReadWriteTimeout = 10000;
+            mHttpRequest.Timeout = -1;
+            mHttpRequest.ReadWriteTimeout = -1;
+            mHttpRequest.AllowWriteStreamBuffering = false;
             mHttpRequest.Method = method;
             mHttpRequest.KeepAlive = false;
                 
