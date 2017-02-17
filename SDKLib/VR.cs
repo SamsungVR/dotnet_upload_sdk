@@ -362,12 +362,20 @@ namespace SDKLib {
 
       public static bool destroyAsync(VR.Result.Destroy.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
-            if (null != sAPIClient && null == sDestroyCallback) {
-               DestroyCallback temp = new DestroyCallback(callback);
-               if (sAPIClient.destroy(temp, handler, closure)) {
-                  sDestroyCallback = temp;
-                  return true;
-               }
+            if (null != sInitCallback || null != sDestroyCallback) {
+               /* Pending either init or destroy */
+               return false;
+            }
+            DestroyCallback temp = new DestroyCallback(callback);
+            if (null == sAPIClient) {
+               /* Was never init */
+               sDestroyCallback = temp;
+               new Util.SuccessCallbackNotifier(sDestroyCallback, handler, closure).post();
+               return true;
+            }
+            if (sAPIClient.destroy(temp, handler, closure)) {
+               sDestroyCallback = temp;
+               return true;
             }
             return false;
          }

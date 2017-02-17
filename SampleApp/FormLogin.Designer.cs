@@ -37,6 +37,8 @@
          // ctrlEndPoint
          // 
          this.ctrlEndPoint.BackColor = System.Drawing.SystemColors.Window;
+         this.ctrlEndPoint.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+         this.ctrlEndPoint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
          this.ctrlEndPoint.Location = new System.Drawing.Point(22, 14);
          this.ctrlEndPoint.Name = "ctrlEndPoint";
          this.ctrlEndPoint.Size = new System.Drawing.Size(263, 26);
