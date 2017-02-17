@@ -21,6 +21,10 @@ namespace SampleApp {
          InitializeComponent();
 
          mCallbackCreateLiveEvent = new CallbackCreateLiveEvent(this);
+         ctrlPermission.SelectedIndex = 2;
+         ctrlVideoStereoscopyType.SelectedIndex = 0;
+         ctrlSource.SelectedIndex = 0;
+         ctrlTitle.Focus();
       }
 
       public class CallbackCreateLiveEvent : User.Result.CreateLiveEvent.If {

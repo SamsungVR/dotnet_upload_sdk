@@ -84,7 +84,7 @@
          this.ctrlSource.Location = new System.Drawing.Point(20, 246);
          this.ctrlSource.Name = "ctrlSource";
          this.ctrlSource.Size = new System.Drawing.Size(283, 21);
-         this.ctrlSource.TabIndex = 11;
+         this.ctrlSource.TabIndex = 4;
          // 
          // label2
          // 
@@ -107,7 +107,7 @@
          this.ctrlVideoStereoscopyType.Location = new System.Drawing.Point(20, 192);
          this.ctrlVideoStereoscopyType.Name = "ctrlVideoStereoscopyType";
          this.ctrlVideoStereoscopyType.Size = new System.Drawing.Size(283, 21);
-         this.ctrlVideoStereoscopyType.TabIndex = 9;
+         this.ctrlVideoStereoscopyType.TabIndex = 3;
          // 
          // ctrlDescription
          // 
@@ -115,7 +115,7 @@
          this.ctrlDescription.Multiline = true;
          this.ctrlDescription.Name = "ctrlDescription";
          this.ctrlDescription.Size = new System.Drawing.Size(287, 20);
-         this.ctrlDescription.TabIndex = 8;
+         this.ctrlDescription.TabIndex = 1;
          // 
          // label4
          // 
@@ -132,7 +132,7 @@
          this.ctrlTitle.Multiline = true;
          this.ctrlTitle.Name = "ctrlTitle";
          this.ctrlTitle.Size = new System.Drawing.Size(287, 20);
-         this.ctrlTitle.TabIndex = 6;
+         this.ctrlTitle.TabIndex = 0;
          // 
          // label3
          // 
@@ -164,7 +164,7 @@
          this.ctrlPermission.Location = new System.Drawing.Point(20, 140);
          this.ctrlPermission.Name = "ctrlPermission";
          this.ctrlPermission.Size = new System.Drawing.Size(283, 21);
-         this.ctrlPermission.TabIndex = 0;
+         this.ctrlPermission.TabIndex = 2;
          // 
          // ctrlActionsGroup
          // 
@@ -181,7 +181,7 @@
          this.ctrlCreate.Location = new System.Drawing.Point(18, 19);
          this.ctrlCreate.Name = "ctrlCreate";
          this.ctrlCreate.Size = new System.Drawing.Size(65, 23);
-         this.ctrlCreate.TabIndex = 0;
+         this.ctrlCreate.TabIndex = 5;
          this.ctrlCreate.Text = "Create";
          this.ctrlCreate.UseVisualStyleBackColor = true;
          this.ctrlCreate.Click += new System.EventHandler(this.ctrlCreate_Click);
@@ -222,7 +222,7 @@
          this.ctrlCopyRTMPUrlToCB.Location = new System.Drawing.Point(131, 89);
          this.ctrlCopyRTMPUrlToCB.Name = "ctrlCopyRTMPUrlToCB";
          this.ctrlCopyRTMPUrlToCB.Size = new System.Drawing.Size(171, 23);
-         this.ctrlCopyRTMPUrlToCB.TabIndex = 5;
+         this.ctrlCopyRTMPUrlToCB.TabIndex = 6;
          this.ctrlCopyRTMPUrlToCB.Text = "Copy RTMP Url To Clipboard";
          this.ctrlCopyRTMPUrlToCB.UseVisualStyleBackColor = true;
          this.ctrlCopyRTMPUrlToCB.Click += new System.EventHandler(this.ctrlCopyRTMPUrlToCB_Click);

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using SDKLib;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
@@ -31,9 +33,51 @@ namespace SampleApp {
       public void removeObserver(Observer observer) {
          mObservers -= observer;
       }
-             
+
+      private static readonly string TAG = Util.getLogTag(typeof(EndPointConfigManager));
+
       private void loadConfigsFromSettings() {
+         Log.d(TAG, "Using config: " + AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+
          mConfigList.Clear();
+
+         if (!AppSettings.Default.endPointPreloaded) {
+            AppSettings.Default.endPointPreloaded = true;
+            AppSettings.Default.Save();
+
+            string preConfig = ResourceStrings.preConfiguredEP;
+            if (!string.IsNullOrEmpty(preConfig)) {
+               JObject jsonObject = JObject.Parse(preConfig);
+               JToken tempConfigs;
+
+               if (jsonObject.TryGetValue("configs", out tempConfigs)) {
+                  JArray configs = tempConfigs as JArray;
+                  if (null != configs) {
+                     foreach (JObject config in configs) {
+
+                        JToken tempUrl, tempApiKey;
+                        if (!config.TryGetValue("url", out tempUrl) || !config.TryGetValue("apiKey", out tempApiKey)) {
+                           continue;
+                        }
+                        string url, apiKey;
+
+                        url = tempUrl.Value<string>();
+                        apiKey = tempApiKey.Value<string>();
+
+                        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(apiKey)) {
+                           continue;
+                        }
+                        EndPointConfig newCfg = new EndPointConfig();
+                        newCfg.setApiKey(apiKey);
+                        newCfg.setUrl(url);
+                        mConfigList.Add(newCfg);
+                     }
+                  }
+
+               }
+            }
+            
+         }
 
          string savedConfig = AppSettings.Default.endPointConfig;
          byte[] asBytes;
