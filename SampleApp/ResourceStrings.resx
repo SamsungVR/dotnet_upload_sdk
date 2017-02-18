@@ -151,6 +151,9 @@
   <data name="loggedInAs" xml:space="preserve">
     <value>Logged in as {0}</value>
   </data>
+  <data name="preConfiguredEP" xml:space="preserve">
+    <value />
+  </data>
   <data name="requestCancelled" xml:space="preserve">
     <value>Cancelled</value>
   </data>

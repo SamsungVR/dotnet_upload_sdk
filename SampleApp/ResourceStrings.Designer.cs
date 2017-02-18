@@ -160,7 +160,7 @@ namespace SampleApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;configs&quot;:[{&quot;url&quot;: &quot;https://samsungvr.com/api&quot;, &quot;apiKey&quot;: &quot;58518419e38ac0000cb5fba8.a7cNtpUHZxAcSLa8x_wc-mOsuWED-4IcNroyJKaLP8U&quot;}]}.
+        ///   Looks up a localized string similar to .
         /// </summary>
         internal static string preConfiguredEP {
             get {
