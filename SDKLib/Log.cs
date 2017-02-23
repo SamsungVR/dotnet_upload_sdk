@@ -57,6 +57,7 @@ namespace SDKLib {
                sLogFile.WriteLine("Working set     : " + Environment.WorkingSet);
                sLogFile.WriteLine("Interactive?    : " + Environment.UserInteractive);
                sLogFile.WriteLine("Processor count : " + Environment.ProcessorCount);
+               sLogFile.WriteLine("Network avail?  : " + System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable());
                sLogFile.WriteLine(Environment.NewLine);
             }
          }
