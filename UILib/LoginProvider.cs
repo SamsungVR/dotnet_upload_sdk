@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
@@ -39,6 +40,7 @@ namespace UILib {
          }
 
          internal void onCredsAvailable(JObject credsObject) {
+
          }
 
          override public UserControl getUI() {

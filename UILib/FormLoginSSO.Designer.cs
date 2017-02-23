@@ -73,7 +73,6 @@
          this.ctrlWebView.Size = new System.Drawing.Size(630, 290);
          this.ctrlWebView.TabIndex = 4;
          this.ctrlWebView.WebBrowserShortcutsEnabled = false;
-         this.ctrlWebView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.ctrlWebView_onDocumentCompleted);
          this.ctrlWebView.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.ctrlWebView_onNavigating);
          // 
          // FormLoginSSO
