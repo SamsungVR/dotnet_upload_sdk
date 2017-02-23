@@ -50,6 +50,8 @@ namespace SampleApp {
                JObject jsonObject = JObject.Parse(preConfig);
                JToken tempConfigs;
 
+               /* {"configs":[{"url":"https://samsungvr.com/api","apiKey":"asdf"}]} */
+
                if (jsonObject.TryGetValue("configs", out tempConfigs)) {
                   JArray configs = tempConfigs as JArray;
                   if (null != configs) {
