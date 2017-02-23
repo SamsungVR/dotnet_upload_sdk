@@ -26,6 +26,7 @@
          this.ctrlEndPoint = new System.Windows.Forms.Label();
          this.ctrlStatusMsg = new System.Windows.Forms.Label();
          this.ctrlCredsGroup = new System.Windows.Forms.GroupBox();
+         this.button1 = new System.Windows.Forms.Button();
          this.ctrlLogin = new System.Windows.Forms.Button();
          this.ctrlPassword = new System.Windows.Forms.TextBox();
          this.label3 = new System.Windows.Forms.Label();
@@ -57,6 +58,7 @@
          // 
          // ctrlCredsGroup
          // 
+         this.ctrlCredsGroup.Controls.Add(this.button1);
          this.ctrlCredsGroup.Controls.Add(this.ctrlLogin);
          this.ctrlCredsGroup.Controls.Add(this.ctrlPassword);
          this.ctrlCredsGroup.Controls.Add(this.label3);
@@ -68,6 +70,17 @@
          this.ctrlCredsGroup.TabIndex = 7;
          this.ctrlCredsGroup.TabStop = false;
          this.ctrlCredsGroup.Text = "Credentials";
+         // 
+         // button1
+         // 
+         this.button1.Location = new System.Drawing.Point(100, 149);
+         this.button1.Name = "button1";
+         this.button1.Size = new System.Drawing.Size(75, 23);
+         this.button1.TabIndex = 11;
+         this.button1.Text = "Test";
+         this.button1.UseVisualStyleBackColor = true;
+         this.button1.Visible = false;
+         this.button1.Click += new System.EventHandler(this.button1_Click);
          // 
          // ctrlLogin
          // 
@@ -121,6 +134,7 @@
          this.Controls.Add(this.ctrlEndPoint);
          this.Name = "FormLogin";
          this.Size = new System.Drawing.Size(307, 310);
+         this.Load += new System.EventHandler(this.FormLogin_Load);
          this.ctrlCredsGroup.ResumeLayout(false);
          this.ctrlCredsGroup.PerformLayout();
          this.ResumeLayout(false);
@@ -137,5 +151,6 @@
       private System.Windows.Forms.Label label3;
       private System.Windows.Forms.TextBox ctrlUsername;
       private System.Windows.Forms.Label label2;
+      private System.Windows.Forms.Button button1;
    }
 }

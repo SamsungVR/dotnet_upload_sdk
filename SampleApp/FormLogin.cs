@@ -6,6 +6,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using SDKLib;
+using UILib;
 
 namespace SampleApp {
 
@@ -162,6 +163,14 @@ namespace SampleApp {
 
       private void ctrlStatusMsg_Click(object sender, EventArgs e) {
          ctrlStatusMsg.Text = string.Empty;
+      }
+
+      private void FormLogin_Load(object sender, EventArgs e) {
+
+      }
+
+      private void button1_Click(object sender, EventArgs e) {
+         UILib.UILib.login();
       }
    }
 }
