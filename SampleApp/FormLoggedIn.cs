@@ -67,5 +67,12 @@ namespace SampleApp {
          setControl(new FormListLiveEvents());
 
       }
+
+      private void ctrlManageLogs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+         if (mControl is FormManageLogs) {
+            return;
+         }
+         setControl(new FormManageLogs());
+      }
    }
 }

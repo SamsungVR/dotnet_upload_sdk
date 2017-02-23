@@ -58,5 +58,17 @@ namespace SampleApp {
                 this["endPointPreloaded"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string logFileFullPath {
+            get {
+                return ((string)(this["logFileFullPath"]));
+            }
+            set {
+                this["logFileFullPath"] = value;
+            }
+        }
     }
 }

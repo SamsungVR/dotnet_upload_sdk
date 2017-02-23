@@ -25,6 +25,7 @@
       private void InitializeComponent() {
          this.ctrlCurrentAction = new System.Windows.Forms.Panel();
          this.panel2 = new System.Windows.Forms.Panel();
+         this.ctrlManageLogs = new System.Windows.Forms.LinkLabel();
          this.ctrlListLiveEvents = new System.Windows.Forms.LinkLabel();
          this.ctrlCreateLiveEvent = new System.Windows.Forms.LinkLabel();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -49,6 +50,7 @@
          // panel2
          // 
          this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+         this.panel2.Controls.Add(this.ctrlManageLogs);
          this.panel2.Controls.Add(this.ctrlListLiveEvents);
          this.panel2.Controls.Add(this.ctrlCreateLiveEvent);
          this.panel2.Controls.Add(this.groupBox1);
@@ -57,6 +59,17 @@
          this.panel2.Name = "panel2";
          this.panel2.Size = new System.Drawing.Size(200, 501);
          this.panel2.TabIndex = 2;
+         // 
+         // ctrlManageLogs
+         // 
+         this.ctrlManageLogs.AutoSize = true;
+         this.ctrlManageLogs.Location = new System.Drawing.Point(7, 187);
+         this.ctrlManageLogs.Name = "ctrlManageLogs";
+         this.ctrlManageLogs.Size = new System.Drawing.Size(68, 13);
+         this.ctrlManageLogs.TabIndex = 4;
+         this.ctrlManageLogs.TabStop = true;
+         this.ctrlManageLogs.Text = "Manage logs";
+         this.ctrlManageLogs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlManageLogs_LinkClicked);
          // 
          // ctrlListLiveEvents
          // 
@@ -157,6 +170,7 @@
       private System.Windows.Forms.LinkLabel ctrlUploadVideo;
       private System.Windows.Forms.LinkLabel ctrlListLiveEvents;
       private System.Windows.Forms.LinkLabel ctrlCreateLiveEvent;
+      private System.Windows.Forms.LinkLabel ctrlManageLogs;
 
    }
 }

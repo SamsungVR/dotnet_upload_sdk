@@ -98,6 +98,12 @@
     <Compile Include="FormListLiveEvents.designer.cs">
       <DependentUpon>FormListLiveEvents.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormManageLogs.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FormManageLogs.designer.cs">
+      <DependentUpon>FormManageLogs.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormSnapToContent.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -202,6 +208,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormManageLogs.resx">
+      <DependentUpon>FormManageLogs.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormSnapToContent.resx">
       <DependentUpon>FormSnapToContent.cs</DependentUpon>

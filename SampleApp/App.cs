@@ -47,7 +47,14 @@ namespace SampleApp {
          }
       }
 
+      static void MyHandler(object sender, UnhandledExceptionEventArgs args) {
+         Exception e = (Exception)args.ExceptionObject;
+         Log.d(TAG, e.ToString(), true);
+      }
+
       public void main() {
+         Log.setLogFilePath(FormManageLogs.getCurrentLogFile());
+         AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
          Application.EnableVisualStyles();
          WindowsFormsSynchronizationContext handler = new WindowsFormsSynchronizationContext();
          SynchronizationContext.SetSynchronizationContext(handler);
@@ -56,9 +63,9 @@ namespace SampleApp {
          mFormMain.setControl(new FormLogin());
          //Application.AddMessageFilter(new MyMessageFilter());
          Application.Run();
-
          mFormDialog = null;
          mFormMain = null;
+         Log.closeLogFile();
       }
 
       public FormMain getFormMain() {
