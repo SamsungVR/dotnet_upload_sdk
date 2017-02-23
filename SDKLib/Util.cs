@@ -78,7 +78,7 @@ namespace SDKLib {
          return string2Enum<T>(out result, enumName, default(T));
       }
 
-      internal static T jsonOpt<T>(JObject jsonObject, string attr, T defValue) {
+      public static T jsonOpt<T>(JObject jsonObject, string attr, T defValue) {
          JToken token;
          if (jsonObject.TryGetValue(attr, out token)) {
             return token.Value<T>();
@@ -86,7 +86,7 @@ namespace SDKLib {
          return defValue;
       }
 
-      internal static T jsonGet<T>(JObject jsonObject, string attr) {
+      public static T jsonGet<T>(JObject jsonObject, string attr) {
          JToken token;
          token = jsonObject.GetValue(attr);
          return token.Value<T>();

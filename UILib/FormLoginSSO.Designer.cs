@@ -63,6 +63,7 @@
          // 
          // ctrlWebView
          // 
+         this.ctrlWebView.AllowWebBrowserDrop = false;
          this.ctrlWebView.IsWebBrowserContextMenuEnabled = false;
          this.ctrlWebView.Location = new System.Drawing.Point(0, 54);
          this.ctrlWebView.Margin = new System.Windows.Forms.Padding(0);
@@ -70,9 +71,10 @@
          this.ctrlWebView.Name = "ctrlWebView";
          this.ctrlWebView.ScriptErrorsSuppressed = true;
          this.ctrlWebView.Size = new System.Drawing.Size(630, 290);
-         this.ctrlWebView.TabIndex = 1;
+         this.ctrlWebView.TabIndex = 4;
          this.ctrlWebView.WebBrowserShortcutsEnabled = false;
          this.ctrlWebView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.ctrlWebView_onDocumentCompleted);
+         this.ctrlWebView.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.ctrlWebView_onNavigating);
          // 
          // FormLoginSSO
          // 

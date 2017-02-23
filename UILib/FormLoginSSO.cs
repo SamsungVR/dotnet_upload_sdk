@@ -13,18 +13,23 @@ namespace UILib {
 
       private string mSSOAppId, mSSOAppSecret;
       private Uri mLoginUri;
+      private readonly string mPostData;
+      private readonly LoginProvider.SSO mProviderSSO;
 
-      public FormLoginSSO(string ssoAppId, string ssoAppSecret) {
+      private static readonly string sLocalhost = "localhost";
+
+      public FormLoginSSO(LoginProvider.SSO providerSSO, string ssoAppId, string ssoAppSecret) {
          InitializeComponent();
+
+         mProviderSSO = providerSSO;
          mSSOAppId = ssoAppId;
          mSSOAppSecret = ssoAppSecret;
-         mLoginUri = new Uri(
-            string.Format("https://account.samsung.com/account/check.do?serviceID={0}&actionID=StartOAuth2&countryCode=US&languageCode=en&accessToken=Y&serviceChannel=PC_APP",
-            mSSOAppId));
+         mPostData = string.Format("serviceID={0}&actionID=StartOAuth2&redirect_uri=http://{1}&accessToken=Y", mSSOAppId, sLocalhost);
+         mLoginUri = new Uri("https://account.samsung.com/mobile/account/check.do");
       }
 
       private void toLoginPage() {
-         ctrlWebView.Navigate(mLoginUri);
+         ctrlWebView.Navigate(mLoginUri, "", Encoding.UTF8.GetBytes(mPostData), "Content-Type: application/x-www-form-urlencoded" + Environment.NewLine);
       }
 
       public void reload() {
@@ -43,18 +48,34 @@ namespace UILib {
 
       private static readonly string TAG = SDKLib.Util.getLogTag(typeof(FormLoginSSO));
 
-      private void ctrlWebView_onDocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-         SDKLib.Log.d(TAG, "Url: " + ctrlWebView.Url + " state: " + ctrlWebView.ReadyState);
-         string data = ctrlWebView.DocumentText;
-         JObject jsonData;
-         try {
-            jsonData = JObject.Parse(data);
-         } catch (Exception ex) {
-            SDKLib.Log.d(TAG, ex.ToString());
-            return;
-         }
+      private void ctrlWebView_onNavigating(object sender, WebBrowserNavigatingEventArgs e) {
+         if (sLocalhost.Equals(e.Url.Authority)) {
+            e.Cancel = true;
 
-         SDKLib.Log.d(TAG, jsonData.ToString());
+            HtmlElementCollection inputs = ctrlWebView.Document.GetElementsByTagName("input");
+            JObject json = null;
+            if (null != inputs && 1 == inputs.Count) {
+               
+               for (int i = inputs.Count - 1; i >= 0; i -= 1) {
+                  if (!"code".Equals(inputs[i].Name)) {
+                     continue;
+                  }
+                  try {
+                     json = JObject.Parse(inputs[i].GetAttribute("value"));
+                  } catch (Exception ex) {
+                     SDKLib.Log.d(TAG, inputs[i].Id + " " + inputs[i].Name + " " + ex);
+                     json = null;
+                  }
+                  
+               }
+            }
+            if (null == json) {
+               toLoginPage();
+            } else {
+               mProviderSSO.onCredsAvailable(json);
+            }
+
+         }
       }
 
    }

@@ -32,13 +32,16 @@ namespace UILib {
 
       internal class SSO : BaseImpl {
 
-         FormLoginSSO mLoginSSO;
+         private readonly FormLoginSSO mLoginSSO;
 
          public SSO() : base(ResourceStrings.loginSSO) {
+            mLoginSSO = new FormLoginSSO(this, "2269tcup3k", "D2C4F779BF5A8E0FD2AF120C1357B1C9");
+         }
+
+         internal void onCredsAvailable(JObject credsObject) {
          }
 
          override public UserControl getUI() {
-            mLoginSSO = new FormLoginSSO("", "");
             mLoginSSO.reload();
             return mLoginSSO;
          }
