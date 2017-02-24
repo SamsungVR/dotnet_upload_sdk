@@ -24,7 +24,7 @@ namespace SampleApp {
       internal static string getCurrentLogFile() {
          string settingsLogFile = AppSettings.Default.logFileFullPath;
          if (null == settingsLogFile || string.Empty.Equals(settingsLogFile)) {
-            settingsLogFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), LOG_FILE_NAME);
+            settingsLogFile = Path.Combine(Application.StartupPath, LOG_FILE_NAME);
          }
          return settingsLogFile;
       }

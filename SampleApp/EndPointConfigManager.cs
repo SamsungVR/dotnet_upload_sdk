@@ -38,7 +38,7 @@ namespace SampleApp {
       private static readonly string CFG_FILE_NAME = "vrsdkcfg.cfg";
 
       private string getDefaultCfgFile() {
-         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), CFG_FILE_NAME);
+         return Path.Combine(System.Windows.Forms.Application.StartupPath, CFG_FILE_NAME);
       }
 
       private string nullChkCfgFile(string cfgFile) {
