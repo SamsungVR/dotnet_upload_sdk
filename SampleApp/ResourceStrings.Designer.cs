@@ -79,6 +79,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copied {0}.
+        /// </summary>
+        internal static string copiedToClipboard {
+            get {
+                return ResourceManager.GetString("copiedToClipboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please wait while VR library is destroyed.
         /// </summary>
         internal static string deinitVR {
@@ -160,11 +169,29 @@ namespace SampleApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to There is no RTMP url for this live event. Check if this an RTMP live event..
+        /// </summary>
+        internal static string noRTMPUrlToCopy {
+            get {
+                return ResourceManager.GetString("noRTMPUrlToCopy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;configs&quot;:[{&quot;url&quot;:&quot;https://samsungvr.com/api&quot;,&quot;apiKey&quot;:&quot;58518419e38ac0000cb5fba8.a7cNtpUHZxAcSLa8x_wc-mOsuWED-4IcNroyJKaLP8U&quot;}]}.
         /// </summary>
         internal static string preConfiguredEP {
             get {
                 return ResourceManager.GetString("preConfiguredEP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh live events list and select live event.
+        /// </summary>
+        internal static string refreshListAndSelectLiveEvent {
+            get {
+                return ResourceManager.GetString("refreshListAndSelectLiveEvent", resourceCulture);
             }
         }
         

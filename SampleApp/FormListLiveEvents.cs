@@ -30,7 +30,7 @@ namespace SampleApp {
          mCallbackDeleteLiveEvent = new CallbackDeleteLiveEvent(this);
          mCallbackUploadSegment = new CallbackUploadSegment(this);
 
-         onSelected(null);
+         queryLiveEvents();
       }
 
       List<UserLiveEvent.If> mLiveEvents;
@@ -85,6 +85,10 @@ namespace SampleApp {
       };
 
       private void ctrlQuery_Click(object sender, EventArgs e) {
+         queryLiveEvents();
+      }
+
+      private void queryLiveEvents() {
          onSelected(null);
          User.If user = App.getInstance().getUser();
          if (null == user) {
@@ -259,6 +263,7 @@ namespace SampleApp {
          if (null != selectedItem) {
             ctrlStatus.Text = ResourceStrings.requestInProgress;
             selectedItem.delete(mCallbackDeleteLiveEvent, App.getInstance().getHandler(), null);
+            queryLiveEvents();
          }
       }
 
@@ -374,6 +379,21 @@ namespace SampleApp {
          if (result) {
             onUploadComplete();
             ctrlStatus.Text = ResourceStrings.uploadCancelled;
+         }
+      }
+
+      private void ctrlCopyToClip_Click(object sender, EventArgs e) {
+         UserLiveEvent.If selectedItem = getSelectedLiveEvent();
+         if (null == selectedItem) {
+            ctrlStatus.Text = ResourceStrings.refreshListAndSelectLiveEvent;
+            return;
+         }
+         string url = selectedItem.getProducerUrl();
+         if (null == url || string.Empty.Equals(url)) {
+            ctrlStatus.Text = ResourceStrings.noRTMPUrlToCopy;
+         } else {
+            Clipboard.SetText(url);
+            ctrlStatus.Text = string.Format(ResourceStrings.copiedToClipboard, url);
          }
       }
 

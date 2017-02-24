@@ -82,7 +82,13 @@ namespace SampleApp {
       }
 
       private void ctrlCopyRTMPUrlToCB_Click(object sender, EventArgs e) {
-         Clipboard.SetText(ctrlRTMPUrl.Text);
+         string url = ctrlRTMPUrl.Text; 
+         if (null == url || string.Empty.Equals(url))  {
+            ctrlStatus.Text = ResourceStrings.noRTMPUrlToCopy;
+         } else {
+            Clipboard.SetText(url);
+            ctrlStatus.Text = string.Format(ResourceStrings.copiedToClipboard, url);
+         }
       }
    }
 }

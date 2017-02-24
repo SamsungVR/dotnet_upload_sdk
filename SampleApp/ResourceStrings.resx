@@ -123,6 +123,9 @@
   <data name="configureEndPoint" xml:space="preserve">
     <value>No endpoints configured. Click here.</value>
   </data>
+  <data name="copiedToClipboard" xml:space="preserve">
+    <value>Copied {0}</value>
+  </data>
   <data name="deinitVR" xml:space="preserve">
     <value>Please wait while VR library is destroyed</value>
   </data>
@@ -151,8 +154,14 @@
   <data name="loggedInAs" xml:space="preserve">
     <value>Logged in as {0}</value>
   </data>
+  <data name="noRTMPUrlToCopy" xml:space="preserve">
+    <value>There is no RTMP url for this live event. Check if this an RTMP live event.</value>
+  </data>
   <data name="preConfiguredEP" xml:space="preserve">
-    <value />
+    <value>{"configs":[{"url":"https://samsungvr.com/api","apiKey":"58518419e38ac0000cb5fba8.a7cNtpUHZxAcSLa8x_wc-mOsuWED-4IcNroyJKaLP8U"}]}</value>
+  </data>
+  <data name="refreshListAndSelectLiveEvent" xml:space="preserve">
+    <value>Refresh live events list and select live event</value>
   </data>
   <data name="requestCancelled" xml:space="preserve">
     <value>Cancelled</value>

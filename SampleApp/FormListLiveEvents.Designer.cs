@@ -25,11 +25,12 @@
       private void InitializeComponent() {
          this.ctrlQuery = new System.Windows.Forms.Button();
          this.groupBox1 = new System.Windows.Forms.GroupBox();
+         this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
          this.ctrlDelete = new System.Windows.Forms.Button();
          this.ctrlFinish = new System.Windows.Forms.Button();
          this.ctrlRefresh = new System.Windows.Forms.Button();
-         this.ctrlLiveEventDetail = new System.Windows.Forms.ListBox();
          this.groupBox2 = new System.Windows.Forms.GroupBox();
+         this.ctrlCancel = new System.Windows.Forms.Button();
          this.ctrlRawProgress = new System.Windows.Forms.Label();
          this.ctrlProgressBar = new System.Windows.Forms.ProgressBar();
          this.ctrlUpload = new System.Windows.Forms.Button();
@@ -37,11 +38,11 @@
          this.ctrlSelectedFile = new System.Windows.Forms.TextBox();
          this.label2 = new System.Windows.Forms.Label();
          this.ctrlVideoChooser = new System.Windows.Forms.OpenFileDialog();
-         this.ctrlCancel = new System.Windows.Forms.Button();
          this.groupBox3 = new System.Windows.Forms.GroupBox();
          this.ctrlStatus = new System.Windows.Forms.Label();
          this.groupBox4 = new System.Windows.Forms.GroupBox();
          this.ctrlEventsList = new System.Windows.Forms.ListBox();
+         this.ctrlCopyToClip = new System.Windows.Forms.Button();
          this.groupBox1.SuspendLayout();
          this.groupBox2.SuspendLayout();
          this.groupBox3.SuspendLayout();
@@ -54,12 +55,13 @@
          this.ctrlQuery.Name = "ctrlQuery";
          this.ctrlQuery.Size = new System.Drawing.Size(322, 23);
          this.ctrlQuery.TabIndex = 0;
-         this.ctrlQuery.Text = "List all";
+         this.ctrlQuery.Text = "Refresh live events";
          this.ctrlQuery.UseVisualStyleBackColor = true;
          this.ctrlQuery.Click += new System.EventHandler(this.ctrlQuery_Click);
          // 
          // groupBox1
          // 
+         this.groupBox1.Controls.Add(this.ctrlCopyToClip);
          this.groupBox1.Controls.Add(this.ctrlLiveEventDetail);
          this.groupBox1.Controls.Add(this.ctrlDelete);
          this.groupBox1.Controls.Add(this.ctrlFinish);
@@ -71,11 +73,19 @@
          this.groupBox1.TabStop = false;
          this.groupBox1.Text = "Event Ops";
          // 
+         // ctrlLiveEventDetail
+         // 
+         this.ctrlLiveEventDetail.FormattingEnabled = true;
+         this.ctrlLiveEventDetail.Location = new System.Drawing.Point(7, 20);
+         this.ctrlLiveEventDetail.Name = "ctrlLiveEventDetail";
+         this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 69);
+         this.ctrlLiveEventDetail.TabIndex = 0;
+         // 
          // ctrlDelete
          // 
-         this.ctrlDelete.Location = new System.Drawing.Point(168, 95);
+         this.ctrlDelete.Location = new System.Drawing.Point(131, 95);
          this.ctrlDelete.Name = "ctrlDelete";
-         this.ctrlDelete.Size = new System.Drawing.Size(75, 23);
+         this.ctrlDelete.Size = new System.Drawing.Size(59, 23);
          this.ctrlDelete.TabIndex = 3;
          this.ctrlDelete.Text = "Delete";
          this.ctrlDelete.UseVisualStyleBackColor = true;
@@ -83,9 +93,9 @@
          // 
          // ctrlFinish
          // 
-         this.ctrlFinish.Location = new System.Drawing.Point(87, 95);
+         this.ctrlFinish.Location = new System.Drawing.Point(71, 95);
          this.ctrlFinish.Name = "ctrlFinish";
-         this.ctrlFinish.Size = new System.Drawing.Size(75, 23);
+         this.ctrlFinish.Size = new System.Drawing.Size(54, 23);
          this.ctrlFinish.TabIndex = 2;
          this.ctrlFinish.Text = "Finish";
          this.ctrlFinish.UseVisualStyleBackColor = true;
@@ -95,19 +105,11 @@
          // 
          this.ctrlRefresh.Location = new System.Drawing.Point(6, 95);
          this.ctrlRefresh.Name = "ctrlRefresh";
-         this.ctrlRefresh.Size = new System.Drawing.Size(75, 23);
+         this.ctrlRefresh.Size = new System.Drawing.Size(59, 23);
          this.ctrlRefresh.TabIndex = 1;
          this.ctrlRefresh.Text = "Refresh";
          this.ctrlRefresh.UseVisualStyleBackColor = true;
          this.ctrlRefresh.Click += new System.EventHandler(this.ctrlRefresh_Click);
-         // 
-         // ctrlLiveEventDetail
-         // 
-         this.ctrlLiveEventDetail.FormattingEnabled = true;
-         this.ctrlLiveEventDetail.Location = new System.Drawing.Point(7, 20);
-         this.ctrlLiveEventDetail.Name = "ctrlLiveEventDetail";
-         this.ctrlLiveEventDetail.Size = new System.Drawing.Size(309, 69);
-         this.ctrlLiveEventDetail.TabIndex = 0;
          // 
          // groupBox2
          // 
@@ -124,6 +126,16 @@
          this.groupBox2.TabIndex = 5;
          this.groupBox2.TabStop = false;
          this.groupBox2.Text = "Segment upload";
+         // 
+         // ctrlCancel
+         // 
+         this.ctrlCancel.Location = new System.Drawing.Point(87, 116);
+         this.ctrlCancel.Name = "ctrlCancel";
+         this.ctrlCancel.Size = new System.Drawing.Size(67, 23);
+         this.ctrlCancel.TabIndex = 11;
+         this.ctrlCancel.Text = "Cancel";
+         this.ctrlCancel.UseVisualStyleBackColor = true;
+         this.ctrlCancel.Click += new System.EventHandler(this.ctrlCancel_Click);
          // 
          // ctrlRawProgress
          // 
@@ -182,16 +194,6 @@
          // 
          this.ctrlVideoChooser.FileName = "openFileDialog1";
          // 
-         // ctrlCancel
-         // 
-         this.ctrlCancel.Location = new System.Drawing.Point(87, 116);
-         this.ctrlCancel.Name = "ctrlCancel";
-         this.ctrlCancel.Size = new System.Drawing.Size(67, 23);
-         this.ctrlCancel.TabIndex = 11;
-         this.ctrlCancel.Text = "Cancel";
-         this.ctrlCancel.UseVisualStyleBackColor = true;
-         this.ctrlCancel.Click += new System.EventHandler(this.ctrlCancel_Click);
-         // 
          // groupBox3
          // 
          this.groupBox3.Controls.Add(this.ctrlStatus);
@@ -229,6 +231,16 @@
          this.ctrlEventsList.Size = new System.Drawing.Size(305, 56);
          this.ctrlEventsList.TabIndex = 4;
          this.ctrlEventsList.SelectedIndexChanged += new System.EventHandler(this.ctrlEventsList_SelectedIndexChanged);
+         // 
+         // ctrlCopyToClip
+         // 
+         this.ctrlCopyToClip.Location = new System.Drawing.Point(196, 95);
+         this.ctrlCopyToClip.Name = "ctrlCopyToClip";
+         this.ctrlCopyToClip.Size = new System.Drawing.Size(119, 23);
+         this.ctrlCopyToClip.TabIndex = 4;
+         this.ctrlCopyToClip.Text = "Copy RTMP Url";
+         this.ctrlCopyToClip.UseVisualStyleBackColor = true;
+         this.ctrlCopyToClip.Click += new System.EventHandler(this.ctrlCopyToClip_Click);
          // 
          // FormListLiveEvents
          // 
@@ -269,5 +281,6 @@
       private System.Windows.Forms.Label ctrlStatus;
       private System.Windows.Forms.GroupBox groupBox4;
       private System.Windows.Forms.ListBox ctrlEventsList;
+      private System.Windows.Forms.Button ctrlCopyToClip;
    }
 }
