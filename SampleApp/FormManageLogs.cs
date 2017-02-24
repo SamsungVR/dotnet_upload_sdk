@@ -17,7 +17,6 @@ namespace SampleApp {
 
       public FormManageLogs() {
          InitializeComponent();
-         ctrlSelectedFile.Text = getCurrentLogFile();
       }
 
       private static readonly string LOG_FILE_NAME = "vrsdk.log";
@@ -60,6 +59,10 @@ namespace SampleApp {
 
       private void ctrlClear_Click(object sender, EventArgs e) {
          SDKLib.Log.clearLogFile();
+      }
+
+      private void FormManageLogs_Load(object sender, EventArgs e) {
+         ctrlSelectedFile.Text = getCurrentLogFile();
       }
 
    }

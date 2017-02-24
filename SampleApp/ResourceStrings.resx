@@ -166,6 +166,9 @@
   <data name="requestCancelled" xml:space="preserve">
     <value>Cancelled</value>
   </data>
+  <data name="requestFailure" xml:space="preserve">
+    <value>Failed</value>
+  </data>
   <data name="requestInProgress" xml:space="preserve">
     <value>Request in progress</value>
   </data>

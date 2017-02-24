@@ -38,36 +38,24 @@ namespace SampleApp {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string endPointSelectedId {
-            get {
-                return ((string)(this["endPointSelectedId"]));
-            }
-            set {
-                this["endPointSelectedId"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool endPointPreloaded {
-            get {
-                return ((bool)(this["endPointPreloaded"]));
-            }
-            set {
-                this["endPointPreloaded"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string logFileFullPath {
             get {
                 return ((string)(this["logFileFullPath"]));
             }
             set {
                 this["logFileFullPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string cfgFileFullPath {
+            get {
+                return ((string)(this["cfgFileFullPath"]));
+            }
+            set {
+                this["cfgFileFullPath"] = value;
             }
         }
     }

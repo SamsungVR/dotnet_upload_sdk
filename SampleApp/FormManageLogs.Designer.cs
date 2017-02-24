@@ -153,6 +153,7 @@
          this.Controls.Add(this.groupBox1);
          this.Name = "FormManageLogs";
          this.Size = new System.Drawing.Size(350, 287);
+         this.Load += new System.EventHandler(this.FormManageLogs_Load);
          this.groupBox2.ResumeLayout(false);
          this.groupBox2.PerformLayout();
          this.groupBox1.ResumeLayout(false);

@@ -13,6 +13,10 @@ namespace SampleApp {
          mId = Guid.NewGuid().ToString();
       }
 
+      public EndPointConfig(string id) {
+         mId = id;
+      }
+
       private string mUrl, mApiKey;
 
       public void setUrl(string url) {

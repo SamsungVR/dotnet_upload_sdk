@@ -205,6 +205,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed.
+        /// </summary>
+        internal static string requestFailure {
+            get {
+                return ResourceManager.GetString("requestFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Request in progress.
         /// </summary>
         internal static string requestInProgress {

@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
+using Newtonsoft.Json.Linq;
 
 namespace SampleApp {
 
@@ -40,6 +41,7 @@ namespace SampleApp {
       }
 
       private void updateUI() {
+         ctrlCfgFile.Text = mEndPointCfgMgr.getCurrentCfgFile();
          ctrlConfigList.Controls.Clear();
          EndPointConfig selected = mEndPointCfgMgr.getSelectedConfig();
          List<EndPointConfig> list = mEndPointCfgMgr.getList();
@@ -48,7 +50,7 @@ namespace SampleApp {
 
          for (int i = 0; i < len; i += 1) {
             EndPointConfig config = list[i];
-            ctrlConfigList.Controls.Add(new FormEndPointConfigItem(this,  config, selected == config));
+            ctrlConfigList.Controls.Add(new FormEndPointConfigItem(this, config, selected == config));
          }
       }
 
@@ -91,13 +93,13 @@ namespace SampleApp {
       private void ctrlApply_Click(object sender, EventArgs e) {
          string url = ctrlUrl.Text;
          if (null == url || 0 == url.Trim().Length) {
-            ctrlApplyStatus.Text = ResourceStrings.endPointUrlEmpty;
+            ctrlStatus.Text = ResourceStrings.endPointUrlEmpty;
             ctrlUrl.Focus();
             return;
          }
          string apiKey = ctrlAPIKey.Text;
          if (null == apiKey || 0 == apiKey.Trim().Length) {
-            ctrlApplyStatus.Text = ResourceStrings.apiKeyEmpty;
+            ctrlStatus.Text = ResourceStrings.apiKeyEmpty;
             ctrlAPIKey.Focus();
             return;
          }
@@ -117,5 +119,29 @@ namespace SampleApp {
          mEndPointCfgMgr.removeObserver(onEndPointEvent);
       }
 
+      private void ctrlCfgLoad_Click(object sender, EventArgs e) {
+         if (mEndPointCfgMgr.loadJsonConfig(ctrlCfgFile.Text)) {
+            ctrlStatus.Text = ResourceStrings.requestSuccess;
+         } else {
+            ctrlStatus.Text = ResourceStrings.requestFailure;
+         }
+      }
+
+      private void setCfgFile(string cfgFile) {
+         ctrlCfgFile.Text = cfgFile;
+      }
+
+      private void ctrlCfgSelect_Click(object sender, EventArgs e) {
+         DialogResult result = ctrlFileChooser.ShowDialog();
+         if (DialogResult.OK == result) {
+            setCfgFile(ctrlFileChooser.FileName);
+         }
+      }
+
+
+      private void ctrlCfgSave_Click(object sender, EventArgs e) {
+         string msg = mEndPointCfgMgr.saveJsonConfig(ctrlCfgFile.Text);
+         ctrlStatus.Text = (null == msg) ? ResourceStrings.requestSuccess : msg;
+      }
    }
 }

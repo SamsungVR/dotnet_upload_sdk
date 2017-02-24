@@ -12,10 +12,11 @@ namespace SampleApp {
    public class EndPointConfigManager {
 
       private readonly List<EndPointConfig> mConfigList = new List<EndPointConfig>();
+      private string mSelectedId = null;
       private readonly IFormatter mFormatter = new BinaryFormatter();
 
       public EndPointConfigManager() {
-         loadConfigsFromSettings();
+         loadJsonConfig(getCurrentCfgFile(), false);
       }
 
       public enum Event {
@@ -34,76 +35,126 @@ namespace SampleApp {
          mObservers -= observer;
       }
 
-      private static readonly string TAG = Util.getLogTag(typeof(EndPointConfigManager));
+      private static readonly string CFG_FILE_NAME = "vrsdkcfg.cfg";
 
-      private void loadConfigsFromSettings() {
-         Log.d(TAG, "Using config: " + AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+      private string getDefaultCfgFile() {
+         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), CFG_FILE_NAME);
+      }
+
+      private string nullChkCfgFile(string cfgFile) {
+         if (null == cfgFile || string.Empty.Equals(cfgFile)) {
+            return getDefaultCfgFile();
+         }
+         return cfgFile;
+      }
+
+      public string getCurrentCfgFile() {
+         return nullChkCfgFile(AppSettings.Default.cfgFileFullPath);
+      }
+
+      private static readonly string JSON_ITEMS = "items";
+      private static readonly string CFG_ID = "id";
+      private static readonly string CFG_ENDPOINT = "endpoint";
+      private static readonly string CFG_API_KEY = "apikey";
+      private static readonly string CFG_SELECTED = "selected";
+
+      private static readonly string CFG_SSO_APP_ID = "ssoappid";
+      private static readonly string CFG_SSO_APP_SECRET = "ssoappsecret";
+
+      public bool loadJsonConfig(string cfgFile) {
+         return loadJsonConfig(cfgFile, true);
+      }
+
+      public bool loadJsonConfig(string cfgFile, bool save) {
+         Log.d(TAG, "Loading json config from : " + cfgFile);
 
          mConfigList.Clear();
 
-         if (!AppSettings.Default.endPointPreloaded) {
-            AppSettings.Default.endPointPreloaded = true;
+         if (save) {
+            AppSettings.Default.cfgFileFullPath = cfgFile;
             AppSettings.Default.Save();
+         }
 
-            string preConfig = ResourceStrings.preConfiguredEP;
-            if (!string.IsNullOrEmpty(preConfig)) {
-               JObject jsonObject = JObject.Parse(preConfig);
-               JToken tempConfigs;
+         JObject json = null;
+         try {
+            string text = System.IO.File.ReadAllText(cfgFile);
+            json = JObject.Parse(text);
+         } catch (Exception ex) {
+            json = null;
+         }
+         if (null != json) {
+            string selectedId = Util.jsonOpt<string>(json, CFG_SELECTED, null);
+            JObject items = Util.jsonOpt<JObject>(json, JSON_ITEMS, null);
+            if (null != items) {
+               IEnumerator<KeyValuePair<string, JToken>> cfgItemPairsEnum = items.GetEnumerator();
+               while (cfgItemPairsEnum.MoveNext()) {
+                  KeyValuePair<string, JToken> cfgItemPair = cfgItemPairsEnum.Current;
+                  JToken cfgItem = cfgItemPair.Value;
+                  string id = cfgItem.Value<string>(CFG_ID);
+                  string apiKey = cfgItem.Value<string>(CFG_API_KEY);
+                  string endPoint = cfgItem.Value<string>(CFG_ENDPOINT);
+                  string ssoAppId = cfgItem.Value<string>(CFG_SSO_APP_ID);
+                  string ssoAppSecret = cfgItem.Value<string>(CFG_SSO_APP_SECRET);
 
-               /* {"configs":[{"url":"https://samsungvr.com/api","apiKey":"asdf"}]} */
-
-               if (jsonObject.TryGetValue("configs", out tempConfigs)) {
-                  JArray configs = tempConfigs as JArray;
-                  if (null != configs) {
-                     foreach (JObject config in configs) {
-
-                        JToken tempUrl, tempApiKey;
-                        if (!config.TryGetValue("url", out tempUrl) || !config.TryGetValue("apiKey", out tempApiKey)) {
-                           continue;
-                        }
-                        string url, apiKey;
-
-                        url = tempUrl.Value<string>();
-                        apiKey = tempApiKey.Value<string>();
-
-                        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(apiKey)) {
-                           continue;
-                        }
-                        EndPointConfig newCfg = new EndPointConfig();
-                        newCfg.setApiKey(apiKey);
-                        newCfg.setUrl(url);
-                        mConfigList.Add(newCfg);
-                     }
+                  if (null != id && id.Equals(selectedId)) {
+                     mSelectedId = id;
                   }
 
+                  EndPointConfig cfg = new EndPointConfig(id);
+                  cfg.setUrl(endPoint);
+                  cfg.setApiKey(apiKey);
+
+                  mConfigList.Add(cfg);
                }
             }
-            
          }
-
-         string savedConfig = AppSettings.Default.endPointConfig;
-         byte[] asBytes;
-         try {
-            asBytes = Convert.FromBase64String(savedConfig);
-         } catch (Exception) {
-            return;
-         }
-         MemoryStream stream = new MemoryStream(asBytes);
-
-         while (stream.Position < stream.Length) {
-            EndPointConfig cfg;
-            try {
-               cfg = (EndPointConfig)mFormatter.Deserialize(stream);
-            } catch (Exception) {
-               break;
-            }
-            if (null != cfg) {
-               mConfigList.Add(cfg);
-            }
-         }
-         stream.Close();
          onConfigChanged();
+         return null != json;
       }
+
+      public string saveJsonConfig(string cfgFile) {
+         JObject result = new JObject();
+         JObject items = new JObject();
+         result.Add(JSON_ITEMS, items);
+         string selectedId = mSelectedId;
+         List<EndPointConfig> list = getList();
+         string matchedSelectedId = null, firstId = null;
+         foreach (EndPointConfig cfg in list) {
+            string id = cfg.getId();
+            if (null == firstId) {
+               firstId = id;
+            }
+            if (id.Equals(selectedId)) {
+               matchedSelectedId = id;
+            }
+            JObject item = new JObject(
+               new JProperty(CFG_ID, id),
+               new JProperty(CFG_ENDPOINT, cfg.getUrl()),
+               new JProperty(CFG_API_KEY, cfg.getApiKey()));
+            items.Add(id, item);
+         }
+         if (null == matchedSelectedId) {
+            matchedSelectedId = firstId;
+         }
+         if (null != matchedSelectedId) {
+            result.Add(CFG_SELECTED, matchedSelectedId);
+         }
+         try {
+            System.IO.File.WriteAllText(cfgFile, result.ToString(Newtonsoft.Json.Formatting.Indented));
+            AppSettings.Default.cfgFileFullPath = cfgFile;
+            AppSettings.Default.Save();
+            onConfigChanged();
+            return null;
+         } catch (Exception ex) {
+            string msg = ex.ToString();
+            SDKLib.Log.d(TAG, "Failed to save json config " + msg);
+            return msg;
+         }
+      }
+
+
+      private static readonly string TAG = Util.getLogTag(typeof(EndPointConfigManager));
+
 
       public List<EndPointConfig> getList() {
          return mConfigList;
@@ -111,44 +162,25 @@ namespace SampleApp {
 
       private void onConfigChanged() {
          int len = mConfigList.Count;
-         string selectedId = AppSettings.Default.endPointSelectedId;
-
+         string matchedId = null, firstSelectedId = null;
          for (int i = 0; i < len; i += 1) {
+
             EndPointConfig config = mConfigList[i];
-            if (null == selectedId || selectedId.Trim().Length < 1) {
-               selectedId = config.getId();
-               AppSettings.Default.endPointSelectedId = selectedId;
-               AppSettings.Default.Save();
+            string id = config.getId();
+            if (null == firstSelectedId) {
+               firstSelectedId = id;
+            }
+            if (null != id && id.Equals(mSelectedId)) {
+               matchedId = id;
             }
          }
+         if (null == matchedId) {
+            matchedId = firstSelectedId;
+         }
+         mSelectedId = matchedId;
          if (null != mObservers) {
             mObservers(Event.CHANGED);
          }
-      }
-
-      private void saveConfigsToSettings() {
-         MemoryStream stream = new MemoryStream();
-         int len = mConfigList.Count;
-         bool selectedIdExists = false;
-         string selectedId = AppSettings.Default.endPointSelectedId;
-         for (int i = 0; i < len; i += 1) {
-            EndPointConfig config = mConfigList[i];
-            string id = config.getId();
-            if (id.Equals(selectedId)) {
-               selectedIdExists = true;
-            }
-            mFormatter.Serialize(stream, config);
-            stream.Flush();
-         }
-         stream.Close();
-         byte[] asBytes = stream.ToArray();
-         string asString = Convert.ToBase64String(asBytes);
-         if (!selectedIdExists) {
-            AppSettings.Default.endPointSelectedId = string.Empty;
-         }
-         AppSettings.Default.endPointConfig = asString;
-         AppSettings.Default.Save();
-         onConfigChanged();
       }
 
       public bool addOrUpdateConfig(EndPointConfig config) {
@@ -165,7 +197,7 @@ namespace SampleApp {
                existing.setUrl(config.getUrl());
             }
          }
-         saveConfigsToSettings();
+         onConfigChanged();
          return true;
       }
 
@@ -174,10 +206,10 @@ namespace SampleApp {
             string id = mConfigList[i].getId();
             if (id.Equals(argId)) {
                mConfigList.RemoveAt(i);
-               saveConfigsToSettings();
                break;
             }
          }
+         onConfigChanged();
       }
 
       public EndPointConfig getConfig(string argId) {
@@ -193,20 +225,17 @@ namespace SampleApp {
       }
 
       public EndPointConfig getSelectedConfig() {
-         string id = AppSettings.Default.endPointSelectedId;
-         if (null == id || 0 == id.Trim().Length) {
+         if (null == mSelectedId || string.Empty.Equals(mSelectedId)) {
             return null;
          }
-         return getConfig(id);
+         return getConfig(mSelectedId);
       }
 
       public void selectConfig(string argId) {
-         string selectedId = AppSettings.Default.endPointSelectedId;
-         if (argId.Equals(selectedId)) {
+         if (null != argId && argId.Equals(mSelectedId)) {
             return;
          }
-         AppSettings.Default.endPointSelectedId = argId;
-         AppSettings.Default.Save();
+         mSelectedId = argId;
          onConfigChanged();
       }
 
