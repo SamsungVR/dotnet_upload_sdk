@@ -42,7 +42,6 @@ namespace SampleApp {
 
       protected override void OnFormClosing(FormClosingEventArgs e) {
          base.OnFormClosing(e);
-
          App app = App.getInstance();
          if (VR.destroyAsync(mCallbackDestroy, app.getHandler(), null)) {
             FormDialog dialog = app.showDialog();
@@ -50,6 +49,7 @@ namespace SampleApp {
          } else {
             e.Cancel = true;
          }
+         Log.flushLogFile();
       }
 
    }

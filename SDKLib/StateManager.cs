@@ -17,7 +17,7 @@ namespace SDKLib {
          R obj = (R)stateArgs[0];
          System.Enum oldState = (System.Enum)stateArgs[1];
          System.Enum newState = (System.Enum)stateArgs[2];
-
+         Log.d(TAG, "Notifying of state change observer: " + observer + " obj " + obj + " os " + oldState + " ns " + newState);
          observer(obj, oldState, newState);
       };
 

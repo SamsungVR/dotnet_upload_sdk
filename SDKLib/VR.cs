@@ -282,7 +282,7 @@ namespace SDKLib {
          }
       }
 
-      private static readonly string TAG = Util.getLogTag(typeof(SDKLib.VR));
+      private static readonly string TAG = Util.getLogTag(typeof(VR));
       private static APIClient.If sAPIClient;
 
       private static readonly object sLock = new object();
@@ -297,6 +297,8 @@ namespace SDKLib {
 
          public void onSuccess(object closure, APIClient.If apiClient) {
             lock (VR.sLock) {
+               Log.d(TAG, "onInitSuccess closure: " + closure + " curr client: " + VR.sAPIClient + " new client: " + apiClient
+                     + " originial callback: " + mOriginalCallback);
                VR.sAPIClient = apiClient;
                VR.sInitCallback = null;
                if (null != mOriginalCallback) {
@@ -307,6 +309,10 @@ namespace SDKLib {
 
          public void onFailure(object closure, int status) {
             lock (VR.sLock) {
+               Log.d(TAG, "onInitFailure closure: " + closure + " curr client: " + VR.sAPIClient
+                     + " originial callback: " + mOriginalCallback);
+
+               VR.sAPIClient = null;
                VR.sInitCallback = null;
                if (null != mOriginalCallback) {
                   mOriginalCallback.onFailure(closure, status);
@@ -320,6 +326,9 @@ namespace SDKLib {
       public static bool initAsync(string endPoint, string apiKey, HttpPlugin.RequestFactory factory,
             Result.Init.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
+            Log.d(TAG, "initAsync ep: " + endPoint + " key: " + apiKey + " factory: " + factory + " cb: " + callback +
+                  "sc: " + handler + " closure: " + closure + " client: " + sAPIClient + " initcb: " + sInitCallback);
+
             if (null == sAPIClient && null == sInitCallback) {
                APIClient.Result.Init.If temp = new InitCallback(callback);
                sInitCallback = new InitCallback(callback);
@@ -340,6 +349,8 @@ namespace SDKLib {
 
          public void onSuccess(object closure) {
             lock (VR.sLock) {
+               Log.d(TAG, "onDestroySuccess closure: " + closure + " curr client: " + VR.sAPIClient
+                     + " originial callback: " + mOriginalCallback);
                VR.sAPIClient = null;
                VR.sDestroyCallback = null;
                if (null != mOriginalCallback) {
@@ -350,6 +361,8 @@ namespace SDKLib {
 
          public void onFailure(object closure, int status) {
             lock (VR.sLock) {
+               Log.d(TAG, "onDestroyFailure closure: " + closure + " curr client: " + VR.sAPIClient
+                     + " originial callback: " + mOriginalCallback);
                VR.sDestroyCallback = null;
                if (null != mOriginalCallback) {
                   mOriginalCallback.onFailure(closure, status);
@@ -362,6 +375,9 @@ namespace SDKLib {
 
       public static bool destroyAsync(VR.Result.Destroy.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
+            Log.d(TAG, "destroyAsync cb: " + callback +
+                  "sc: " + handler + " closure: " + closure + " client: " + sAPIClient + " initcb: " + sInitCallback +
+                  "destcb: " + sDestroyCallback);
             if (null != sInitCallback || null != sDestroyCallback) {
                /* Pending either init or destroy */
                return false;

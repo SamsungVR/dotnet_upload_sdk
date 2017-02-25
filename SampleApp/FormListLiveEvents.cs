@@ -391,6 +391,7 @@ namespace SampleApp {
          string url = selectedItem.getProducerUrl();
          if (null == url || string.Empty.Equals(url)) {
             ctrlStatus.Text = ResourceStrings.noRTMPUrlToCopy;
+            Clipboard.Clear();
          } else {
             Clipboard.SetText(url);
             ctrlStatus.Text = string.Format(ResourceStrings.copiedToClipboard, url);

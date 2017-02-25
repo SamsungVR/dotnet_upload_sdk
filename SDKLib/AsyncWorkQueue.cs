@@ -6,7 +6,7 @@ namespace SDKLib {
 
    internal class AsyncWorkQueue {
 
-      private static string TAG = Util.getLogTag(typeof(APIClient));
+      private static string TAG = Util.getLogTag(typeof(AsyncWorkQueue));
 
       public delegate AsyncWorkItem AsyncWorkItemFactory(AsyncWorkItemType type);
 
@@ -28,13 +28,15 @@ namespace SDKLib {
 
       private readonly AsyncWorkItemFactory mAsyncWorkItemFactory;
 
-      public AsyncWorkQueue(AsyncWorkItemFactory factory, int ioBufSize, int timeout) {
+      public AsyncWorkQueue(AsyncWorkItemFactory factory, int ioBufSize, int timeout,
+         StateManager<AsyncWorkQueue>.StateChangeObserver stateChangeObserver, SynchronizationContext handler) {
          mStateManager = new StateManager<AsyncWorkQueue>(this, State.INITIAILIZING);
          mTimeout = timeout;
          mIOBuf = new byte[ioBufSize];
          mAsyncWorkItemFactory = factory;
          mThread = new Thread(processRequests);
          mThread.Name = "AsyncWorkQueue " + this; 
+         mStateManager.addObserver(stateChangeObserver, handler);
          mThread.Start();
       }
 
@@ -42,8 +44,9 @@ namespace SDKLib {
          Log.d(TAG, "Started processing requests");
          if (mStateManager.isInState(State.INITIAILIZING)) {
             mStateManager.setState(State.INITIALIZED);
-
+            
             while (mStateManager.isInState(State.INITIALIZED)) {
+               Log.d(TAG, "Waiting for requests " + this);
                if (!mResetEvent.WaitOne(Timeout.Infinite)) {
                   continue;
                }
@@ -59,7 +62,9 @@ namespace SDKLib {
                      continue;
                   }
                }
+               Log.d(TAG, "Running work item " + mActiveWorkItem);
                mActiveWorkItem.run();
+               Log.d(TAG, "Done running work item " + mActiveWorkItem);
                lock (mWorkItems) {
                   mActiveWorkItem = null;
                }
@@ -85,24 +90,30 @@ namespace SDKLib {
          return true;
       }
 
+      private void clearNoLock() {
+         mWorkItems.Clear();
+         if (null != mActiveWorkItem) {
+            mActiveWorkItem.cancel();
+         }
+      }
+
       public void clear() {
          lock (mWorkItems) {
-            mWorkItems.Clear();
-            if (null != mActiveWorkItem) {
-               mActiveWorkItem.cancel();
-            }
+            clearNoLock();
          }
       }
 
       public bool destroy() {
          lock (mWorkItems) { 
             if (!mStateManager.isInState(State.INITIALIZED)) {
+               Log.d(TAG, "Attempting to destroy in state " + mStateManager.getState());
                return false;
             }
             mStateManager.setState(State.DESTROYING);
-            clear();
+            clearNoLock();
             mResetEvent.Set();
          }
+         Log.d(TAG, "Destroyed " + this + " successfully");
          return true;
       }
 

@@ -85,6 +85,7 @@ namespace SampleApp {
          string url = ctrlRTMPUrl.Text; 
          if (null == url || string.Empty.Equals(url))  {
             ctrlStatus.Text = ResourceStrings.noRTMPUrlToCopy;
+            Clipboard.Clear();
          } else {
             Clipboard.SetText(url);
             ctrlStatus.Text = string.Format(ResourceStrings.copiedToClipboard, url);

@@ -43,7 +43,9 @@ namespace SDKLib {
 
          protected virtual bool addObserverNoLock(T observer, SynchronizationContext handler) {
             Block block;
-
+            if (null == observer) {
+               return false;
+            }
             for (int i = mObservers.Count - 1; i >= 0; i -= 1) {
                block = mObservers[i];
                if (block.mObserver == observer && block.mHandler == handler) {
@@ -118,11 +120,18 @@ namespace SDKLib {
             }
          }
 
+         private static readonly string TAG = Util.getLogTag(typeof(Observable));
+
          public virtual void dispatch(SendOrPostCallback callback, object closure) {
+            List<Block> clone = null;
+
             lock (mObservers) {
-               for (int i = mObservers.Count - 1; i >= 0; i -= 1) {
-                  Block block = mObservers[i];
+               clone = new List<Block>(mObservers);
+               Log.d(TAG, "Requesting dispatch callback " + callback + " closure " + closure + " clone: " + clone.Count);
+               for (int i = clone.Count - 1; i >= 0; i -= 1) {
+                  Block block = clone[i];
                   object[] args = { block.mObserver, closure };
+                  Log.d(TAG, "Dispatching callback " + callback + " on " + block.mHandler + " observer: " + block.mObserver);
                   if (null == block.mHandler) {
                      callback(args);
                   } else {

@@ -79,11 +79,8 @@ namespace SDKLib {
          mEndPoint = endPoint;
          mApiKey = apiKey;
          mHttpRequestFactory = httpRequestFactory;
-         mAsyncWorkQueue = new AsyncWorkQueue(asyncWorkItemFactory, 8 * MUL, Timeout.Infinite);
-         mAsyncWorkQueue.getStateManager().addThreadSafeObserver(onAsyncQueueStateChanged);
-
-         mAsyncUploadQueue = new AsyncWorkQueue(asyncWorkItemFactory, 1024 * MUL, Timeout.Infinite);
-         mAsyncUploadQueue.getStateManager().addThreadSafeObserver(onAsyncQueueStateChanged);
+         mAsyncWorkQueue = new AsyncWorkQueue(asyncWorkItemFactory, 8 * MUL, Timeout.Infinite, onAsyncQueueStateChanged, handler);
+         mAsyncUploadQueue = new AsyncWorkQueue(asyncWorkItemFactory, 1024 * MUL, Timeout.Infinite, onAsyncQueueStateChanged, handler);
       }
 
       internal HttpPlugin.RequestFactory getRequestFactory() {
