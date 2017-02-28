@@ -6,7 +6,12 @@ using System.Text;
 
 namespace SDKLib {
 
-   public sealed class UserVideo {
+
+    /// <summary>  
+    ///  The UserVideo class provides methods, enums and callbacks to manage VOD videos for SamsungVR.   
+    /// </summary>  
+    public sealed class UserVideo
+    {
 
       private UserVideo() {
       }

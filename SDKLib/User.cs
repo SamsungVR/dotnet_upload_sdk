@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace SDKLib {
 
+   /// <summary>  
+   ///  The User class provides methods, enums and callbacks to manage users for SamsungVR.   
+   /// </summary>  
    public sealed class User {
 
       private User() {
@@ -21,72 +24,54 @@ namespace SDKLib {
          string getSessionToken();
          string getUserId();
 
-         /**
-          * Upload a video
-          *
-          * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
-          *                 SDK transfers back ownership of the FD only on the callback.  Consider
-          *                 providing a Non Null callback so that the application can close the FD.
-          * @param handler A handler on which callback should be called. If null, main handler is used.
-          * @param closure An object that the application can use to uniquely identify this request.
-          *                See callback documentation.
-          * @return true if the upload was schedule, false otherwise
-          */
 
+         /// <summary>Upload a video</summary>
+         /// <param name="callback">This may be NULL. SDK does not close the source parcel file descriptor.
+         ///                        SDK transfers back ownership of the FD only on the callback.  Consider
+         ///                        providing a Non Null callback so that the application can close the FD.L</param>
+         /// <param name="handler">A handler on which callback should be called. If null, main handler is used.</param>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the upload was succesfully scheduled</returns>
          bool uploadVideo(Stream source, long length, string title, string description,
                      UserVideo.Permission permission, Result.UploadVideo.If callback,
                      SynchronizationContext handler, object closure);
+
+
+         /// <summary>Cancel an already schedule video upload</summary>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the upload was succesfully canceled</returns>
          bool cancelUploadVideo(object closure);
 
-         /**
-          * Creates a new live event
-          *
-          * @param title Short description of the live event. This field is shown by all the different players.
-          * @param description Detailed description of the live event.
-          * @param permission See UserVideo.Permission enum. This is how the privacy settings of the new
-          *                   live event can be set
-          * @param protocol See UserLiveEvent.Protocol enum. Use this parameter to control how the inbond
-          *                 stream should be ingested
-          * @param videoStereoscopyType See UserLiveEvent.VideoStereoscopyType enum.
-          *                             Describes the video projection used in the inbound stream.
-          * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
-          *                 SDK transfers back ownership of the FD only on the callback.  Consider
-          *                 providing a Non Null callback so that the application can close the FD.
-          * @param handler A handler on which callback should be called. If null, main handler is used.
-          * @param closure An object that the application can use to uniquely identify this request.
-          *                See callback documentation.
-          * @return true if the live event got created, false otherwise
-          */
 
+         /// <summary>Creates a new live event</summary>
+         /// <param name="title"> Short description of the live event. This field is shown by all the different players.</param>
+         /// <param name="description"> Detailed description of the live event.</param>
+         /// <param name="permission"> See UserVideo.Permission enum. This is how the privacy settings of the new live event can be set</param>
+         /// <param name="protocol"> See UserLiveEvent.Protocol enum. Use this parameter to control how the inbond stream should be ingested</param>
+         /// <param name="videoStereoscopyType">Describes the video projection used in the inbound stream.</param>
+         /// <param name="callback">This may be NULL.</param>
+         /// <param name="handler">A handler on which callback should be called. If null, main handler is used.</param>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the live even create request is succesfuly sent to the server</returns>
          bool createLiveEvent(string title, string description, UserVideo.Permission permission,
                                  UserLiveEvent.Source protocol, UserVideo.VideoStereoscopyType videoStereoscopyType,
                                  User.Result.CreateLiveEvent.If callback, SynchronizationContext handler, object closure);
 
-         /**
-          * Queries the live events of the user
-          *
-          * @param callback This may be NULL. SDK does not close the source parcel file descriptor.
-          *                 SDK transfers back ownership of the FD only on the callback.  Consider
-          *                 providing a Non Null callback so that the application can close the FD.
-          * @param handler A handler on which callback should be called. If null, main handler is used.
-          * @param closure An object that the application can use to uniquely identify this request.
-          *                See callback documentation.
-          * @return true if the upload was schedule, false otherwise
-          */
 
-
+         /// <summary>Queries the live events of the user</summary>
+         /// <param name="callback">This may be NULL.</param>
+         /// <param name="handler">A handler on which callback should be called. If null, main handler is used.</param>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the live event query request is succesfuly sent to the server</returns>
          bool queryLiveEvents(Result.QueryLiveEvents.If callback, SynchronizationContext handler, object closure);
 
-         /**
-          * Given an live event id, return the corresponding live event
-          *
-          * @param callback This may be NULL.
-          * @param closure An object that the application can use to uniquely identify this request.
-          *                See callback documentation.
-          * @return true if the request was queued, false otherwise
-          */
 
-
+         /// <summary>Given an live event id, return the corresponding live event</summary>
+         /// <param name="liveEventId">The id of the live event to look up</param>
+         /// <param name="callback">This may be NULL.</param>
+         /// <param name="handler">A handler on which callback should be called. If null, main handler is used.</param>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the live event query request is succesfuly sent to the server</returns>
          bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure);
 
       }
@@ -151,11 +136,7 @@ namespace SDKLib {
 
          }
 
-         /**
-          * Callback delivering results of createLiveEvent. Failure status codes are self
-          * explanatory.
-          */
-
+         ///<summary>Callback delivering results of createLiveEvent. Failure status codes are self explanatory.</summary>
          public sealed class CreateLiveEvent {
 
             private CreateLiveEvent() {
@@ -164,23 +145,18 @@ namespace SDKLib {
             public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessWithResultCallback.If<UserLiveEvent.If> {
             }
 
-            public static readonly int STATUS_MISSING_STREAMING_PROTOCOL = 1;
-            public static readonly int STATUS_INVALID_STREAMING_PROTOCOL = 2;
-            public static readonly int STATUS_MISSING_DURATION = 3;
-            public static readonly int STATUS_INVALID_DURATION = 4;
+            ///<summary>Invalid stereoscopy type</summary>
             public static readonly int STATUS_INVALID_STEREOSCOPIC_TYPE = 5;
+
+
+            ///<summary>Invalid audio type</summary>
             public static readonly int STATUS_INVALID_AUDIO_TYPE = 6;
-            public static readonly int STATUS_MISSING_START_TIME = 7;
-            public static readonly int STATUS_INVALID_START_TIME_FORMAT = 8;
-            public static readonly int STATUS_START_TIME_IN_PAST = 9;
-            public static readonly int STATUS_START_TIME_TOO_FAR_IN_FUTURE = 10;
-            public static readonly int STATUS_MISSING_INGEST_BITRATE = 11;
-            public static readonly int STATUS_INGEST_BITRATE_TOO_LOW = 12;
-            public static readonly int STATUS_INGEST_BITRATE_TOO_HIGH = 13;
 
          }
 
-        public sealed class QueryLiveEvents {
+
+         ///<summary>Callback delivering results of queryLiveEvent request.</summary>
+          public sealed class QueryLiveEvents {
            
            private QueryLiveEvents() {
            }

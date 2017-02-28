@@ -53,10 +53,10 @@
     <StartupObject>SampleApp.MainEntry</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>39ABD3AC1D2446772C747F25B1490C180EFD7281</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>B8DAD3521F56F3ECE06416E46006FC02A5FF997D</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>SampleApp_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>SampleApp_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -175,6 +175,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="SampleApp_1_TemporaryKey.pfx" />
     <None Include="SampleApp_TemporaryKey.pfx" />
     <Content Include="vrsdkcfg.cfg" />
   </ItemGroup>

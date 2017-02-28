@@ -3,90 +3,68 @@ using System.Threading;
 
 namespace SDKLib {
 
+    /// <summary>  
+    ///  This is the root context of all SamsungVR SDK calls.  
+    /// </summary>  
    public static class VR {
 
-      /**
-       * The result class is used as a grouping (akin to namespace) for callbacks that provide
-       * results for requests asynchronously. Results are dispatched to Handlers provided by the
-       * application and callbacks are called on the Threads backing the Handlers.
-       */
-
+      /// <summary>   
+      /// The result class is used as a grouping (akin to namespace) for callbacks that provide
+      /// results for requests asynchronously. Results are dispatched to Handlers provided by the
+      /// application and callbacks are called on the Threads backing the Handlers.
+      /// The status codes defined in this class are common across all requests.  
+      /// Some of them, for example STATUS_MISSING_API_KEY and STATUS_INVALID_API_KEY 
+      /// are not meant for the end user.
+      /// </summary>  
       public sealed class Result {
 
          private Result() {
          }
-
-        /**
-         * These status codes are common across all requests.  Some of them, for example
-         * STATUS_MISSING_API_KEY, STATUS_INVALID_API_KEY are not meant for the end user.
-         */
-
-         /**
-          * User id in HTTP header is invalid
-          */
-
+        
+         /// <summary>User id in HTTP header is invalid</summary>
          public static readonly int STATUS_INVALID_USER_ID = 1002;
 
-         /**
-          * Session token in HTTP header is missing or invalid
-          */
-
+         /// <summary>Session token in HTTP header is missing</summary>
          public static readonly int STATUS_MISSING_X_SESSION_TOKEN_HEADER = 1003;
+
+         /// <summary>Session token in HTTP header is invalid</summary>
          public static readonly int STATUS_INVALID_SESSION = 1004;
 
-         /**
-          * API key in HTTP header is missing or invalid
-          */
-
+         /// <summary>API key in HTTP header is missing</summary>
          public static readonly int STATUS_MISSING_API_KEY = 1005;
+
+         /// <summary>API key in HTTP header is invalid</summary>
          public static readonly int STATUS_INVALID_API_KEY = 1006;
 
          private static readonly int STATUS_HTTP_BASE = 1 << 16;
 
-         /**
-          * Http Plugin returned a NULL connection object
-          */
-
+         /// <summary>Http Plugin returned a NULL connection object</summary>
          public static readonly int STATUS_HTTP_PLUGIN_NULL_CONNECTION = STATUS_HTTP_BASE | 1;
 
-         /**
-          * Http Plugin provided input stream for reading server responses could not be read
-          */
-
+         /// <summary>Http Plugin provided input stream for reading server responses could not be read</summary>
          public static readonly int STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE = STATUS_HTTP_BASE | 2;
-
 
          private static readonly int STATUS_SERVER_RESPONSE_BASE = 2 << 16;
 
-         /**
-          * We were unable to process the server response json. Possible causes are response
-          * did not contain JSON, or JSON is missing important data
-          */
+         /// <summary>We were unable to process the server response json. Possible causes are response
+         /// did not contain JSON, or JSON is missing important data</summary>
          public static readonly int STATUS_SERVER_RESPONSE_INVALID = STATUS_SERVER_RESPONSE_BASE | 1;
 
-         /**
-          * The server returned a HTTP Error code, but no JSON based status was found.
-          */
-
+         /// <summary>The server returned a HTTP Error code, but no JSON based status was found.</summary>
          public static readonly int STATUS_SERVER_RESPONSE_NO_STATUS_CODE = STATUS_SERVER_RESPONSE_BASE | 2;
 
          private static readonly int STATUS_SDK_BASE = 3 << 16;
 
-         /**
-          * This feature is not supported
-          */
-
+         /// <summary>This feature is not supported</summary>
          public static readonly int STATUS_FEATURE_NOT_SUPPORTED = STATUS_SDK_BASE | 1;
 
-         /**
-          * The initializer group of callbacks. Used by VR.init()
-          */
 
-
+         /// <summary>Unexpected error</summary>
          public static readonly int STATUS_UNKNOWN_FAILURE = -1;
 
+         /// <summary>The callback used by VR.asynInit() to indicate success or failure</summary>
          public sealed class Init {
-
+            
             private Init() {
             }
 
@@ -99,6 +77,7 @@ namespace SDKLib {
 
          }
 
+         /// <summary>The callback used by various SDK methods to indicate failure</summary>
          public sealed class FailureCallback {
 
             private FailureCallback() {
@@ -106,16 +85,11 @@ namespace SDKLib {
 
             public interface If {
 
-               /**
-                * The request failed
-                *
-                *
-                * @param closure Application provided object used to identify this request.
-                * @param status The reason for failure. These are specific to the request. The callback
-                *               interface for the request will have these defined.  Also, status'es
-                *               common for any request, from VR.Result could also be provided here.
-                */
-
+               /// <summary>This method is called when request failed.</summary>
+               /// <param name="closure">Application provided object used to identify this request.</param>
+               /// <param name="status">The reason for failure. These are specific to the request. 
+               /// The callback interface for the request will have these defined.  
+               /// Also, status'common for any request, from VR.Result could also be provided here.</param>
                void onFailure(object closure, int status);
             }
          }
@@ -127,28 +101,19 @@ namespace SDKLib {
 
             public interface If : FailureCallback.If {
 
-               /**
-                * This request was cancelled.  The request is identified by the closure param.
-                *
-                * @param closure Application provided object used to identify this request.
-                */
-
+                /// <summary>This request was cancelled.  The request is identified by the closure param.</summary>
+                /// <param name="closure">Application provided object used to identify this request.</param>
                void onCancelled(object closure);
 
-               /**
-                * This request resulted in an exception.  Some exceptions can be analyzed to take
-                * corrective actions.  For example:  if HTTP Socket Write timeout is a user configurable
-                * param, the application should examine the exception to see if it is a SocketWriteTimeout
-                * exception.  If so, the user could be prompted to increase the timeout value.
-                *
-                * In other cases, the application should log these exceptions for review by
-                * engineering.
-                *
-                * @param closure Application provided object used to identify this request.
-                */
-
+               /// <summary>This request resulted in an exception.  
+               /// Some exceptions can be analyzed to take corrective actions.  
+               /// For example:  if HTTP Socket Write timeout is a user configurable parameter, 
+               ///               the application should examine the exception to see if it is a   
+               ///               SocketWriteTimeout exception. If so, the user could be prompted to 
+               ///               increase the timeout value.
+               /// In other cases, the application should log these exceptions for review by engineering.</summary>
+               /// <param name="closure">Application provided object used to identify this request.</param>
                void onException(object closure, Exception ex);
-
             }
          }
 
@@ -323,6 +288,13 @@ namespace SDKLib {
 
       private static InitCallback sInitCallback;
 
+      /// <summary>Initialize the SDK.</summary>
+      /// <param name="endPoint"> The Server endpoint to communicate with, not null</param>
+      /// <param name="apiKey"> The API key provided for your application by Samsung, not null</param>
+      /// <param name="factory"> A HTTP transport plugin that handles all HTTP communication. 
+      /// The SDK has not been buit with any HTTP transport library. Not null.</param>
+      /// <param name="callback"> Provides async notification whether the init succeeded. Can be null.</param>
+      /// <returns>true if init was never performed and is in progress, false otherwise.</returns>
       public static bool initAsync(string endPoint, string apiKey, HttpPlugin.RequestFactory factory,
             Result.Init.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
@@ -373,6 +345,14 @@ namespace SDKLib {
 
       private static DestroyCallback sDestroyCallback;
 
+
+
+      /// <summary>Destroy the SDK. Any calls made to SDK or its objects will fail after this.
+      /// Call this to cleanup SDK resources when SDK services are no longer needed.</summary>
+      /// <param name="callback"> </param>
+      /// <param name="handler"> </param>
+      /// <param name="closure"> </param>
+      /// <returns>true if destroy was not called after the last init and destroy is in progress, false otherwise.</returns>
       public static bool destroyAsync(VR.Result.Destroy.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
             Log.d(TAG, "destroyAsync cb: " + callback +
@@ -397,6 +377,9 @@ namespace SDKLib {
          }
       }
 
+      /// <summary>
+      /// The login() method sends a login request to the SamsungVR server.
+      /// </summary>
       public static bool login(string email, string password, VR.Result.Login.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
             if (null == sAPIClient) {
