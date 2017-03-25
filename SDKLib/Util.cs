@@ -11,14 +11,7 @@ namespace SDKLib {
       internal static readonly bool DEBUG = true;
 
       public static string getLogTag(object who) {
-         System.Type type;
-
-         if (who is System.Type) {
-            type = who as System.Type;
-         } else {
-            type = who.GetType();
-         }
-         return type.Name;
+         return Log.getLogTag(who);
       }
 
       private static System.Globalization.CultureInfo sCultureENUS = System.Globalization.CultureInfo.CreateSpecificCulture("en-US");

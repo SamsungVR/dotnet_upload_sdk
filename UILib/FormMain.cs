@@ -10,11 +10,8 @@ namespace UILib {
 
    internal partial class FormMain : Form {
 
-      private UILib.Impl mUILib;
-
-      public FormMain(UILib.Impl impl) {
+      public FormMain() {
          InitializeComponent();
-         mUILib = impl;
       }
 
       private Control mControl;
@@ -41,7 +38,6 @@ namespace UILib {
 
       protected override void OnFormClosed(FormClosedEventArgs e) {
          base.OnFormClosed(e);
-         mUILib.onFormClosed(e);
       }
 
    }

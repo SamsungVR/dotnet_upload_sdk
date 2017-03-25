@@ -7,6 +7,16 @@ namespace SDKLib {
 
    public static class Log {
 
+      public static string getLogTag(object who) {
+         System.Type type;
+
+         if (who is System.Type) {
+            type = who as System.Type;
+         } else {
+            type = who.GetType();
+         }
+         return type.Name;
+      }
 
       public static void d(string tag, string msg) {
          d(tag, msg, false);

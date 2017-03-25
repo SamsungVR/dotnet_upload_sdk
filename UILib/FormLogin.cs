@@ -5,58 +5,88 @@ using System.Drawing;
 using System.Data;
 using System.Text;
 using System.Windows.Forms;
+using Newtonsoft.Json.Linq;
+
 
 namespace UILib {
 
    public partial class FormLogin : UserControl {
 
-      private List<LoginProvider.If> mProviders = new List<LoginProvider.If>();
+      internal readonly string mSSOAppId, mSSOAppSecret;
+      private readonly string mPostData;
 
-      public FormLogin() {
+      private static readonly string sLocalhost = "localhost";
+      private static readonly Uri sLoginUri = new Uri("https://account.samsung.com/mobile/account/check.do");
+
+      public FormLogin(string ssoAppId, string ssoAppSecret) {
          InitializeComponent();
+         mSSOAppId = ssoAppId;
+         mSSOAppSecret = ssoAppSecret;
+         mPostData = string.Format("serviceID={0}&actionID=StartOAuth2&redirect_uri=http://{1}&accessToken=Y", mSSOAppId, sLocalhost);
 
-         mSelectedProvider = null;
-         mProviders.Add(new LoginProvider.SSO());
-         mProviders.Add(new LoginProvider.SVR());
       }
 
-      private bool onProviderChanged(string providerId) {
-         for (int i = mProviders.Count - 1; i >= 0; i -= 1) {
-            LoginProvider.If provider = mProviders[i];
-            if (provider.getId().Equals(providerId)) {
-               return false;
-            }
-         }
-         return false;
+      private void ctrlShowPassword_CheckedChanged(object sender, EventArgs e) {
+         ctrlVRPassword.UseSystemPasswordChar = !ctrlShowPassword.Checked;
+      }
+
+      private void toLoginPage() {
+         ctrlWebView.Navigate(sLoginUri, "", Encoding.UTF8.GetBytes(mPostData), "Content-Type: application/x-www-form-urlencoded" + Environment.NewLine);
       }
 
       private void FormLogin_Load(object sender, EventArgs e) {
-         string selectedProvider = UILibSettings.Default.selectedProvider;
-         int index = mProviders.Count - 1;
-         for (int i = 0; i < mProviders.Count; i += 1) {
-            string id = mProviders[i].getId();
-            ctrlProviders.Items.Add(id);
-            if (id.Equals(selectedProvider)) {
-               index = i;
-            }
-         }
-         ctrlProviders.SelectedIndex = index;
+         toLoginPage();
       }
 
-      private LoginProvider.If mSelectedProvider = null;
+      private void ctrlButton_MouseUp(object sender, MouseEventArgs e) {
+         ((Button)sender).ImageIndex = 0;
+      }
 
-      private void ctrlProviders_SelectedIndexChanged(object sender, EventArgs e) {
-         mSelectedProvider = null;
-         ctrlProviderZone.Controls.Clear();
+      private void ctrlButton_MouseDown(object sender, MouseEventArgs e) {
+         ((Button)sender).ImageIndex = 1;
+      }
 
-         int index = ctrlProviders.SelectedIndex;
-         if (index >= 0 && index < mProviders.Count) {
-            mSelectedProvider = mProviders[index];
-            UserControl control = mSelectedProvider.getUI();
-            if (null != control) {
-               ctrlProviderZone.Controls.Add(control);
-            }
+      private void ctrlGoHome_Click(object sender, EventArgs e) {
+         toLoginPage();
+      }
+
+      private void ctrlgoBack_Click(object sender, EventArgs e) {
+         if (ctrlWebView.CanGoBack) {
+            ctrlWebView.GoBack();
          }
       }
+
+      private static readonly string TAG = SDKLib.Util.getLogTag(typeof(FormLogin));
+
+      private void ctrlWebView_onNavigating(object sender, WebBrowserNavigatingEventArgs e) {
+         if (sLocalhost.Equals(e.Url.Authority)) {
+            e.Cancel = true;
+
+            HtmlElementCollection inputs = ctrlWebView.Document.GetElementsByTagName("input");
+            JObject json = null;
+            if (null != inputs && 1 == inputs.Count) {
+
+               for (int i = inputs.Count - 1; i >= 0; i -= 1) {
+                  if (!"code".Equals(inputs[i].Name)) {
+                     continue;
+                  }
+                  try {
+                     json = JObject.Parse(inputs[i].GetAttribute("value"));
+                  } catch (Exception ex) {
+                     SDKLib.Log.d(TAG, inputs[i].Id + " " + inputs[i].Name + " " + ex);
+                     json = null;
+                  }
+
+               }
+            }
+            if (null == json) {
+               toLoginPage();
+            } else {
+               SDKLib.Log.d(TAG, "Creds: " + json);
+            }
+
+         }
+      }
+
    }
 }
