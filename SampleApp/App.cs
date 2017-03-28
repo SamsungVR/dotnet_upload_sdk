@@ -60,12 +60,16 @@ namespace SampleApp {
          SynchronizationContext.SetSynchronizationContext(handler);
          mFormMain = new FormMain();
          mFormMain.Show();
-         mFormMain.setControl(new FormLogin());
+         showLoginForm();
          //Application.AddMessageFilter(new MyMessageFilter());
          Application.Run();
          mFormDialog = null;
          mFormMain = null;
          Log.closeLogFile();
+      }
+
+      public void showLoginForm() {
+         mFormMain.setControl(new FormUILibLogin());
       }
 
       public FormMain getFormMain() {

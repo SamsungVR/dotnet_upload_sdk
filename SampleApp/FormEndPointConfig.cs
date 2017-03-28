@@ -23,7 +23,7 @@ namespace SampleApp {
       }
 
       private void ctrlBack_Click(object sender, EventArgs e) {
-         App.getInstance().getFormMain().setControl(new FormLogin());
+         App.getInstance().showLoginForm();
       }
 
       private void FormEndPointConfig_Load(object sender, EventArgs e) {

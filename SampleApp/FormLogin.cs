@@ -172,5 +172,9 @@ namespace SampleApp {
       private void button1_Click(object sender, EventArgs e) {
          UILib.UILib.login();
       }
+
+      private void ctrlCredsGroup_Enter(object sender, EventArgs e) {
+
+      }
    }
 }

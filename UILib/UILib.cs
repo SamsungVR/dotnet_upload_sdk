@@ -26,7 +26,6 @@ namespace UILib {
          void onLibInitFailed(object closure);
          void onLoggedIn(SDKLib.User user, object closure);
          void onFailure(object closure);
-
          void showLoginUI(UserControl loginUI, object closure);
       }
 
@@ -42,6 +41,7 @@ namespace UILib {
       public static bool init(SynchronizationContext uiHandler, string serverEndPoint, string serverApiKey, string ssoAppId,
             string ssoAppSecret, SDKLib.HttpPlugin.RequestFactory httpPlugin, Callback callback, SynchronizationContext handler,
             object closure) {
+
          lock (sLock) {
             sMainHandler = uiHandler;
             if (null == sMainHandler) {
@@ -51,7 +51,7 @@ namespace UILib {
                sUILib = new UILibImpl();
             }
          }
-         sMainHandler.Post(execRunnable, new InitRunnable(serverEndPoint, serverApiKey, ssoAppId, ssoAppSecret,
+         sMainHandler.Post(execRunnable, new InitRunnable(uiHandler, serverEndPoint, serverApiKey, ssoAppId, ssoAppSecret,
             httpPlugin, callback, handler, closure));
          return true;
       }
@@ -61,7 +61,7 @@ namespace UILib {
             if (null == sUILib || null == sMainHandler) {
                return false;
             }
-            new ShowLoginRunnable().postSelf(sMainHandler);
+            new ShowLoginRunnable(false).postSelf(sMainHandler);
             return true;
          }
       }
@@ -71,7 +71,7 @@ namespace UILib {
             if (null == sUILib || null == sMainHandler) {
                return false;
             }
-            new ShowLoginRunnable().postSelf(sMainHandler);
+            new ShowLoginRunnable(true).postSelf(sMainHandler);
             return true;
          }
 
@@ -102,16 +102,18 @@ namespace UILib {
       internal SDKLib.HttpPlugin.RequestFactory mHttpPlugin;
       internal FormLogin mFormLogin;
 
-      public void initInternal(string serverEndPoint, string serverApiKey, string ssoAppId,
+      public void initInternal(SynchronizationContext uiHandler, string serverEndPoint, string serverApiKey, string ssoAppId,
          string ssoAppSecret, SDKLib.HttpPlugin.RequestFactory httpPlugin, UILib.Callback callback, SynchronizationContext handler,
          object closure) {
 
+         mUIHandler = uiHandler;
          lock (mLock) {
             mId += 1;
             mCallback = callback;
-            mHandler = handler;
+            mHandler = null == handler ? uiHandler : handler;
             mHttpPlugin = null == httpPlugin ? new SDKLib.HttpPlugin.RequestFactoryImpl() : httpPlugin;
          }
+
          String currentSSOAppSecret = null, currentSSOAppId = null;
          if (null != mFormLogin) {
             currentSSOAppId = mFormLogin.mSSOAppId;
@@ -147,7 +149,7 @@ namespace UILib {
       }
 
       public void loginInternal() {
-         new ShowLoginUINotifier(this, mId, mFormLogin);
+         new ShowLoginUINotifier(this, mId, mFormLogin).postSelf(mHandler);
       }
 
       public FormMain mFormMain = null;
@@ -158,27 +160,32 @@ namespace UILib {
          }
          if (null == mFormMain) {
             mFormMain = new FormMain();
-            //new FormLogin("2269tcup3k", "D2C4F779BF5A8E0FD2AF120C1357B1C9")
             mFormMain.setControl(mFormLogin);
             mFormMain.Show();
          }
       }
+
+      public void dispatchLoginAsUserControlInternal() {
+
+      }
+
    }
 
    internal class InitRunnable : Runnable, SDKLib.VR.Result.Destroy.If {
 
       private readonly string mServerEndPoint, mServerApiKey, mSSOAppId, mSSOAppSecret;
       private readonly UILib.Callback mCallback;
-      private readonly SynchronizationContext mHandler;
+      private readonly SynchronizationContext mHandler, mUIHandler;
       private readonly object mClosure;
       private readonly SDKLib.HttpPlugin.RequestFactory mHttpPlugin;
 
-      public InitRunnable(string serverEndPoint, string serverApiKey, string ssoAppId, string ssoAppSecret,
+      public InitRunnable(SynchronizationContext uiHandler, string serverEndPoint, string serverApiKey, string ssoAppId, string ssoAppSecret,
          SDKLib.HttpPlugin.RequestFactory httpPlugin, UILib.Callback callback, SynchronizationContext handler,
          object closure) {
 
          mClosure = closure;
          mHandler = handler;
+         mUIHandler = uiHandler;
          mCallback = callback;
          mServerEndPoint = serverEndPoint;
          mServerApiKey = serverApiKey;
@@ -201,7 +208,7 @@ namespace UILib {
       }
 
       public void onSuccess(object closure) {
-         UILib.sUILib.initInternal(mServerEndPoint, mServerApiKey, mSSOAppId,
+         UILib.sUILib.initInternal(mUIHandler, mServerEndPoint, mServerApiKey, mSSOAppId,
             mSSOAppSecret, mHttpPlugin, mCallback, mHandler, mClosure);
       }
 
@@ -220,8 +227,19 @@ namespace UILib {
 
    internal class ShowLoginRunnable : Runnable {
 
+      private bool mShowAsWindow;
+
+      public ShowLoginRunnable(bool showAsWindow) {
+         mShowAsWindow = showAsWindow;
+      }
+
       public override void run() {
-         UILib.sUILib.showLoginUIAsFormInternal();
+         if (mShowAsWindow) {
+            UILib.sUILib.showLoginUIAsFormInternal();
+         } else {
+            UILib.sUILib.loginInternal();
+         }
+         
       }
    }
 

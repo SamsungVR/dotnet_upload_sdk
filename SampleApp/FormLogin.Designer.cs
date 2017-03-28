@@ -70,6 +70,7 @@
          this.ctrlCredsGroup.TabIndex = 7;
          this.ctrlCredsGroup.TabStop = false;
          this.ctrlCredsGroup.Text = "Credentials";
+         this.ctrlCredsGroup.Enter += new System.EventHandler(this.ctrlCredsGroup_Enter);
          // 
          // button1
          // 
@@ -79,7 +80,6 @@
          this.button1.TabIndex = 11;
          this.button1.Text = "Test";
          this.button1.UseVisualStyleBackColor = true;
-         this.button1.Visible = false;
          this.button1.Click += new System.EventHandler(this.button1_Click);
          // 
          // ctrlLogin
