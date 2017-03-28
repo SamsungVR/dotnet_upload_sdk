@@ -26,7 +26,7 @@
          this.components = new System.ComponentModel.Container();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormLogin));
          this.label1 = new System.Windows.Forms.Label();
-         this.ctrlVREmail = new System.Windows.Forms.TextBox();
+         this.ctrlVRUsername = new System.Windows.Forms.TextBox();
          this.label2 = new System.Windows.Forms.Label();
          this.ctrlVRPassword = new System.Windows.Forms.TextBox();
          this.ctrlShowPassword = new System.Windows.Forms.CheckBox();
@@ -53,16 +53,16 @@
          this.label1.TabIndex = 0;
          this.label1.Text = "Samsung VR Email ...";
          // 
-         // ctrlVREmail
+         // ctrlVRUsername
          // 
-         this.ctrlVREmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-         this.ctrlVREmail.BackColor = System.Drawing.Color.DimGray;
-         this.ctrlVREmail.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.ctrlVREmail.ForeColor = System.Drawing.Color.White;
-         this.ctrlVREmail.Location = new System.Drawing.Point(45, 446);
-         this.ctrlVREmail.Name = "ctrlVREmail";
-         this.ctrlVREmail.Size = new System.Drawing.Size(389, 31);
-         this.ctrlVREmail.TabIndex = 1;
+         this.ctrlVRUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+         this.ctrlVRUsername.BackColor = System.Drawing.Color.DimGray;
+         this.ctrlVRUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.ctrlVRUsername.ForeColor = System.Drawing.Color.White;
+         this.ctrlVRUsername.Location = new System.Drawing.Point(45, 446);
+         this.ctrlVRUsername.Name = "ctrlVRUsername";
+         this.ctrlVRUsername.Size = new System.Drawing.Size(389, 31);
+         this.ctrlVRUsername.TabIndex = 1;
          // 
          // label2
          // 
@@ -118,6 +118,7 @@
          this.ctrlLogin.Size = new System.Drawing.Size(36, 37);
          this.ctrlLogin.TabIndex = 5;
          this.ctrlLogin.UseVisualStyleBackColor = true;
+         this.ctrlLogin.Click += new System.EventHandler(this.ctrlLogin_Click);
          this.ctrlLogin.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);
          this.ctrlLogin.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseUp);
          // 
@@ -237,7 +238,7 @@
          this.Controls.Add(this.ctrlShowPassword);
          this.Controls.Add(this.ctrlVRPassword);
          this.Controls.Add(this.label2);
-         this.Controls.Add(this.ctrlVREmail);
+         this.Controls.Add(this.ctrlVRUsername);
          this.Controls.Add(this.label1);
          this.Name = "FormLogin";
          this.Size = new System.Drawing.Size(478, 664);
@@ -250,7 +251,7 @@
       #endregion
 
       private System.Windows.Forms.Label label1;
-      private System.Windows.Forms.TextBox ctrlVREmail;
+      private System.Windows.Forms.TextBox ctrlVRUsername;
       private System.Windows.Forms.Label label2;
       private System.Windows.Forms.TextBox ctrlVRPassword;
       private System.Windows.Forms.CheckBox ctrlShowPassword;

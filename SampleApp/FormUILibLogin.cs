@@ -32,10 +32,13 @@ namespace SampleApp {
             Log.d(TAG, "onLibInitFailure");
          }
 
-         public void onLoggedIn(SDKLib.User user, object closure) {
+         public void onLoginSuccess(SDKLib.User.If user, object closure) {
+            Log.d(TAG, "onLoggedIn " + user.getName());
+            mFormLogin.mApp.setUser(user);
+            mFormLogin.mApp.getFormMain().setControl(new FormLoggedIn());
          }
 
-         public void onFailure(object closure) {
+         public void onLoginFailure(object closure) {
          }
 
          public void showLoginUI(UserControl loginUI, object closure) {
@@ -72,8 +75,10 @@ namespace SampleApp {
       private bool initVRLib() {
          EndPointConfig config = mEndPointCfgMgr.getSelectedConfig();
          if (null == config) {
+            ctrlEndPoint.Text = ResourceStrings.configureEndPoint;
             return false;
          }
+         ctrlEndPoint.Text = config.getUrl();
          return UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), "2269tcup3k", "D2C4F779BF5A8E0FD2AF120C1357B1C9",
             new HttpPlugin.RequestFactoryImpl(), mCallback, null, null);
       }
@@ -84,10 +89,6 @@ namespace SampleApp {
 
       private void ctrlStatusMsg_Click(object sender, EventArgs e) {
          ctrlStatusMsg.Text = string.Empty;
-      }
-
-      private void button1_Click(object sender, EventArgs e) {
-         UILib.UILib.login();
       }
    }
 }

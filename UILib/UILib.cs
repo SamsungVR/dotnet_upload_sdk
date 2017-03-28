@@ -24,8 +24,10 @@ namespace UILib {
       public interface Callback {
          void onLibInitSuccess(object closure);
          void onLibInitFailed(object closure);
-         void onLoggedIn(SDKLib.User user, object closure);
-         void onFailure(object closure);
+
+         void onLoginSuccess(SDKLib.User.If user, object closure);
+         void onLoginFailure(object closure);
+
          void showLoginUI(UserControl loginUI, object closure);
       }
 
@@ -131,7 +133,7 @@ namespace UILib {
          }
          mServerApiKey = serverApiKey;
          mServerEndPoint = serverEndPoint;
-         mFormLogin = new FormLogin(ssoAppId, ssoAppSecret);
+         mFormLogin = new FormLogin(this, ssoAppId, ssoAppSecret);
          if (!SDKLib.VR.initAsync(serverEndPoint, serverApiKey, mHttpPlugin, new VRInitCallback(), mUIHandler, mClosure)) {
             new InitStatusNotifier(this, mId, false).postSelf(mHandler);
          }
@@ -167,6 +169,10 @@ namespace UILib {
 
       public void dispatchLoginAsUserControlInternal() {
 
+      }
+
+      internal void onLoginSuccessInternal(SDKLib.User.If user) {
+         new LoginSuccessNotifier(this, mId, user).postSelf(mHandler);
       }
 
    }
@@ -288,6 +294,20 @@ namespace UILib {
          } else {
             callback.onLibInitFailed(closure);
          }
+      }
+   }
+
+   internal class LoginSuccessNotifier : CallbackNotifier {
+
+      private SDKLib.User.If mUser;
+
+      public LoginSuccessNotifier(UILibImpl uiLibImpl, int id, SDKLib.User.If user)
+         : base(id, uiLibImpl) {
+         mUser = user;
+      }
+
+      protected override void onRun(UILib.Callback callback, object closure) {
+         callback.onLoginSuccess(mUser, closure);
       }
    }
 
