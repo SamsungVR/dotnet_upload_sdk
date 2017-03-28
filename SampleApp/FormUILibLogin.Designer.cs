@@ -33,27 +33,27 @@
          this.ctrlEndPoint.BackColor = System.Drawing.SystemColors.Window;
          this.ctrlEndPoint.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
          this.ctrlEndPoint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-         this.ctrlEndPoint.Location = new System.Drawing.Point(22, 14);
+         this.ctrlEndPoint.Location = new System.Drawing.Point(13, 14);
          this.ctrlEndPoint.Name = "ctrlEndPoint";
-         this.ctrlEndPoint.Size = new System.Drawing.Size(478, 26);
+         this.ctrlEndPoint.Size = new System.Drawing.Size(400, 26);
          this.ctrlEndPoint.TabIndex = 0;
          this.ctrlEndPoint.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          this.ctrlEndPoint.Click += new System.EventHandler(this.ctrlEndPoint_Click);
          // 
          // ctrlStatusMsg
          // 
-         this.ctrlStatusMsg.Location = new System.Drawing.Point(22, 731);
+         this.ctrlStatusMsg.Location = new System.Drawing.Point(13, 666);
          this.ctrlStatusMsg.Name = "ctrlStatusMsg";
-         this.ctrlStatusMsg.Size = new System.Drawing.Size(478, 28);
+         this.ctrlStatusMsg.Size = new System.Drawing.Size(400, 28);
          this.ctrlStatusMsg.TabIndex = 6;
          this.ctrlStatusMsg.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          this.ctrlStatusMsg.Click += new System.EventHandler(this.ctrlStatusMsg_Click);
          // 
          // ctrlLoginPanel
          // 
-         this.ctrlLoginPanel.Location = new System.Drawing.Point(22, 53);
+         this.ctrlLoginPanel.Location = new System.Drawing.Point(13, 53);
          this.ctrlLoginPanel.Name = "ctrlLoginPanel";
-         this.ctrlLoginPanel.Size = new System.Drawing.Size(478, 664);
+         this.ctrlLoginPanel.Size = new System.Drawing.Size(400, 600);
          this.ctrlLoginPanel.TabIndex = 7;
          // 
          // FormUILibLogin
@@ -66,7 +66,7 @@
          this.Controls.Add(this.ctrlStatusMsg);
          this.Controls.Add(this.ctrlEndPoint);
          this.Name = "FormUILibLogin";
-         this.Size = new System.Drawing.Size(523, 778);
+         this.Size = new System.Drawing.Size(430, 709);
          this.ResumeLayout(false);
 
       }

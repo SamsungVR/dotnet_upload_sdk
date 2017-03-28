@@ -61,6 +61,15 @@ namespace UILib {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed with status code {0}.
+        /// </summary>
+        internal static string failedWithStatus {
+            get {
+                return ResourceManager.GetString("failedWithStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SSO.
         /// </summary>
         internal static string loginSSO {

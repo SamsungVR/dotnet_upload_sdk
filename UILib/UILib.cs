@@ -327,41 +327,4 @@ namespace UILib {
 }
 
 
-#if adsf
-      internal class Impl {
-
-         private FormMain mFormMain;
-
-         private int mId = -1;
-         
-         private Callback.If mCallback;
-         private object mClosure;
-         private SynchronizationContext mHandler, mUIHandler;
-
-         public Impl() {
-         }
-
-
-
-         public bool loginInternal() {
-            if (null != mFormMain) {
-               return false;
-            }
-            return true;
-         }
-
-         public void onFormClosed(FormClosedEventArgs e) {
-            mFormMain = null;
-         }
-
-      }
-
-      public static bool login() {
-         if (null == sInstance) {
-            sInstance = new Impl();
-         }
-         return sInstance.loginInternal();
-      }
-   }
-#endif
 

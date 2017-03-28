@@ -25,6 +25,7 @@ namespace UILib {
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "login failed status: " + status);
+            mFormLogin.ctrlLoginStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
          }
 
          public void onSuccess(object closure, User.If user) {
@@ -36,6 +37,7 @@ namespace UILib {
          }
 
          public void onException(object closure, Exception ex) {
+            mFormLogin.ctrlLoginStatus.Text = ex.ToString();
          }
 
       }
@@ -48,10 +50,12 @@ namespace UILib {
             mFormLogin = formLogin;
          }
 
-         private static readonly string TAG = SDKLib.Log.getLogTag(typeof(CallbackVRLogin));
+         private static readonly string TAG = SDKLib.Log.getLogTag(typeof(CallbackSSOLogin));
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "login failed status: " + status);
+            mFormLogin.ctrlLoginStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
+            mFormLogin.toLoginPage();
          }
 
          public void onSuccess(object closure, User.If user) {
@@ -63,6 +67,7 @@ namespace UILib {
          }
 
          public void onException(object closure, Exception ex) {
+            mFormLogin.ctrlLoginStatus.Text = ex.ToString();
          }
 
       }
