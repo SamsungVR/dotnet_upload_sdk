@@ -79,7 +79,7 @@ namespace SampleApp {
             return false;
          }
          ctrlEndPoint.Text = config.getUrl();
-         return UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), "603981qqwe", "D2C4F779BF5A8E0FD2AF120C1357B1C9",
+         return UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), "398493jfwe", "D494jklmfalsm40504o50450440041C9",
             new HttpPlugin.RequestFactoryImpl(), mCallback, null, null);
       }
 

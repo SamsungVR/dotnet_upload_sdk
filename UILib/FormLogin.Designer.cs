@@ -163,6 +163,7 @@
          this.ctrlWebView.Size = new System.Drawing.Size(364, 252);
          this.ctrlWebView.TabIndex = 7;
          this.ctrlWebView.WebBrowserShortcutsEnabled = false;
+         this.ctrlWebView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.ctrlWebView_documentCompleted);
          this.ctrlWebView.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.ctrlWebView_onNavigating);
          // 
          // label4

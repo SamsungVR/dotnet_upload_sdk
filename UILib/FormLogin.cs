@@ -122,6 +122,7 @@ namespace UILib {
 
       private static readonly string TAG = SDKLib.Util.getLogTag(typeof(FormLogin));
 
+      
       private void ctrlWebView_onNavigating(object sender, WebBrowserNavigatingEventArgs e) {
          if (sLocalhost.Equals(e.Url.Authority)) {
             e.Cancel = true;
@@ -174,6 +175,10 @@ namespace UILib {
          if (VR.login(name, pwd, mCallbackVRLogin, mUILibImpl.mUIHandler, null)) {
          } else {
          }
+      }
+
+      private void ctrlWebView_documentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+         //ctrlWebView.Document.Body.Style = "zoom:80%;";
       }
 
    }

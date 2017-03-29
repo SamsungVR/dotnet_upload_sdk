@@ -33,6 +33,7 @@
          this.ctrlEmail = new System.Windows.Forms.Label();
          this.ctrlUsername = new System.Windows.Forms.Label();
          this.ctrlUploadVideo = new System.Windows.Forms.LinkLabel();
+         this.ctrlLogout = new System.Windows.Forms.LinkLabel();
          this.panel2.SuspendLayout();
          this.groupBox1.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.ctrlProfilePic)).BeginInit();
@@ -50,6 +51,7 @@
          // panel2
          // 
          this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+         this.panel2.Controls.Add(this.ctrlLogout);
          this.panel2.Controls.Add(this.ctrlManageLogs);
          this.panel2.Controls.Add(this.ctrlListLiveEvents);
          this.panel2.Controls.Add(this.ctrlCreateLiveEvent);
@@ -141,6 +143,17 @@
          this.ctrlUploadVideo.Text = "Upload video";
          this.ctrlUploadVideo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlUploadVideo_LinkClicked);
          // 
+         // ctrlLogout
+         // 
+         this.ctrlLogout.AutoSize = true;
+         this.ctrlLogout.Location = new System.Drawing.Point(7, 212);
+         this.ctrlLogout.Name = "ctrlLogout";
+         this.ctrlLogout.Size = new System.Drawing.Size(40, 13);
+         this.ctrlLogout.TabIndex = 5;
+         this.ctrlLogout.TabStop = true;
+         this.ctrlLogout.Text = "Logout";
+         this.ctrlLogout.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ctrlLogout_LinkClicked);
+         // 
          // FormLoggedIn
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -171,6 +184,7 @@
       private System.Windows.Forms.LinkLabel ctrlListLiveEvents;
       private System.Windows.Forms.LinkLabel ctrlCreateLiveEvent;
       private System.Windows.Forms.LinkLabel ctrlManageLogs;
+      private System.Windows.Forms.LinkLabel ctrlLogout;
 
    }
 }

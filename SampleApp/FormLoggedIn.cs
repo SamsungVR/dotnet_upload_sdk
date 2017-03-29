@@ -74,5 +74,9 @@ namespace SampleApp {
          }
          setControl(new FormManageLogs());
       }
+
+      private void ctrlLogout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+         App.getInstance().showLoginForm();
+      }
    }
 }
