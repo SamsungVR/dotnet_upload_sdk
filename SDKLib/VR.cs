@@ -220,12 +220,12 @@ namespace SDKLib {
            private Login() {
            }
 
-           public static readonly int STATUS_MISSING_EMAIL_OR_PASSWORD = 1;
-           public static readonly int STATUS_ACCOUNT_LOCKED_EXCESSIVE_FAILED_ATTEMPTS = 2;
-           public static readonly int STATUS_ACCOUNT_WILL_BE_LOCKED_OUT = 3;
-           public static readonly int STATUS_ACCOUNT_NOT_YET_ACTIVATED = 4;
-           public static readonly int STATUS_UNKNOWN_USER = 5;
-           public static readonly int STATUS_LOGIN_FAILED = 6;
+           public const int STATUS_MISSING_EMAIL_OR_PASSWORD = 1;
+           public const int STATUS_ACCOUNT_LOCKED_EXCESSIVE_FAILED_ATTEMPTS = 2;
+           public const int STATUS_ACCOUNT_WILL_BE_LOCKED_OUT = 3;
+           public const int STATUS_ACCOUNT_NOT_YET_ACTIVATED = 4;
+           public const int STATUS_UNKNOWN_USER = 5;
+           public const int STATUS_LOGIN_FAILED = 6;
 
            public interface If : BaseCallback.If, SuccessWithResultCallback.If<User.If> {
            }
@@ -237,8 +237,13 @@ namespace SDKLib {
            private LoginSSO() {
            }
 
-           int STATUS_LOGIN_FAILED = 6;
-           int STATUS_SSO_VERIFY_FAILED = 9;
+           internal const int CLASS_AUTH = (1 << 8);
+           internal const int CLASS_REG = (2 << 8);
+
+           public const int STATUS_AUTH_LOGIN_FAILED = CLASS_AUTH | 6;
+           public const int STATUS_AUTH_VERIFY_FAILED = CLASS_AUTH | 9;
+
+           public const int STATUS_REG_ACCOUNT_ALREADY_EXISTS = CLASS_REG | 8;
 
            /*
                >>authentication = {
@@ -286,8 +291,8 @@ namespace SDKLib {
             private Destroy() {
             }
 
-            public static readonly int STATUS_ALREADY_DESTROYED = 1;
-            public static readonly int DESTROY_IN_PROGRESS = 2;
+            public const int STATUS_ALREADY_DESTROYED = 1;
+            public const int DESTROY_IN_PROGRESS = 2;
 
             public interface If {
                void onSuccess(object closure);

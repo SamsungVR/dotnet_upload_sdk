@@ -95,5 +95,86 @@ namespace UILib {
                 return ResourceManager.GetString("loginSVR", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid username or password.
+        /// </summary>
+        internal static string ssoInvalidUserNameOrPassword {
+            get {
+                return ResourceManager.GetString("ssoInvalidUserNameOrPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to verify Samsung SSO account.
+        /// </summary>
+        internal static string ssoUnableToVerifyAccount {
+            get {
+                return ResourceManager.GetString("ssoUnableToVerifyAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to create account; account already created.
+        /// </summary>
+        internal static string ssoVRAccountAlreadyCreated {
+            get {
+                return ResourceManager.GetString("ssoVRAccountAlreadyCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account locked-out or schedule to be..
+        /// </summary>
+        internal static string vrAccountLocked {
+            get {
+                return ResourceManager.GetString("vrAccountLocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Excessive / Too many login attempts.
+        /// </summary>
+        internal static string vrExcessiveLoginAttempts {
+            get {
+                return ResourceManager.GetString("vrExcessiveLoginAttempts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login failed. Check user id / password..
+        /// </summary>
+        internal static string vrLoginFailed {
+            get {
+                return ResourceManager.GetString("vrLoginFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing email or password.
+        /// </summary>
+        internal static string vrMissingEmailPassword {
+            get {
+                return ResourceManager.GetString("vrMissingEmailPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inactive account. Check email after account creation..
+        /// </summary>
+        internal static string vrPendingActivation {
+            get {
+                return ResourceManager.GetString("vrPendingActivation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown user.
+        /// </summary>
+        internal static string vrUnknownUser {
+            get {
+                return ResourceManager.GetString("vrUnknownUser", resourceCulture);
+            }
+        }
     }
 }

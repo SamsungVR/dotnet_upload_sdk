@@ -25,7 +25,30 @@ namespace UILib {
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "login failed status: " + status);
-            mFormLogin.ctrlLoginStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
+            switch (status) {
+               case VR.Result.Login.STATUS_MISSING_EMAIL_OR_PASSWORD:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.vrMissingEmailPassword;
+                  break;
+               case VR.Result.Login.STATUS_UNKNOWN_USER:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.vrUnknownUser;
+                  break;
+               case VR.Result.Login.STATUS_ACCOUNT_LOCKED_EXCESSIVE_FAILED_ATTEMPTS:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.vrExcessiveLoginAttempts;
+                  break;
+               case VR.Result.Login.STATUS_ACCOUNT_NOT_YET_ACTIVATED:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.vrPendingActivation;
+                  break;
+               case VR.Result.Login.STATUS_ACCOUNT_WILL_BE_LOCKED_OUT:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.vrAccountLocked;
+                  break;
+               case VR.Result.Login.STATUS_LOGIN_FAILED:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.vrLoginFailed;
+                  break;
+               default:
+                  mFormLogin.ctrlLoginStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
+                  break;
+            }
+            
          }
 
          public void onSuccess(object closure, User.If user) {
@@ -54,8 +77,22 @@ namespace UILib {
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "login failed status: " + status);
-            mFormLogin.ctrlLoginStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
             mFormLogin.toLoginPage();
+            switch (status) {
+               case VR.Result.LoginSSO.STATUS_AUTH_LOGIN_FAILED:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.ssoInvalidUserNameOrPassword;
+                  break;
+               case VR.Result.LoginSSO.STATUS_AUTH_VERIFY_FAILED:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.ssoUnableToVerifyAccount;
+                  break;
+               case VR.Result.LoginSSO.STATUS_REG_ACCOUNT_ALREADY_EXISTS:
+                  mFormLogin.ctrlLoginStatus.Text = ResourceStrings.ssoVRAccountAlreadyCreated;
+                  break;
+               default:
+                  mFormLogin.ctrlLoginStatus.Text = string.Format(ResourceStrings.failedWithStatus, status);
+                  break;
+            }
+            
          }
 
          public void onSuccess(object closure, User.If user) {
@@ -95,9 +132,12 @@ namespace UILib {
       }
 
       internal void toLoginPage() {
-         ctrlWebView.Visible = true;
-         ctrlSSOProgress.Visible = false;
-         ctrlWebView.Navigate(sLoginUri, "", Encoding.UTF8.GetBytes(mPostData), "Content-Type: application/x-www-form-urlencoded" + Environment.NewLine);
+         ctrlWebView.Visible = false;
+         ctrlSSOProgress.Visible = true;
+         ctrlVRPassword.Text = string.Empty;
+         ctrlLoginStatus.Text = string.Empty;
+         ctrlWebView.Navigate(sLoginUri, "", Encoding.UTF8.GetBytes(mPostData), 
+            "Content-Type: application/x-www-form-urlencoded" + Environment.NewLine);
       }
 
       private void FormLogin_Load(object sender, EventArgs e) {
@@ -192,6 +232,8 @@ namespace UILib {
       }
 
       private void ctrlWebView_documentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+         ctrlWebView.Visible = true;
+         ctrlSSOProgress.Visible = false;
          //ctrlWebView.Document.Body.Style = "zoom:80%;";
       }
 

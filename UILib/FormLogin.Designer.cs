@@ -63,12 +63,13 @@
          // 
          this.ctrlVRUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
          this.ctrlVRUsername.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-         this.ctrlVRUsername.BorderStyle = System.Windows.Forms.BorderStyle.None;
+         this.ctrlVRUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
          this.ctrlVRUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.ctrlVRUsername.ForeColor = System.Drawing.Color.Black;
          this.ctrlVRUsername.Location = new System.Drawing.Point(18, 402);
+         this.ctrlVRUsername.MaxLength = 128;
          this.ctrlVRUsername.Name = "ctrlVRUsername";
-         this.ctrlVRUsername.Size = new System.Drawing.Size(364, 24);
+         this.ctrlVRUsername.Size = new System.Drawing.Size(364, 31);
          this.ctrlVRUsername.TabIndex = 1;
          // 
          // label2
@@ -87,12 +88,13 @@
          // 
          this.ctrlVRPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
          this.ctrlVRPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-         this.ctrlVRPassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
+         this.ctrlVRPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
          this.ctrlVRPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.ctrlVRPassword.ForeColor = System.Drawing.Color.Black;
          this.ctrlVRPassword.Location = new System.Drawing.Point(18, 464);
+         this.ctrlVRPassword.MaxLength = 128;
          this.ctrlVRPassword.Name = "ctrlVRPassword";
-         this.ctrlVRPassword.Size = new System.Drawing.Size(364, 24);
+         this.ctrlVRPassword.Size = new System.Drawing.Size(364, 31);
          this.ctrlVRPassword.TabIndex = 3;
          this.ctrlVRPassword.UseSystemPasswordChar = true;
          // 
@@ -125,6 +127,7 @@
          this.ctrlLogin.Name = "ctrlLogin";
          this.ctrlLogin.Size = new System.Drawing.Size(36, 36);
          this.ctrlLogin.TabIndex = 5;
+         this.ctrlLogin.TabStop = false;
          this.ctrlLogin.UseVisualStyleBackColor = false;
          this.ctrlLogin.Click += new System.EventHandler(this.ctrlLogin_Click);
          this.ctrlLogin.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);
@@ -170,11 +173,11 @@
          // 
          this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
          this.label4.AutoSize = true;
-         this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.label4.ForeColor = System.Drawing.Color.Black;
          this.label4.Location = new System.Drawing.Point(183, 340);
          this.label4.Name = "label4";
-         this.label4.Size = new System.Drawing.Size(35, 25);
+         this.label4.Size = new System.Drawing.Size(37, 25);
          this.label4.TabIndex = 8;
          this.label4.Text = "Or";
          // 
@@ -194,6 +197,7 @@
          this.ctrlGoHome.Name = "ctrlGoHome";
          this.ctrlGoHome.Size = new System.Drawing.Size(36, 36);
          this.ctrlGoHome.TabIndex = 9;
+         this.ctrlGoHome.TabStop = false;
          this.ctrlGoHome.UseVisualStyleBackColor = false;
          this.ctrlGoHome.Click += new System.EventHandler(this.ctrlGoHome_Click);
          this.ctrlGoHome.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);
@@ -222,6 +226,7 @@
          this.ctrlGoBack.Name = "ctrlGoBack";
          this.ctrlGoBack.Size = new System.Drawing.Size(36, 36);
          this.ctrlGoBack.TabIndex = 10;
+         this.ctrlGoBack.TabStop = false;
          this.ctrlGoBack.UseVisualStyleBackColor = false;
          this.ctrlGoBack.Click += new System.EventHandler(this.ctrlgoBack_Click);
          this.ctrlGoBack.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);

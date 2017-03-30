@@ -129,4 +129,31 @@
   <data name="loginSVR" xml:space="preserve">
     <value>Samsung VR</value>
   </data>
+  <data name="ssoInvalidUserNameOrPassword" xml:space="preserve">
+    <value>Invalid username or password</value>
+  </data>
+  <data name="ssoUnableToVerifyAccount" xml:space="preserve">
+    <value>Unable to verify Samsung SSO account</value>
+  </data>
+  <data name="ssoVRAccountAlreadyCreated" xml:space="preserve">
+    <value>Unable to create account; account already created</value>
+  </data>
+  <data name="vrAccountLocked" xml:space="preserve">
+    <value>Account locked-out or schedule to be.</value>
+  </data>
+  <data name="vrExcessiveLoginAttempts" xml:space="preserve">
+    <value>Excessive / Too many login attempts</value>
+  </data>
+  <data name="vrLoginFailed" xml:space="preserve">
+    <value>Login failed. Check user id / password.</value>
+  </data>
+  <data name="vrMissingEmailPassword" xml:space="preserve">
+    <value>Missing email or password</value>
+  </data>
+  <data name="vrPendingActivation" xml:space="preserve">
+    <value>Inactive account. Check email after account creation.</value>
+  </data>
+  <data name="vrUnknownUser" xml:space="preserve">
+    <value>Unknown user</value>
+  </data>
 </root>

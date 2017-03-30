@@ -406,7 +406,7 @@ namespace SDKLib {
             }
             JObject jsonObject = JObject.Parse(data2);
             int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
-            dispatchFailure(status);
+            dispatchFailure(VR.Result.LoginSSO.CLASS_REG | status);
             return true;
          } finally {
             destroy(request);
@@ -433,7 +433,7 @@ namespace SDKLib {
             }
             statusInt = status.get();
          }
-         dispatchFailure(statusInt);
+         dispatchFailure(VR.Result.LoginSSO.CLASS_AUTH | statusInt);
       }
    }
 }

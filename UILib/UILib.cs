@@ -23,7 +23,7 @@ namespace UILib {
 
          private SDKLib.User.If mUser;
 
-         public LoginSuccessNotifier(UILibImpl uiLibImpl, int id, SDKLib.User.If user)
+         public LoginSuccessNotifier(UILibImpl uiLibImpl, SDKLib.User.If user)
             : base(uiLibImpl) {
             mUser = user;
          }
@@ -48,7 +48,7 @@ namespace UILib {
          internal FormMain mFormMain = null;
 
          internal void onLoginSuccessInternal(SDKLib.User.If user) {
-            new LoginSuccessNotifier(this, mId, user).postSelf(mHandler);
+            new LoginSuccessNotifier(this, user).postSelf(mHandler);
          }
 
       }
@@ -169,6 +169,7 @@ namespace UILib {
                impl.mId += 1;
                impl.mCallback = mCallback;
                impl.mHandler = null == mHandler ? UILib.sMainHandler : mHandler;
+               impl.mClosure = mClosure;
                impl.mHttpPlugin = null == mHttpPlugin ? new SDKLib.HttpPlugin.RequestFactoryImpl() : mHttpPlugin;
             }
 
@@ -327,7 +328,6 @@ namespace UILib {
             new ShowLoginRunnable(true).postSelf(sMainHandler);
             return true;
          }
-
       }
    }
 
