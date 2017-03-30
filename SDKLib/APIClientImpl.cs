@@ -344,7 +344,7 @@ namespace SDKLib {
                UserImpl user = mAPIClient.containerOnCreateOfContainedInServiceLocked<UserImpl>(UserImpl.sType, jsonObject);
 
                if (null != user) {
-                  dispatchSuccessWithResult(user);
+                  dispatchSuccessWithResult<User.If>(user);
                } else {
                   dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
                }

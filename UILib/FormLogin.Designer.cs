@@ -41,9 +41,10 @@
          this.imageListBack = new System.Windows.Forms.ImageList(this.components);
          this.ctrlLoginStatus = new System.Windows.Forms.TextBox();
          this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
-         this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
-         this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
          this.lineShape3 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+         this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+         this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+         this.ctrlSSOProgress = new System.Windows.Forms.ProgressBar();
          this.SuspendLayout();
          // 
          // label1
@@ -111,12 +112,11 @@
          // 
          // ctrlLogin
          // 
-         this.ctrlLogin.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-         this.ctrlLogin.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-         this.ctrlLogin.FlatAppearance.MouseDownBackColor = System.Drawing.Color.DimGray;
-         this.ctrlLogin.FlatAppearance.MouseOverBackColor = System.Drawing.Color.DimGray;
+         this.ctrlLogin.Anchor = System.Windows.Forms.AnchorStyles.None;
+         this.ctrlLogin.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+         this.ctrlLogin.FlatAppearance.BorderColor = System.Drawing.Color.White;
+         this.ctrlLogin.FlatAppearance.MouseDownBackColor = System.Drawing.Color.White;
+         this.ctrlLogin.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
          this.ctrlLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.ctrlLogin.ImageIndex = 0;
          this.ctrlLogin.ImageList = this.imageListLogin;
@@ -125,7 +125,7 @@
          this.ctrlLogin.Name = "ctrlLogin";
          this.ctrlLogin.Size = new System.Drawing.Size(36, 36);
          this.ctrlLogin.TabIndex = 5;
-         this.ctrlLogin.UseVisualStyleBackColor = true;
+         this.ctrlLogin.UseVisualStyleBackColor = false;
          this.ctrlLogin.Click += new System.EventHandler(this.ctrlLogin_Click);
          this.ctrlLogin.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);
          this.ctrlLogin.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseUp);
@@ -180,12 +180,11 @@
          // 
          // ctrlGoHome
          // 
-         this.ctrlGoHome.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-         this.ctrlGoHome.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-         this.ctrlGoHome.FlatAppearance.MouseDownBackColor = System.Drawing.Color.DimGray;
-         this.ctrlGoHome.FlatAppearance.MouseOverBackColor = System.Drawing.Color.DimGray;
+         this.ctrlGoHome.Anchor = System.Windows.Forms.AnchorStyles.None;
+         this.ctrlGoHome.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+         this.ctrlGoHome.FlatAppearance.BorderColor = System.Drawing.Color.White;
+         this.ctrlGoHome.FlatAppearance.MouseDownBackColor = System.Drawing.Color.White;
+         this.ctrlGoHome.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
          this.ctrlGoHome.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.ctrlGoHome.ForeColor = System.Drawing.Color.White;
          this.ctrlGoHome.ImageIndex = 0;
@@ -195,7 +194,7 @@
          this.ctrlGoHome.Name = "ctrlGoHome";
          this.ctrlGoHome.Size = new System.Drawing.Size(36, 36);
          this.ctrlGoHome.TabIndex = 9;
-         this.ctrlGoHome.UseVisualStyleBackColor = true;
+         this.ctrlGoHome.UseVisualStyleBackColor = false;
          this.ctrlGoHome.Click += new System.EventHandler(this.ctrlGoHome_Click);
          this.ctrlGoHome.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);
          this.ctrlGoHome.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseUp);
@@ -209,12 +208,11 @@
          // 
          // ctrlGoBack
          // 
-         this.ctrlGoBack.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-         this.ctrlGoBack.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-         this.ctrlGoBack.FlatAppearance.MouseDownBackColor = System.Drawing.Color.DimGray;
-         this.ctrlGoBack.FlatAppearance.MouseOverBackColor = System.Drawing.Color.DimGray;
+         this.ctrlGoBack.Anchor = System.Windows.Forms.AnchorStyles.None;
+         this.ctrlGoBack.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+         this.ctrlGoBack.FlatAppearance.BorderColor = System.Drawing.Color.White;
+         this.ctrlGoBack.FlatAppearance.MouseDownBackColor = System.Drawing.Color.White;
+         this.ctrlGoBack.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
          this.ctrlGoBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.ctrlGoBack.ForeColor = System.Drawing.Color.White;
          this.ctrlGoBack.ImageIndex = 0;
@@ -224,7 +222,7 @@
          this.ctrlGoBack.Name = "ctrlGoBack";
          this.ctrlGoBack.Size = new System.Drawing.Size(36, 36);
          this.ctrlGoBack.TabIndex = 10;
-         this.ctrlGoBack.UseVisualStyleBackColor = true;
+         this.ctrlGoBack.UseVisualStyleBackColor = false;
          this.ctrlGoBack.Click += new System.EventHandler(this.ctrlgoBack_Click);
          this.ctrlGoBack.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseDown);
          this.ctrlGoBack.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ctrlButton_MouseUp);
@@ -262,13 +260,13 @@
          this.shapeContainer1.TabIndex = 12;
          this.shapeContainer1.TabStop = false;
          // 
-         // lineShape1
+         // lineShape3
          // 
-         this.lineShape1.Name = "lineShape1";
-         this.lineShape1.X1 = 14;
-         this.lineShape1.X2 = 381;
-         this.lineShape1.Y1 = 586;
-         this.lineShape1.Y2 = 586;
+         this.lineShape3.Name = "lineShape3";
+         this.lineShape3.X1 = 19;
+         this.lineShape3.X2 = 381;
+         this.lineShape3.Y1 = 325;
+         this.lineShape3.Y2 = 325;
          // 
          // lineShape2
          // 
@@ -278,13 +276,23 @@
          this.lineShape2.Y1 = 55;
          this.lineShape2.Y2 = 55;
          // 
-         // lineShape3
+         // lineShape1
          // 
-         this.lineShape3.Name = "lineShape3";
-         this.lineShape3.X1 = 19;
-         this.lineShape3.X2 = 381;
-         this.lineShape3.Y1 = 325;
-         this.lineShape3.Y2 = 325;
+         this.lineShape1.Name = "lineShape1";
+         this.lineShape1.X1 = 14;
+         this.lineShape1.X2 = 381;
+         this.lineShape1.Y1 = 586;
+         this.lineShape1.Y2 = 586;
+         // 
+         // ctrlSSOProgress
+         // 
+         this.ctrlSSOProgress.Location = new System.Drawing.Point(97, 176);
+         this.ctrlSSOProgress.Margin = new System.Windows.Forms.Padding(0);
+         this.ctrlSSOProgress.Name = "ctrlSSOProgress";
+         this.ctrlSSOProgress.Size = new System.Drawing.Size(207, 23);
+         this.ctrlSSOProgress.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+         this.ctrlSSOProgress.TabIndex = 13;
+         this.ctrlSSOProgress.Visible = false;
          // 
          // FormLogin
          // 
@@ -304,6 +312,7 @@
          this.Controls.Add(this.ctrlVRUsername);
          this.Controls.Add(this.label1);
          this.Controls.Add(this.shapeContainer1);
+         this.Controls.Add(this.ctrlSSOProgress);
          this.Name = "FormLogin";
          this.Size = new System.Drawing.Size(400, 650);
          this.Load += new System.EventHandler(this.FormLogin_Load);
@@ -333,6 +342,7 @@
       private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
       private Microsoft.VisualBasic.PowerPacks.LineShape lineShape2;
       private Microsoft.VisualBasic.PowerPacks.LineShape lineShape3;
+      private System.Windows.Forms.ProgressBar ctrlSSOProgress;
 
 
 

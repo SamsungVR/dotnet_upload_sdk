@@ -40,6 +40,8 @@
          this.ctrlCfgSelect = new System.Windows.Forms.Button();
          this.ctrlCfgFile = new System.Windows.Forms.TextBox();
          this.ctrlFileChooser = new System.Windows.Forms.SaveFileDialog();
+         this.ctrlSSOAppId = new System.Windows.Forms.TextBox();
+         this.label3 = new System.Windows.Forms.Label();
          this.ctrlEditGroup.SuspendLayout();
          this.groupBox1.SuspendLayout();
          this.SuspendLayout();
@@ -56,6 +58,8 @@
          // 
          // ctrlEditGroup
          // 
+         this.ctrlEditGroup.Controls.Add(this.ctrlSSOAppId);
+         this.ctrlEditGroup.Controls.Add(this.label3);
          this.ctrlEditGroup.Controls.Add(this.ctrlCancel);
          this.ctrlEditGroup.Controls.Add(this.ctrlApply);
          this.ctrlEditGroup.Controls.Add(this.ctrlAPIKey);
@@ -65,13 +69,13 @@
          this.ctrlEditGroup.Enabled = false;
          this.ctrlEditGroup.Location = new System.Drawing.Point(16, 169);
          this.ctrlEditGroup.Name = "ctrlEditGroup";
-         this.ctrlEditGroup.Size = new System.Drawing.Size(356, 133);
+         this.ctrlEditGroup.Size = new System.Drawing.Size(356, 175);
          this.ctrlEditGroup.TabIndex = 2;
          this.ctrlEditGroup.TabStop = false;
          // 
          // ctrlCancel
          // 
-         this.ctrlCancel.Location = new System.Drawing.Point(274, 97);
+         this.ctrlCancel.Location = new System.Drawing.Point(274, 141);
          this.ctrlCancel.Name = "ctrlCancel";
          this.ctrlCancel.Size = new System.Drawing.Size(75, 23);
          this.ctrlCancel.TabIndex = 5;
@@ -81,7 +85,7 @@
          // 
          // ctrlApply
          // 
-         this.ctrlApply.Location = new System.Drawing.Point(194, 97);
+         this.ctrlApply.Location = new System.Drawing.Point(194, 141);
          this.ctrlApply.Name = "ctrlApply";
          this.ctrlApply.Size = new System.Drawing.Size(75, 23);
          this.ctrlApply.TabIndex = 4;
@@ -146,10 +150,10 @@
          // 
          this.ctrlConfigList.AutoScroll = true;
          this.ctrlConfigList.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-         this.ctrlConfigList.Location = new System.Drawing.Point(16, 316);
+         this.ctrlConfigList.Location = new System.Drawing.Point(16, 358);
          this.ctrlConfigList.Margin = new System.Windows.Forms.Padding(0);
          this.ctrlConfigList.Name = "ctrlConfigList";
-         this.ctrlConfigList.Size = new System.Drawing.Size(356, 255);
+         this.ctrlConfigList.Size = new System.Drawing.Size(356, 213);
          this.ctrlConfigList.TabIndex = 4;
          // 
          // groupBox1
@@ -208,6 +212,22 @@
          this.ctrlFileChooser.FileName = "vrsdkcfg.cfg";
          this.ctrlFileChooser.OverwritePrompt = false;
          // 
+         // ctrlSSOAppId
+         // 
+         this.ctrlSSOAppId.Location = new System.Drawing.Point(10, 115);
+         this.ctrlSSOAppId.Name = "ctrlSSOAppId";
+         this.ctrlSSOAppId.Size = new System.Drawing.Size(340, 20);
+         this.ctrlSSOAppId.TabIndex = 7;
+         // 
+         // label3
+         // 
+         this.label3.AutoSize = true;
+         this.label3.Location = new System.Drawing.Point(7, 99);
+         this.label3.Name = "label3";
+         this.label3.Size = new System.Drawing.Size(63, 13);
+         this.label3.TabIndex = 6;
+         this.label3.Text = "SSO App Id";
+         // 
          // FormEndPointConfig
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -250,5 +270,7 @@
       private System.Windows.Forms.Button ctrlCfgSelect;
       private System.Windows.Forms.TextBox ctrlCfgFile;
       private System.Windows.Forms.SaveFileDialog ctrlFileChooser;
+      private System.Windows.Forms.TextBox ctrlSSOAppId;
+      private System.Windows.Forms.Label label3;
    }
 }

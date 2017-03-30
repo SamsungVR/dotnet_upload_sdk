@@ -23,13 +23,15 @@ namespace SampleApp {
 
          private static readonly string TAG = Util.getLogTag(typeof(UILibCallback));
 
-         public void onLibInitSuccess(object closure) {
-            Log.d(TAG, "onLibInitSuccess");
-            UILib.UILib.login();
+         public void onLibInitStatus(object closure, bool status) {
+            Log.d(TAG, "onLibInitStatus " + status);
+            if (status) {
+               UILib.UILib.login();
+            }
          }
 
-         public void onLibInitFailed(object closure) {
-            Log.d(TAG, "onLibInitFailure");
+         public void onLibDestroyStatus(object closure, bool status) {
+            Log.d(TAG, "onLibDestroyStatus " + status);
          }
 
          public void onLoginSuccess(SDKLib.User.If user, object closure) {
@@ -79,7 +81,8 @@ namespace SampleApp {
             return false;
          }
          ctrlEndPoint.Text = config.getUrl();
-         return UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), "398493jfwe", "D494jklmfalsm40504o50450440041C9",
+         return UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), config.getSSOAppId(), 
+            config.getSSOAppSecret(),
             new HttpPlugin.RequestFactoryImpl(), mCallback, null, null);
       }
 

@@ -103,7 +103,7 @@ namespace SampleApp {
                   EndPointConfig cfg = new EndPointConfig(id);
                   cfg.setUrl(endPoint);
                   cfg.setApiKey(apiKey);
-
+                  cfg.setSSOAppId(ssoAppId);
                   mConfigList.Add(cfg);
                }
             }
@@ -130,7 +130,9 @@ namespace SampleApp {
             JObject item = new JObject(
                new JProperty(CFG_ID, id),
                new JProperty(CFG_ENDPOINT, cfg.getUrl()),
-               new JProperty(CFG_API_KEY, cfg.getApiKey()));
+               new JProperty(CFG_API_KEY, cfg.getApiKey()),
+               new JProperty(CFG_SSO_APP_ID, cfg.getSSOAppId())
+            );
             items.Add(id, item);
          }
          if (null == matchedSelectedId) {
@@ -195,6 +197,7 @@ namespace SampleApp {
             if (existing != config) {
                existing.setApiKey(config.getApiKey());
                existing.setUrl(config.getUrl());
+               existing.setSSOAppId(config.getSSOAppId());
             }
          }
          onConfigChanged();

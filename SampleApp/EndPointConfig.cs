@@ -17,7 +17,7 @@ namespace SampleApp {
          mId = id;
       }
 
-      private string mUrl, mApiKey;
+      private string mUrl, mApiKey, mSSOAppId;
 
       public void setUrl(string url) {
          mUrl = url;
@@ -25,6 +25,10 @@ namespace SampleApp {
 
       public void setApiKey(string apiKey) {
          mApiKey = apiKey;
+      }
+
+      public void setSSOAppId(string ssoAppId) {
+         mSSOAppId = ssoAppId;
       }
 
       public string getId() {
@@ -39,7 +43,13 @@ namespace SampleApp {
          return mApiKey;
       }
 
+      public string getSSOAppId() {
+         return mSSOAppId;
+      }
 
+      public string getSSOAppSecret() {
+         return null;
+      }
    }
 
 }

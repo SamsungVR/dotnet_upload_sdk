@@ -59,7 +59,7 @@ namespace UILib {
          }
 
          public void onSuccess(object closure, User.If user) {
-            Log.d(TAG, "login success");
+            Log.d(TAG, "login succes sso");
             mFormLogin.mUILibImpl.onLoginSuccessInternal(user);
          }
 
@@ -74,13 +74,13 @@ namespace UILib {
 
       internal readonly string mSSOAppId, mSSOAppSecret;
       private readonly string mPostData;
-      private readonly UILibImpl mUILibImpl;
+      private readonly UILib.UILibImpl mUILibImpl;
       private static readonly string sLocalhost = "localhost";
       private static readonly Uri sLoginUri = new Uri("https://account.samsung.com/mobile/account/check.do");
       private readonly CallbackVRLogin mCallbackVRLogin;
       private readonly CallbackSSOLogin mCallbackSSOLogin;
 
-      internal FormLogin(UILibImpl uiLibImpl, string ssoAppId, string ssoAppSecret) {
+      internal FormLogin(UILib.UILibImpl uiLibImpl, string ssoAppId, string ssoAppSecret) {
          InitializeComponent();
          mUILibImpl = uiLibImpl;
          mSSOAppId = ssoAppId;
@@ -94,7 +94,9 @@ namespace UILib {
          ctrlVRPassword.UseSystemPasswordChar = !ctrlShowPassword.Checked;
       }
 
-      private void toLoginPage() {
+      internal void toLoginPage() {
+         ctrlWebView.Visible = true;
+         ctrlSSOProgress.Visible = false;
          ctrlWebView.Navigate(sLoginUri, "", Encoding.UTF8.GetBytes(mPostData), "Content-Type: application/x-www-form-urlencoded" + Environment.NewLine);
       }
 
@@ -115,7 +117,11 @@ namespace UILib {
       }
 
       private void ctrlgoBack_Click(object sender, EventArgs e) {
+
          if (ctrlWebView.CanGoBack) {
+            ctrlWebView.Visible = true;
+            ctrlSSOProgress.Visible = false;
+
             ctrlWebView.GoBack();
          }
       }
@@ -154,16 +160,23 @@ namespace UILib {
                     "access_token_expires_in": 530184,
                     "refresh_token": "-1",
                     "refresh_token_expires_in": -1,
-                    "userId": "jspwny4nuh",
-                    "client_id": "2269tcup3k",
+                    "userId": "hkjkjkkuih",
+                    "client_id": "uhjnjujj3k",
                     "api_server_url": "us-auth2.samsungosp.com",
                     "auth_server_url": "us-auth2.samsungosp.com",
                     "inputEmailID": "venkat230278+0@gmail.com"
                   }
                 */
+               Log.d(TAG, "Response json: " + json);
                string accessToken = Util.jsonGet<string>(json, "access_token");
                string authServerUrl = Util.jsonGet<string>(json, "auth_server_url");
-               VR.loginSamsungAccount(accessToken, authServerUrl, mCallbackSSOLogin, mUILibImpl.mUIHandler, null);
+               if (VR.loginSamsungAccount(accessToken, authServerUrl, mCallbackSSOLogin, UILib.sMainHandler, null)) {
+                  ctrlSSOProgress.Visible = true;
+                  ctrlWebView.Visible = false;
+               } else {
+                  toLoginPage();
+                  ctrlLoginStatus.Text = ResourceStrings.failedToEnqueue;
+               }
             }
 
          }
@@ -172,8 +185,9 @@ namespace UILib {
       private void ctrlLogin_Click(object sender, EventArgs e) {
          string name = ctrlVRUsername.Text;
          string pwd = ctrlVRPassword.Text;
-         if (VR.login(name, pwd, mCallbackVRLogin, mUILibImpl.mUIHandler, null)) {
+         if (VR.login(name, pwd, mCallbackVRLogin, UILib.sMainHandler, null)) {
          } else {
+            ctrlLoginStatus.Text = ResourceStrings.failedToEnqueue;
          }
       }
 

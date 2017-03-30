@@ -103,6 +103,8 @@ namespace SampleApp {
             ctrlAPIKey.Focus();
             return;
          }
+         string ssoAppId = ctrlSSOAppId.Text;
+
          EndPointConfig config = null;
          if (null != mEditId) {
             config = mEndPointCfgMgr.getConfig(mEditId);
@@ -112,6 +114,7 @@ namespace SampleApp {
          }
          config.setApiKey(apiKey);
          config.setUrl(url);
+         config.setSSOAppId(ssoAppId);
          mEndPointCfgMgr.addOrUpdateConfig(config);
       }
 

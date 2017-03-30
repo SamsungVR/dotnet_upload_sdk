@@ -61,6 +61,15 @@ namespace UILib {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to enqueue request. Please retry later..
+        /// </summary>
+        internal static string failedToEnqueue {
+            get {
+                return ResourceManager.GetString("failedToEnqueue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed with status code {0}.
         /// </summary>
         internal static string failedWithStatus {
