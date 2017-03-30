@@ -11,15 +11,15 @@ namespace SampleApp {
 
    public partial class FormMain : FormSnapToContent {
 
-      class CallbackDestroy : VR.Result.Destroy.If {
+      class CallbackVRDestroy : VR.Result.Destroy.If {
 
          private readonly FormMain mFormMain;
 
-         public CallbackDestroy(FormMain formMain) {
+         public CallbackVRDestroy(FormMain formMain) {
             mFormMain = formMain;
          }
 
-         private static readonly string TAG = Util.getLogTag(typeof(CallbackDestroy));
+         private static readonly string TAG = Util.getLogTag(typeof(CallbackVRDestroy));
 
          public void onFailure(object closure, int status) {
             Log.d(TAG, "destroy failed status: " + status);
@@ -33,23 +33,72 @@ namespace SampleApp {
 
       }
 
-      private readonly CallbackDestroy mCallbackDestroy;
+      class CallbackUILib : UILib.UILib.Callback {
+
+         private readonly FormMain mFormMain;
+
+         public CallbackUILib(FormMain formMain) {
+            mFormMain = formMain;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(CallbackVRDestroy));
+
+         public void onLibInitStatus(object closure, bool status) {
+         }
+
+         public void onLibDestroyStatus(object closure, bool status) {
+            if (status) {
+               Log.d(TAG, "destroy success");
+               App app = App.getInstance();
+               app.quit();
+            }
+         }
+
+         public void onLoginSuccess(SDKLib.User.If user, object closure) {
+         }
+
+         public void onLoginFailure(object closure) {
+         }
+
+         public void showLoginUI(UserControl loginUI, object closure) {
+         }
+      }
+
+      private readonly CallbackUILib mCallbackUILib;
+      private readonly CallbackVRDestroy mCallbackVRDestroy;
 
       public FormMain() {
          InitializeComponent();
-         mCallbackDestroy = new CallbackDestroy(this);
+
+         mCallbackUILib = new CallbackUILib(this);
+         mCallbackVRDestroy = new CallbackVRDestroy(this);
       }
 
       protected override void OnFormClosing(FormClosingEventArgs e) {
          base.OnFormClosing(e);
          App app = App.getInstance();
-         if (VR.destroyAsync(mCallbackDestroy, app.getHandler(), null)) {
-            FormDialog dialog = app.showDialog();
-            dialog.setControl(new FormIndeterminateProgress(ResourceStrings.deinitVR));
+
+         bool defer = false;
+         if (App.USE_UILIB) {
+            defer = UILib.UILib.destroy();
          } else {
-            e.Cancel = true;
+            defer = VR.destroyAsync(mCallbackVRDestroy, app.getHandler(), null);
          }
          Log.flushLogFile();
+         if (defer) {
+            FormDialog dialog = app.showDialog();
+            dialog.setControl(new FormIndeterminateProgress(ResourceStrings.deinitVR));
+            e.Cancel = true;
+         }
+      }
+
+      protected override void OnFormClosed(FormClosedEventArgs e) {
+         base.OnFormClosed(e);
+         App.getInstance().mUILibCallback.mSubCallbacks.Remove(mCallbackUILib);
+      }
+
+      private void OnFormLoad(object sender, EventArgs e) {
+         App.getInstance().mUILibCallback.mSubCallbacks.Add(mCallbackUILib);
       }
 
    }

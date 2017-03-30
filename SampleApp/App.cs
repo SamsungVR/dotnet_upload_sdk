@@ -12,6 +12,57 @@ namespace SampleApp {
 
    class App {
 
+      internal class UILibCallback : UILib.UILib.Callback {
+
+         private readonly FormUILibLogin mFormLogin;
+
+         public readonly List<UILib.UILib.Callback> mSubCallbacks = new List<UILib.UILib.Callback>();
+
+         private static readonly string TAG = Util.getLogTag(typeof(UILibCallback));
+
+         public void onLibInitStatus(object closure, bool status) {
+            Log.d(TAG, "onLibInitStatus " + status);
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.onLibInitStatus(closure, status);
+            }
+         }
+
+         public void onLibDestroyStatus(object closure, bool status) {
+            Log.d(TAG, "onLibDestroyStatus " + status);
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.onLibDestroyStatus(closure, status);
+            }
+
+         }
+
+         public void onLoginSuccess(SDKLib.User.If user, object closure) {
+            Log.d(TAG, "onLoggedIn " + user.getName());
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.onLoginSuccess(user, closure);
+            }
+         }
+
+         public void onLoginFailure(object closure) {
+            Log.d(TAG, "onLoginFailure " + closure);
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.onLoginFailure(closure);
+            }
+         }
+
+         public void showLoginUI(UserControl loginUI, object closure) {
+            Log.d(TAG, "showLoginUI");
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.showLoginUI(loginUI, closure);
+            }
+         }
+      }
+
+
       private static App sApp;
 
       private App() {
@@ -19,6 +70,7 @@ namespace SampleApp {
 
       private static readonly string TAG = Util.getLogTag(typeof(App));
       private FormMain mFormMain;
+      internal readonly UILibCallback mUILibCallback = new UILibCallback();
 
       public class MyMessageFilter : IMessageFilter {
 
@@ -68,16 +120,18 @@ namespace SampleApp {
          Log.closeLogFile();
       }
 
+      internal const bool USE_UILIB = true;
+
       public void showLoginForm() {
-         mFormMain.setControl(new FormUILibLogin());
+         if (USE_UILIB) {
+            mFormMain.setControl(new FormUILibLogin());
+         } else {
+            mFormMain.setControl(new FormLogin());
+         }
       }
 
       public FormMain getFormMain() {
          return mFormMain;
-      }
-
-      public bool deinitVRLib(VR.Result.Destroy.If callback) {
-         return VR.destroyAsync(callback, getHandler(), null);
       }
 
       public void onVRLibDestroyed(bool success) {

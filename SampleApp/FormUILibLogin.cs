@@ -10,7 +10,7 @@ using UILib;
 
 namespace SampleApp {
 
-   public partial class FormUILibLogin : UserControl {
+   public partial class FormUILibLogin : FormSub {
 
 
       class UILibCallback : UILib.UILib.Callback {
@@ -24,18 +24,15 @@ namespace SampleApp {
          private static readonly string TAG = Util.getLogTag(typeof(UILibCallback));
 
          public void onLibInitStatus(object closure, bool status) {
-            Log.d(TAG, "onLibInitStatus " + status);
             if (status) {
                UILib.UILib.login();
             }
          }
 
          public void onLibDestroyStatus(object closure, bool status) {
-            Log.d(TAG, "onLibDestroyStatus " + status);
          }
 
          public void onLoginSuccess(SDKLib.User.If user, object closure) {
-            Log.d(TAG, "onLoggedIn " + user.getName());
             mFormLogin.mApp.setUser(user);
             mFormLogin.mApp.getFormMain().setControl(new FormLoggedIn());
          }
@@ -44,7 +41,6 @@ namespace SampleApp {
          }
 
          public void showLoginUI(UserControl loginUI, object closure) {
-            Log.d(TAG, "showLoginUI");
             mFormLogin.showLogin(loginUI);
          }
       }
@@ -60,11 +56,26 @@ namespace SampleApp {
          InitializeComponent();
 
          mApp = App.getInstance();
-
          mEndPointCfgMgr = mApp.getEndPointCfgMgr();
-
          mCallback = new UILibCallback(this);
-         initVRLib();
+      }
+
+      public override void onAdded() {
+         mApp.mUILibCallback.mSubCallbacks.Add(mCallback);
+         
+         EndPointConfig config = mEndPointCfgMgr.getSelectedConfig();
+         if (null == config) {
+            ctrlEndPoint.Text = ResourceStrings.configureEndPoint;
+         } else {
+            ctrlEndPoint.Text = config.getUrl();
+            UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), config.getSSOAppId(),
+               config.getSSOAppSecret(),
+               new HttpPlugin.RequestFactoryImpl(), mApp.mUILibCallback, null, null);
+         }
+      }
+
+      public override void onRemoved() {
+         mApp.mUILibCallback.mSubCallbacks.Remove(mCallback);
       }
 
       internal void showLogin(UserControl loginUI) {
@@ -72,18 +83,6 @@ namespace SampleApp {
          ctrlLoginPanel.Controls.Add(loginUI);
          ctrlLoginPanel.Width = loginUI.Width;
          ctrlLoginPanel.Height = loginUI.Height;
-      }
-
-      private bool initVRLib() {
-         EndPointConfig config = mEndPointCfgMgr.getSelectedConfig();
-         if (null == config) {
-            ctrlEndPoint.Text = ResourceStrings.configureEndPoint;
-            return false;
-         }
-         ctrlEndPoint.Text = config.getUrl();
-         return UILib.UILib.init(mApp.getHandler(), config.getUrl(), config.getApiKey(), config.getSSOAppId(), 
-            config.getSSOAppSecret(),
-            new HttpPlugin.RequestFactoryImpl(), mCallback, null, null);
       }
 
       private void ctrlEndPoint_Click(object sender, EventArgs e) {

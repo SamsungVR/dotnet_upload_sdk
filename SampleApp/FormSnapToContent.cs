@@ -15,10 +15,18 @@ namespace SampleApp {
          }
          if (null != mControl) {
             Controls.Remove(mControl);
+            FormSub sub = mControl as FormSub;
+            if (null != sub) {
+               sub.onRemoved();
+            }
          }
          mControl = control;
          if (null != mControl) {
             Controls.Add(mControl);
+            FormSub sub = mControl as FormSub;
+            if (null != sub) {
+               sub.onAdded();
+            }
             snapToControl();
          }
       }

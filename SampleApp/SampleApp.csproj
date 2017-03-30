@@ -78,6 +78,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="FormSub.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="FormUILibLogin.cs">
       <SubType>UserControl</SubType>
     </Compile>

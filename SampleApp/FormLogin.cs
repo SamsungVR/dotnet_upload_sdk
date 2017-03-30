@@ -125,7 +125,7 @@ namespace SampleApp {
          if (null != config) {
             ctrlEndPoint.Text = config.getUrl();
 
-            if (mApp.deinitVRLib(mCallbackDestroy)) {
+            if (VR.destroyAsync(mCallbackDestroy, mApp.getHandler(), null)) {
                ctrlStatusMsg.Text = ResourceStrings.deinitVR;
             } else {
                initVRLib();

@@ -37,6 +37,7 @@
          this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
          this.Text = "Sample App for VR Lib";
+         this.Load += new System.EventHandler(this.OnFormLoad);
          this.ResumeLayout(false);
 
       }

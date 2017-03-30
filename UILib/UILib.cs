@@ -50,7 +50,6 @@ namespace UILib {
          internal void onLoginSuccessInternal(SDKLib.User.If user) {
             new LoginSuccessNotifier(this, user).postSelf(mHandler);
          }
-
       }
 
       internal abstract class CallbackNotifier : Runnable {
@@ -250,11 +249,17 @@ namespace UILib {
       internal class DestroyRunnable : Runnable, SDKLib.VR.Result.Destroy.If {
 
          public override void run() {
-            SDKLib.VR.destroyAsync(this, SynchronizationContext.Current, null);
+            if (!SDKLib.VR.destroyAsync(this, SynchronizationContext.Current, null)) {
+               new DestroyStatusNotifier(UILib.sUILib, false).postSelf(UILib.sUILib.mHandler);
+            }
          }
 
          public void onSuccess(object closure) {
             new DestroyStatusNotifier(UILib.sUILib, true).postSelf(UILib.sUILib.mHandler);
+            lock (sLock) {
+               sMainHandler = null;
+               sUILib = null;
+            }
          }
 
          public void onFailure(object closure, int status) {
