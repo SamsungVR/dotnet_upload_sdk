@@ -61,6 +61,9 @@ namespace SampleApp {
       }
 
       public override void onAdded() {
+         ctrlWaitPanel.Visible = true;
+         ctrlLoginPanel.Visible = false;
+
          mApp.mUILibCallback.mSubCallbacks.Add(mCallback);
          
          EndPointConfig config = mEndPointCfgMgr.getSelectedConfig();
@@ -83,6 +86,8 @@ namespace SampleApp {
          ctrlLoginPanel.Controls.Add(loginUI);
          ctrlLoginPanel.Width = loginUI.Width;
          ctrlLoginPanel.Height = loginUI.Height;
+         ctrlLoginPanel.Visible = true;
+         ctrlWaitPanel.Visible = false;
       }
 
       private void ctrlEndPoint_Click(object sender, EventArgs e) {
@@ -91,6 +96,10 @@ namespace SampleApp {
 
       private void ctrlStatusMsg_Click(object sender, EventArgs e) {
          ctrlStatusMsg.Text = string.Empty;
+      }
+
+      private void FormUILibLogin_Load(object sender, EventArgs e) {
+
       }
    }
 }

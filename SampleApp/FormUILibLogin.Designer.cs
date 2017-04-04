@@ -26,6 +26,10 @@
          this.ctrlEndPoint = new System.Windows.Forms.Label();
          this.ctrlStatusMsg = new System.Windows.Forms.Label();
          this.ctrlLoginPanel = new System.Windows.Forms.Panel();
+         this.ctrlWaitPanel = new System.Windows.Forms.Panel();
+         this.progressBar1 = new System.Windows.Forms.ProgressBar();
+         this.label1 = new System.Windows.Forms.Label();
+         this.ctrlWaitPanel.SuspendLayout();
          this.SuspendLayout();
          // 
          // ctrlEndPoint
@@ -56,17 +60,49 @@
          this.ctrlLoginPanel.Size = new System.Drawing.Size(400, 600);
          this.ctrlLoginPanel.TabIndex = 7;
          // 
+         // ctrlWaitPanel
+         // 
+         this.ctrlWaitPanel.Controls.Add(this.progressBar1);
+         this.ctrlWaitPanel.Controls.Add(this.label1);
+         this.ctrlWaitPanel.Location = new System.Drawing.Point(15, 286);
+         this.ctrlWaitPanel.Name = "ctrlWaitPanel";
+         this.ctrlWaitPanel.Size = new System.Drawing.Size(400, 136);
+         this.ctrlWaitPanel.TabIndex = 8;
+         // 
+         // progressBar1
+         // 
+         this.progressBar1.Location = new System.Drawing.Point(107, 82);
+         this.progressBar1.Name = "progressBar1";
+         this.progressBar1.Size = new System.Drawing.Size(186, 23);
+         this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+         this.progressBar1.TabIndex = 1;
+         // 
+         // label1
+         // 
+         this.label1.AutoSize = true;
+         this.label1.BackColor = System.Drawing.Color.White;
+         this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.label1.Location = new System.Drawing.Point(104, 29);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(193, 37);
+         this.label1.TabIndex = 0;
+         this.label1.Text = "Initializing ...";
+         // 
          // FormUILibLogin
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
          this.BackColor = System.Drawing.SystemColors.Window;
-         this.Controls.Add(this.ctrlLoginPanel);
+         this.Controls.Add(this.ctrlWaitPanel);
          this.Controls.Add(this.ctrlStatusMsg);
          this.Controls.Add(this.ctrlEndPoint);
+         this.Controls.Add(this.ctrlLoginPanel);
          this.Name = "FormUILibLogin";
          this.Size = new System.Drawing.Size(430, 709);
+         this.Load += new System.EventHandler(this.FormUILibLogin_Load);
+         this.ctrlWaitPanel.ResumeLayout(false);
+         this.ctrlWaitPanel.PerformLayout();
          this.ResumeLayout(false);
 
       }
@@ -76,5 +112,8 @@
       private System.Windows.Forms.Label ctrlEndPoint;
       private System.Windows.Forms.Label ctrlStatusMsg;
       private System.Windows.Forms.Panel ctrlLoginPanel;
+      private System.Windows.Forms.Panel ctrlWaitPanel;
+      private System.Windows.Forms.ProgressBar progressBar1;
+      private System.Windows.Forms.Label label1;
    }
 }
