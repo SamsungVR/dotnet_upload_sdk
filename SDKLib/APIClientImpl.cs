@@ -152,11 +152,13 @@ namespace SDKLib {
          return true;
       }
 
-      public bool getUserBySessionToken(string sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
+      public bool getUserBySessionToken(string userId, string sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
          if (!mStateManager.isInState(State.INITIALIZED)) {
             return false;
          }
-         return true;
+         WorkItemGetUserBySessionToken workItem = (WorkItemGetUserBySessionToken)mAsyncWorkQueue.obtainWorkItem(WorkItemGetUserBySessionToken.TYPE);
+         workItem.set(userId, sessionToken, callback, handler, closure);
+         return mAsyncWorkQueue.enqueue(workItem);
       }
 
       public override List<U> containerOnQueryListOfContainedFromServiceLocked<U>(Contained.CType type, JObject jsonObject) {
@@ -182,6 +184,88 @@ namespace SDKLib {
       }
 
    }
+
+   internal class WorkItemGetUserBySessionToken : ClientWorkItem {
+
+      private class WorkItemTypeGetUserBySessionToken : AsyncWorkItemType {
+
+         public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+            return new WorkItemGetUserBySessionToken(apiClient);
+         }
+      }
+
+      public static readonly AsyncWorkItemType TYPE = new WorkItemTypeGetUserBySessionToken();
+
+      WorkItemGetUserBySessionToken(APIClientImpl apiClient)
+         : base(apiClient, TYPE) {
+      }
+
+      private string mUserId, mSessionToken;
+
+
+      public void set(String userId, String sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
+         base.set(callback, handler, closure);
+         mSessionToken = sessionToken;
+         mUserId = userId;
+      }
+
+      protected override void recycle() {
+         base.recycle();
+         mSessionToken = null;
+         mUserId = null;
+      }
+
+      protected override void onRun() {
+
+         HttpPlugin.GetRequest request = null;
+
+         string[,] headers = new string[,] {
+                    {UserImpl.HEADER_SESSION_TOKEN, mSessionToken},
+                        {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
+                };
+
+         try {
+
+            request = newGetRequest(string.Format("user/{0}", mUserId), headers);
+
+            if (null == request) {
+               dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
+               return;
+            }
+
+            if (isCancelled()) {
+               dispatchCancelled();
+               return;
+            }
+
+            HttpStatusCode rsp = getResponseCode(request);
+            String data = readHttpStream(request, "code: " + rsp);
+            if (null == data) {
+               dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
+               return;
+            }
+
+            JObject jsonObject = JObject.Parse(data);
+
+            if (isHTTPSuccess(rsp)) {
+               UserImpl user = mAPIClient.containerOnCreateOfContainedInServiceLocked<UserImpl>(UserImpl.sType, jsonObject);
+
+               if (null != user) {
+                  dispatchSuccessWithResult<User.If>(user);
+               } else {
+                  dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
+               }
+               return;
+            }
+            int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+            dispatchFailure(status);
+
+         } finally {
+            destroy(request);
+         }
+      }
+   }
+
 
    internal class WorkItemPerformLogin : ClientWorkItem {
 

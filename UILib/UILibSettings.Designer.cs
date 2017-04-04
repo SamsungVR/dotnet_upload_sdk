@@ -26,12 +26,24 @@ namespace UILib {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string selectedProvider {
+        public string userId {
             get {
-                return ((string)(this["selectedProvider"]));
+                return ((string)(this["userId"]));
             }
             set {
-                this["selectedProvider"] = value;
+                this["userId"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string userSessionToken {
+            get {
+                return ((string)(this["userSessionToken"]));
+            }
+            set {
+                this["userSessionToken"] = value;
             }
         }
     }

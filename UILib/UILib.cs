@@ -47,7 +47,12 @@ namespace UILib {
          internal bool mVRLIbInitialized = false;
          internal FormMain mFormMain = null;
 
-         internal void onLoginSuccessInternal(SDKLib.User.If user) {
+         internal void onLoginSuccessInternal(SDKLib.User.If user, bool save) {
+            if (save) {
+               UILibSettings.Default.userId = user.getUserId();
+               UILibSettings.Default.userSessionToken = user.getSessionToken();
+               UILibSettings.Default.Save();
+            }
             new LoginSuccessNotifier(this, user).postSelf(mHandler);
          }
       }
@@ -186,15 +191,15 @@ namespace UILib {
                               ((currentServerEndPoint == mServerEndPoint) || null != currentServerEndPoint && currentServerEndPoint.Equals(mServerEndPoint)) &&
                               ((currentServerApiKey == mServerApiKey) || null != currentServerApiKey && currentServerApiKey.Equals(mServerApiKey));
 
-            if (matches && impl.mVRLIbInitialized) {
-               new InitStatusNotifier(impl, true).postSelf(impl.mHandler);
-               return;
-            }
-
-            if (UILib.sUILib.mVRLIbInitialized) {
+            if (impl.mVRLIbInitialized) {
+               if (matches) {
+                  new InitStatusNotifier(impl, true).postSelf(impl.mHandler);
+                  return;
+               }
                SDKLib.VR.destroyAsync(this, UILib.sMainHandler, null);
                return;
             }
+
             onSuccess(null);
          }
 
@@ -315,17 +320,73 @@ namespace UILib {
          }
       }
 
+      internal class LoginRunnable : Runnable, SDKLib.VR.Result.GetUserBySessionToken.If {
+
+         public override void run() {
+            UILibImpl impl = sUILib;
+            string userId = UILibSettings.Default.userId;
+            string userSessionToken = UILibSettings.Default.userSessionToken;
+            if (null != userId && null != userSessionToken && 
+                  SDKLib.VR.getUserBySessionToken(userId, userSessionToken, this, sMainHandler, null)) {
+               return;
+            }
+            showLoginUI();
+         }
+
+         private void showLoginUI() {
+            UILibImpl impl = sUILib;
+            impl.mFormLogin.toLoginPage();
+            new ShowLoginUINotifier(impl).postSelf(impl.mHandler);
+         }
+
+         public void onFailure(object closure, int status) {
+            showLoginUI();
+         }
+
+         public void onSuccess(object closure, SDKLib.User.If user) {
+            sUILib.onLoginSuccessInternal(user, false);
+         }
+
+         public void onCancelled(object closure) {
+         }
+
+         public void onException(object closure, Exception ex) {
+            showLoginUI();
+         }
+      }
+
       public static bool login() {
          lock (sLock) {
             if (null == sUILib || null == sMainHandler) {
                return false;
             }
-            new ShowLoginRunnable(false).postSelf(sMainHandler);
+            new LoginRunnable().postSelf(sMainHandler);
             return true;
          }
       }
 
-      public static bool showLoginUIInWindow() {
+      internal class LogoutRunnable : Runnable {
+
+         public override void run() {
+            UILibSettings.Default.userId = null;
+            UILibSettings.Default.userSessionToken = null;
+            UILibSettings.Default.Save();
+         }
+      }
+
+
+      public static bool logout() {
+         lock (sLock) {
+            if (null == sUILib || null == sMainHandler) {
+               return false;
+            }
+            new LogoutRunnable().postSelf(sMainHandler);
+            return true;
+         }
+
+      }
+
+      internal static bool showLoginUIInWindow() {
          lock (sLock) {
             if (null == sUILib || null == sMainHandler) {
                return false;

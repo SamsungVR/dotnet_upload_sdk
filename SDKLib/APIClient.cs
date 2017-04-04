@@ -45,7 +45,7 @@ namespace SDKLib {
          User getUserById(string userId);
          bool getUserBySessionId(string sessionId, VR.Result.GetUserBySessionId.If callback,
                                     SynchronizationContext handler, object closure);
-         bool getUserBySessionToken(string sessionToken, VR.Result.GetUserBySessionToken.If callback,
+         bool getUserBySessionToken(string userId, string sessionToken, VR.Result.GetUserBySessionToken.If callback,
                                     SynchronizationContext handler, object closure);
          bool destroy(APIClient.Result.Destroy.If callback, SynchronizationContext handler, object closure);
 

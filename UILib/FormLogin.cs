@@ -53,7 +53,7 @@ namespace UILib {
 
          public void onSuccess(object closure, User.If user) {
             Log.d(TAG, "login success");
-            mFormLogin.mUILibImpl.onLoginSuccessInternal(user);
+            mFormLogin.mUILibImpl.onLoginSuccessInternal(user, true);
          }
 
          public void onCancelled(object closure) {
@@ -97,7 +97,7 @@ namespace UILib {
 
          public void onSuccess(object closure, User.If user) {
             Log.d(TAG, "login succes sso");
-            mFormLogin.mUILibImpl.onLoginSuccessInternal(user);
+            mFormLogin.mUILibImpl.onLoginSuccessInternal(user, true);
          }
 
          public void onCancelled(object closure) {

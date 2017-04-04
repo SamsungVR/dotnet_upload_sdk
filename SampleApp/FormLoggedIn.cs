@@ -76,6 +76,9 @@ namespace SampleApp {
       }
 
       private void ctrlLogout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+         if (App.USE_UILIB && !UILib.UILib.logout()) {
+            return;
+         }
          App.getInstance().showLoginForm();
       }
    }

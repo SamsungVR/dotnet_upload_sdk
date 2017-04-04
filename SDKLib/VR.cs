@@ -196,7 +196,6 @@ namespace SDKLib {
 
         }
 
-
         /**
          * Intentionally undocumented
          */
@@ -456,5 +455,15 @@ namespace SDKLib {
             return sAPIClient.loginSamsungAccount(samsung_sso_token, auth_server, callback, handler, closure);
          }
       }
+
+    public static bool getUserBySessionToken(string userId, string sessionToken,
+        VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
+        lock (sLock) {
+            if (null == sAPIClient) {
+                return false;
+            }
+            return sAPIClient.getUserBySessionToken(userId, sessionToken, callback, handler, closure);
+        }
+    }
    }
 }
