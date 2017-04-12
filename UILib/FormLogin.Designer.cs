@@ -40,10 +40,6 @@
          this.ctrlGoBack = new System.Windows.Forms.Button();
          this.imageListBack = new System.Windows.Forms.ImageList(this.components);
          this.ctrlLoginStatus = new System.Windows.Forms.TextBox();
-         this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
-         this.lineShape3 = new Microsoft.VisualBasic.PowerPacks.LineShape();
-         this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
-         this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
          this.ctrlSSOProgress = new System.Windows.Forms.ProgressBar();
          this.SuspendLayout();
          // 
@@ -252,43 +248,6 @@
          this.ctrlLoginStatus.Size = new System.Drawing.Size(364, 37);
          this.ctrlLoginStatus.TabIndex = 11;
          // 
-         // shapeContainer1
-         // 
-         this.shapeContainer1.Location = new System.Drawing.Point(0, 0);
-         this.shapeContainer1.Margin = new System.Windows.Forms.Padding(0);
-         this.shapeContainer1.Name = "shapeContainer1";
-         this.shapeContainer1.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
-            this.lineShape3,
-            this.lineShape2,
-            this.lineShape1});
-         this.shapeContainer1.Size = new System.Drawing.Size(400, 650);
-         this.shapeContainer1.TabIndex = 12;
-         this.shapeContainer1.TabStop = false;
-         // 
-         // lineShape3
-         // 
-         this.lineShape3.Name = "lineShape3";
-         this.lineShape3.X1 = 19;
-         this.lineShape3.X2 = 381;
-         this.lineShape3.Y1 = 325;
-         this.lineShape3.Y2 = 325;
-         // 
-         // lineShape2
-         // 
-         this.lineShape2.Name = "lineShape2";
-         this.lineShape2.X1 = 20;
-         this.lineShape2.X2 = 382;
-         this.lineShape2.Y1 = 55;
-         this.lineShape2.Y2 = 55;
-         // 
-         // lineShape1
-         // 
-         this.lineShape1.Name = "lineShape1";
-         this.lineShape1.X1 = 14;
-         this.lineShape1.X2 = 381;
-         this.lineShape1.Y1 = 586;
-         this.lineShape1.Y2 = 586;
-         // 
          // ctrlSSOProgress
          // 
          this.ctrlSSOProgress.Location = new System.Drawing.Point(97, 176);
@@ -316,7 +275,6 @@
          this.Controls.Add(this.label2);
          this.Controls.Add(this.ctrlVRUsername);
          this.Controls.Add(this.label1);
-         this.Controls.Add(this.shapeContainer1);
          this.Controls.Add(this.ctrlSSOProgress);
          this.Name = "FormLogin";
          this.Size = new System.Drawing.Size(400, 650);
@@ -343,10 +301,6 @@
       private System.Windows.Forms.ImageList imageListHome;
       private System.Windows.Forms.ImageList imageListBack;
       private System.Windows.Forms.TextBox ctrlLoginStatus;
-      private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
-      private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
-      private Microsoft.VisualBasic.PowerPacks.LineShape lineShape2;
-      private Microsoft.VisualBasic.PowerPacks.LineShape lineShape3;
       private System.Windows.Forms.ProgressBar ctrlSSOProgress;
 
 
