@@ -38,9 +38,9 @@
          this.ctrlCreate = new System.Windows.Forms.Button();
          this.ctrlStatus = new System.Windows.Forms.Label();
          this.ctrlStatusGroup = new System.Windows.Forms.GroupBox();
-         this.label6 = new System.Windows.Forms.Label();
-         this.ctrlCopyRTMPUrlToCB = new System.Windows.Forms.Button();
          this.ctrlRTMPUrl = new System.Windows.Forms.TextBox();
+         this.ctrlCopyRTMPUrlToCB = new System.Windows.Forms.Button();
+         this.label6 = new System.Windows.Forms.Label();
          this.ctrlOptionsGroup.SuspendLayout();
          this.ctrlActionsGroup.SuspendLayout();
          this.ctrlStatusGroup.SuspendLayout();
@@ -64,6 +64,7 @@
          this.ctrlOptionsGroup.TabIndex = 2;
          this.ctrlOptionsGroup.TabStop = false;
          this.ctrlOptionsGroup.Text = "Options";
+         this.ctrlOptionsGroup.Enter += new System.EventHandler(this.ctrlOptionsGroup_Enter);
          // 
          // label5
          // 
@@ -208,14 +209,13 @@
          this.ctrlStatusGroup.TabStop = false;
          this.ctrlStatusGroup.Text = "Status";
          // 
-         // label6
+         // ctrlRTMPUrl
          // 
-         this.label6.AutoSize = true;
-         this.label6.Location = new System.Drawing.Point(13, 49);
-         this.label6.Name = "label6";
-         this.label6.Size = new System.Drawing.Size(54, 13);
-         this.label6.TabIndex = 3;
-         this.label6.Text = "RTMP Url";
+         this.ctrlRTMPUrl.Location = new System.Drawing.Point(15, 66);
+         this.ctrlRTMPUrl.Name = "ctrlRTMPUrl";
+         this.ctrlRTMPUrl.ReadOnly = true;
+         this.ctrlRTMPUrl.Size = new System.Drawing.Size(287, 20);
+         this.ctrlRTMPUrl.TabIndex = 6;
          // 
          // ctrlCopyRTMPUrlToCB
          // 
@@ -227,13 +227,14 @@
          this.ctrlCopyRTMPUrlToCB.UseVisualStyleBackColor = true;
          this.ctrlCopyRTMPUrlToCB.Click += new System.EventHandler(this.ctrlCopyRTMPUrlToCB_Click);
          // 
-         // ctrlRTMPUrl
+         // label6
          // 
-         this.ctrlRTMPUrl.Location = new System.Drawing.Point(15, 66);
-         this.ctrlRTMPUrl.Name = "ctrlRTMPUrl";
-         this.ctrlRTMPUrl.ReadOnly = true;
-         this.ctrlRTMPUrl.Size = new System.Drawing.Size(287, 20);
-         this.ctrlRTMPUrl.TabIndex = 6;
+         this.label6.AutoSize = true;
+         this.label6.Location = new System.Drawing.Point(13, 49);
+         this.label6.Name = "label6";
+         this.label6.Size = new System.Drawing.Size(54, 13);
+         this.label6.TabIndex = 3;
+         this.label6.Text = "RTMP Url";
          // 
          // FormCreateLiveEvent
          // 

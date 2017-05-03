@@ -78,6 +78,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="FormBase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="FormSub.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -173,6 +176,7 @@
     <Compile Include="FormLoggedIn.Designer.cs">
       <DependentUpon>FormLoggedIn.cs</DependentUpon>
     </Compile>
+    <Compile Include="UploadVideoManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -196,6 +200,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FormBase.resx">
+      <DependentUpon>FormBase.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormUILibLogin.resx">
       <DependentUpon>FormUILibLogin.cs</DependentUpon>
     </EmbeddedResource>

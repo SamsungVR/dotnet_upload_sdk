@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using SDKLib;
-using System.IO;
 
 namespace SampleApp {
 
 
-   public partial class FormCreateLiveEvent : UserControl {
+   public partial class FormCreateLiveEvent : FormBase {
 
       private static readonly string TAG = Util.getLogTag(typeof(FormCreateLiveEvent));
 
@@ -90,6 +84,10 @@ namespace SampleApp {
             Clipboard.SetText(url);
             ctrlStatus.Text = string.Format(ResourceStrings.copiedToClipboard, url);
          }
+      }
+
+      private void ctrlOptionsGroup_Enter(object sender, EventArgs e) {
+
       }
    }
 }

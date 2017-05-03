@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using SDKLib;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace SampleApp {
 
-   public partial class FormUploadVideo : UserControl, User.Result.UploadVideo.If {
+   public partial class FormUploadVideo : FormBase, User.Result.UploadVideo.If {
 
       public FormUploadVideo() {
          InitializeComponent();
@@ -30,6 +27,7 @@ namespace SampleApp {
 
 
       private void ctrlUpload_Click(object sender, EventArgs e) {
+#if asd
          if (null != mSource) {
             return;
          }
@@ -67,6 +65,7 @@ namespace SampleApp {
             mLength = length;
             onBeginUpload();
          }
+#endif
       }
 
       private UserVideo.If mVideo;
@@ -77,14 +76,14 @@ namespace SampleApp {
 
       public void onCancelled(object closure) {
          onUploadComplete();
-         ctrlUploadStatus.Text = ResourceStrings.uploadCancelled;
+         //ctrlUploadStatus.Text = ResourceStrings.uploadCancelled;
       }
 
       private void onBeginUpload() {
-         ctrlUpload.Enabled = false;
-         ctrlCancel.Enabled = true;
-         ctrlRetry.Enabled = false;
-         ctrlUploadStatus.Text = ResourceStrings.uploadInProgress;
+         //ctrlUpload.Enabled = false;
+         //ctrlCancel.Enabled = true;
+         //ctrlRetry.Enabled = false;
+         //ctrlUploadStatus.Text = ResourceStrings.uploadInProgress;
       }
 
       private void onUploadComplete() {
@@ -93,11 +92,11 @@ namespace SampleApp {
             mSource.Close();
             mSource = null;
          }
-         ctrlUpload.Enabled = true;
-         ctrlCancel.Enabled = false;
-         ctrlRetry.Enabled = false;
-         ctrlProgressBar.Value = 0;
-         ctrlRawProgress.Text = string.Empty;
+         //ctrlUpload.Enabled = true;
+         //ctrlCancel.Enabled = false;
+         //ctrlRetry.Enabled = false;
+         //ctrlProgressBar.Value = 0;
+         //ctrlRawProgress.Text = string.Empty;
       }
 
       private void setupForRetry() {
@@ -105,39 +104,47 @@ namespace SampleApp {
             onUploadComplete();
             return;
          }
-         ctrlProgressBar.Value = 0;
-         ctrlRawProgress.Text = string.Empty;
-         ctrlRetry.Enabled = true;
+         //ctrlProgressBar.Value = 0;
+         //ctrlRawProgress.Text = string.Empty;
+         //ctrlRetry.Enabled = true;
       }
 
       public void onException(object closure, Exception ex) {
          setupForRetry();
-         ctrlUploadStatus.Text = ex.Message;
+         //ctrlUploadStatus.Text = ex.Message;
          Console.WriteLine(ex.Message);
          Console.WriteLine(ex.StackTrace);
       }
 
       public void onFailure(object closure, int status) {
          setupForRetry();
-         ctrlUploadStatus.Text = string.Format(ResourceStrings.uploadFailedWithStatus, status);
+         //ctrlUploadStatus.Text = string.Format(ResourceStrings.uploadFailedWithStatus, status);
       }
 
       public void onProgress(object closure, float progressPercent, long complete, long max) {
-         ctrlRawProgress.Text = progressPercent.ToString();
-         ctrlProgressBar.Value = (int)progressPercent;
+         ///ctrlRawProgress.Text = progressPercent.ToString();
+         //ctrlProgressBar.Value = (int)progressPercent;
       }
 
       public void onProgress(object closure, long complete) {
-         ctrlRawProgress.Text = complete.ToString();
+         //ctrlRawProgress.Text = complete.ToString();
       }
 
       public void onSuccess(object closure) {
          onUploadComplete();
-         ctrlUploadStatus.Text = ResourceStrings.uploadSuccess;
+         //ctrlUploadStatus.Text = ResourceStrings.uploadSuccess;
       }
 
-      private void FormUploadVideo_Load(object sender, EventArgs e) {
-         onUploadComplete();
+      UploadVideoManager.PendingUploadItemsModel mPendingUploads;
+
+      public override void onLoad() {
+         UploadVideoManager uploadVideoManager = UploadVideoManager.getInstance();
+         mPendingUploads = uploadVideoManager.getPendingUploads();
+         mPendingUploads.setView(ctrlPendingList);
+      }
+
+      public override void onUnload() {
+         mPendingUploads.setView(null);
       }
 
       private void ctrlCancel_Click(object sender, EventArgs e) {
@@ -150,12 +157,12 @@ namespace SampleApp {
          }
          if (!result) {
             onUploadComplete();
-            ctrlUploadStatus.Text = ResourceStrings.uploadCancelled;
+            //ctrlUploadStatus.Text = ResourceStrings.uploadCancelled;
          }
       }
 
       private void ctrlUploadStatus_Click(object sender, EventArgs e) {
-         ctrlUploadStatus.Text = string.Empty;
+         //ctrlUploadStatus.Text = string.Empty;
       }
 
       private void ctrlRetry_Click(object sender, EventArgs e) {
@@ -163,11 +170,45 @@ namespace SampleApp {
             return;
          }
          if (!mVideo.retryUpload(mSource, mLength, this, App.getInstance().getHandler(), this)) {
-            ctrlUploadStatus.Text = ResourceStrings.uploadRetryFailed;
+            //ctrlUploadStatus.Text = ResourceStrings.uploadRetryFailed;
          } else {
             onBeginUpload();
          }
       }
+
+      private void ctrlEnqueue_Click(object sender, EventArgs e) {
+         String permission = ctrlPermission.Text;
+         String title = ctrlTitle.Text;
+         if (null == title || 0 == title.Trim().Length) {
+            ctrlEnqueueStatus.Text = ResourceStrings.uploadTitleInvalid;
+            return;
+         }
+         String description = ctrlDescription.Text;
+         if (null == description || 0 == description.Trim().Length) {
+            ctrlEnqueueStatus.Text = ResourceStrings.uploadDescriptionInvalid;
+            return;
+         }
+         String fileName = ctrlSelectedFile.Text;
+         FileInfo fileInfo = new FileInfo(fileName);
+         if (!fileInfo.Exists) {
+            ctrlEnqueueStatus.Text = ResourceStrings.uploadFileDoesNotExist;
+            return;
+         }
+         mPendingUploads.addItem(new UploadVideoManager.PendingUploadItem(fileName, permission, title, description));
+      }
+
+      private void ctrlRemovePending_Click(object sender, EventArgs e) {
+         mPendingUploads.removeSelectedItem();
+      }
+
+      private void ctrlPendingMoveUp_Click(object sender, EventArgs e) {
+         mPendingUploads.moveSelectedItemUp();
+      }
+
+      private void ctrlPendingMoveDown_Click(object sender, EventArgs e) {
+         mPendingUploads.moveSelectedItemDown();
+      }
+
 
    }
 }

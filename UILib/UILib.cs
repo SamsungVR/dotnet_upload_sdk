@@ -326,7 +326,7 @@ namespace UILib {
             UILibImpl impl = sUILib;
             string userId = UILibSettings.Default.userId;
             string userSessionToken = UILibSettings.Default.userSessionToken;
-            if (null != userId && null != userSessionToken && 
+            if (!String.IsNullOrEmpty(userId) && !String.IsNullOrEmpty(userSessionToken) && 
                   SDKLib.VR.getUserBySessionToken(userId, userSessionToken, this, sMainHandler, null)) {
                return;
             }

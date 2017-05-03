@@ -24,11 +24,9 @@
       /// </summary>
       private void InitializeComponent() {
          this.ctrlVideoChooser = new System.Windows.Forms.OpenFileDialog();
-         this.ctrlStatusGroup = new System.Windows.Forms.GroupBox();
-         this.ctrlUploadStatus = new System.Windows.Forms.Label();
-         this.ctrlRawProgress = new System.Windows.Forms.Label();
-         this.ctrlProgressBar = new System.Windows.Forms.ProgressBar();
-         this.ctrlOptionsGroup = new System.Windows.Forms.GroupBox();
+         this.ctrlEnqueueGroup = new System.Windows.Forms.GroupBox();
+         this.ctrlEnqueueStatus = new System.Windows.Forms.Label();
+         this.ctrlEnqueue = new System.Windows.Forms.Button();
          this.ctrlDescription = new System.Windows.Forms.TextBox();
          this.label4 = new System.Windows.Forms.Label();
          this.ctrlTitle = new System.Windows.Forms.TextBox();
@@ -38,87 +36,84 @@
          this.label2 = new System.Windows.Forms.Label();
          this.label1 = new System.Windows.Forms.Label();
          this.ctrlPermission = new System.Windows.Forms.ComboBox();
-         this.ctrlActionsGroup = new System.Windows.Forms.GroupBox();
-         this.ctrlCancel = new System.Windows.Forms.Button();
-         this.ctrlRetry = new System.Windows.Forms.Button();
-         this.ctrlUpload = new System.Windows.Forms.Button();
-         this.ctrlStatusGroup.SuspendLayout();
-         this.ctrlOptionsGroup.SuspendLayout();
-         this.ctrlActionsGroup.SuspendLayout();
+         this.label6 = new System.Windows.Forms.Label();
+         this.ctrlRemovePending = new System.Windows.Forms.Button();
+         this.ctrlPendingMoveUp = new System.Windows.Forms.Button();
+         this.ctrlPendingMoveDown = new System.Windows.Forms.Button();
+         this.ctrlPendingList = new System.Windows.Forms.ListBox();
+         this.tabControl1 = new System.Windows.Forms.TabControl();
+         this.tabPage1 = new System.Windows.Forms.TabPage();
+         this.tabPage2 = new System.Windows.Forms.TabPage();
+         this.ctrlInProgressDetails = new System.Windows.Forms.ListBox();
+         this.ctrlCancelActiveUpload = new System.Windows.Forms.Button();
+         this.tabPage3 = new System.Windows.Forms.TabPage();
+         this.button6 = new System.Windows.Forms.Button();
+         this.listBox2 = new System.Windows.Forms.ListBox();
+         this.tabPage4 = new System.Windows.Forms.TabPage();
+         this.button7 = new System.Windows.Forms.Button();
+         this.listBox3 = new System.Windows.Forms.ListBox();
+         this.ctrlEnqueueGroup.SuspendLayout();
+         this.tabControl1.SuspendLayout();
+         this.tabPage1.SuspendLayout();
+         this.tabPage2.SuspendLayout();
+         this.tabPage3.SuspendLayout();
+         this.tabPage4.SuspendLayout();
          this.SuspendLayout();
          // 
          // ctrlVideoChooser
          // 
          this.ctrlVideoChooser.FileName = "openFileDialog1";
          // 
-         // ctrlStatusGroup
+         // ctrlEnqueueGroup
          // 
-         this.ctrlStatusGroup.Controls.Add(this.ctrlUploadStatus);
-         this.ctrlStatusGroup.Controls.Add(this.ctrlRawProgress);
-         this.ctrlStatusGroup.Controls.Add(this.ctrlProgressBar);
-         this.ctrlStatusGroup.Location = new System.Drawing.Point(13, 333);
-         this.ctrlStatusGroup.Name = "ctrlStatusGroup";
-         this.ctrlStatusGroup.Size = new System.Drawing.Size(322, 131);
-         this.ctrlStatusGroup.TabIndex = 0;
-         this.ctrlStatusGroup.TabStop = false;
-         this.ctrlStatusGroup.Text = "Status";
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlEnqueueStatus);
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlEnqueue);
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlDescription);
+         this.ctrlEnqueueGroup.Controls.Add(this.label4);
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlTitle);
+         this.ctrlEnqueueGroup.Controls.Add(this.label3);
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlSelectFile);
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlSelectedFile);
+         this.ctrlEnqueueGroup.Controls.Add(this.label2);
+         this.ctrlEnqueueGroup.Controls.Add(this.label1);
+         this.ctrlEnqueueGroup.Controls.Add(this.ctrlPermission);
+         this.ctrlEnqueueGroup.Location = new System.Drawing.Point(3, 3);
+         this.ctrlEnqueueGroup.Name = "ctrlEnqueueGroup";
+         this.ctrlEnqueueGroup.Size = new System.Drawing.Size(359, 261);
+         this.ctrlEnqueueGroup.TabIndex = 1;
+         this.ctrlEnqueueGroup.TabStop = false;
+         this.ctrlEnqueueGroup.Text = "Enqueue";
          // 
-         // ctrlUploadStatus
+         // ctrlEnqueueStatus
          // 
-         this.ctrlUploadStatus.Location = new System.Drawing.Point(18, 90);
-         this.ctrlUploadStatus.Name = "ctrlUploadStatus";
-         this.ctrlUploadStatus.Size = new System.Drawing.Size(287, 23);
-         this.ctrlUploadStatus.TabIndex = 2;
-         this.ctrlUploadStatus.Text = "label1";
-         this.ctrlUploadStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-         this.ctrlUploadStatus.Click += new System.EventHandler(this.ctrlUploadStatus_Click);
+         this.ctrlEnqueueStatus.Location = new System.Drawing.Point(6, 225);
+         this.ctrlEnqueueStatus.Name = "ctrlEnqueueStatus";
+         this.ctrlEnqueueStatus.Size = new System.Drawing.Size(347, 26);
+         this.ctrlEnqueueStatus.TabIndex = 10;
+         this.ctrlEnqueueStatus.Text = "label5";
          // 
-         // ctrlRawProgress
+         // ctrlEnqueue
          // 
-         this.ctrlRawProgress.Location = new System.Drawing.Point(111, 55);
-         this.ctrlRawProgress.Name = "ctrlRawProgress";
-         this.ctrlRawProgress.Size = new System.Drawing.Size(100, 23);
-         this.ctrlRawProgress.TabIndex = 1;
-         this.ctrlRawProgress.Text = "Progress";
-         this.ctrlRawProgress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-         // 
-         // ctrlProgressBar
-         // 
-         this.ctrlProgressBar.Location = new System.Drawing.Point(18, 19);
-         this.ctrlProgressBar.Name = "ctrlProgressBar";
-         this.ctrlProgressBar.Size = new System.Drawing.Size(287, 23);
-         this.ctrlProgressBar.TabIndex = 0;
-         // 
-         // ctrlOptionsGroup
-         // 
-         this.ctrlOptionsGroup.Controls.Add(this.ctrlDescription);
-         this.ctrlOptionsGroup.Controls.Add(this.label4);
-         this.ctrlOptionsGroup.Controls.Add(this.ctrlTitle);
-         this.ctrlOptionsGroup.Controls.Add(this.label3);
-         this.ctrlOptionsGroup.Controls.Add(this.ctrlSelectFile);
-         this.ctrlOptionsGroup.Controls.Add(this.ctrlSelectedFile);
-         this.ctrlOptionsGroup.Controls.Add(this.label2);
-         this.ctrlOptionsGroup.Controls.Add(this.label1);
-         this.ctrlOptionsGroup.Controls.Add(this.ctrlPermission);
-         this.ctrlOptionsGroup.Location = new System.Drawing.Point(13, 14);
-         this.ctrlOptionsGroup.Name = "ctrlOptionsGroup";
-         this.ctrlOptionsGroup.Size = new System.Drawing.Size(322, 236);
-         this.ctrlOptionsGroup.TabIndex = 1;
-         this.ctrlOptionsGroup.TabStop = false;
-         this.ctrlOptionsGroup.Text = "Options";
+         this.ctrlEnqueue.Location = new System.Drawing.Point(270, 188);
+         this.ctrlEnqueue.Name = "ctrlEnqueue";
+         this.ctrlEnqueue.Size = new System.Drawing.Size(83, 23);
+         this.ctrlEnqueue.TabIndex = 9;
+         this.ctrlEnqueue.Text = "Enqueue";
+         this.ctrlEnqueue.UseVisualStyleBackColor = true;
+         this.ctrlEnqueue.Click += new System.EventHandler(this.ctrlEnqueue_Click);
          // 
          // ctrlDescription
          // 
-         this.ctrlDescription.Location = new System.Drawing.Point(18, 193);
+         this.ctrlDescription.Location = new System.Drawing.Point(6, 162);
          this.ctrlDescription.Multiline = true;
          this.ctrlDescription.Name = "ctrlDescription";
-         this.ctrlDescription.Size = new System.Drawing.Size(287, 20);
+         this.ctrlDescription.Size = new System.Drawing.Size(347, 20);
          this.ctrlDescription.TabIndex = 8;
          // 
          // label4
          // 
          this.label4.AutoSize = true;
-         this.label4.Location = new System.Drawing.Point(18, 176);
+         this.label4.Location = new System.Drawing.Point(3, 146);
          this.label4.Name = "label4";
          this.label4.Size = new System.Drawing.Size(60, 13);
          this.label4.TabIndex = 7;
@@ -126,16 +121,16 @@
          // 
          // ctrlTitle
          // 
-         this.ctrlTitle.Location = new System.Drawing.Point(18, 140);
+         this.ctrlTitle.Location = new System.Drawing.Point(6, 123);
          this.ctrlTitle.Multiline = true;
          this.ctrlTitle.Name = "ctrlTitle";
-         this.ctrlTitle.Size = new System.Drawing.Size(287, 20);
+         this.ctrlTitle.Size = new System.Drawing.Size(347, 20);
          this.ctrlTitle.TabIndex = 6;
          // 
          // label3
          // 
          this.label3.AutoSize = true;
-         this.label3.Location = new System.Drawing.Point(18, 124);
+         this.label3.Location = new System.Drawing.Point(3, 107);
          this.label3.Name = "label3";
          this.label3.Size = new System.Drawing.Size(27, 13);
          this.label3.TabIndex = 5;
@@ -143,7 +138,7 @@
          // 
          // ctrlSelectFile
          // 
-         this.ctrlSelectFile.Location = new System.Drawing.Point(222, 89);
+         this.ctrlSelectFile.Location = new System.Drawing.Point(270, 84);
          this.ctrlSelectFile.Name = "ctrlSelectFile";
          this.ctrlSelectFile.Size = new System.Drawing.Size(83, 23);
          this.ctrlSelectFile.TabIndex = 4;
@@ -153,16 +148,16 @@
          // 
          // ctrlSelectedFile
          // 
-         this.ctrlSelectedFile.Location = new System.Drawing.Point(18, 89);
+         this.ctrlSelectedFile.Location = new System.Drawing.Point(6, 84);
          this.ctrlSelectedFile.Name = "ctrlSelectedFile";
          this.ctrlSelectedFile.ReadOnly = true;
-         this.ctrlSelectedFile.Size = new System.Drawing.Size(193, 20);
+         this.ctrlSelectedFile.Size = new System.Drawing.Size(258, 20);
          this.ctrlSelectedFile.TabIndex = 3;
          // 
          // label2
          // 
          this.label2.AutoSize = true;
-         this.label2.Location = new System.Drawing.Point(15, 73);
+         this.label2.Location = new System.Drawing.Point(3, 68);
          this.label2.Name = "label2";
          this.label2.Size = new System.Drawing.Size(23, 13);
          this.label2.TabIndex = 2;
@@ -171,7 +166,7 @@
          // label1
          // 
          this.label1.AutoSize = true;
-         this.label1.Location = new System.Drawing.Point(15, 26);
+         this.label1.Location = new System.Drawing.Point(3, 16);
          this.label1.Name = "label1";
          this.label1.Size = new System.Drawing.Size(86, 13);
          this.label1.TabIndex = 1;
@@ -186,68 +181,191 @@
             "PUBLIC",
             "VR_ONLY",
             "WEB_ONLY"});
-         this.ctrlPermission.Location = new System.Drawing.Point(18, 44);
+         this.ctrlPermission.Location = new System.Drawing.Point(6, 34);
          this.ctrlPermission.Name = "ctrlPermission";
-         this.ctrlPermission.Size = new System.Drawing.Size(287, 21);
+         this.ctrlPermission.Size = new System.Drawing.Size(347, 21);
          this.ctrlPermission.TabIndex = 0;
          // 
-         // ctrlActionsGroup
+         // label6
          // 
-         this.ctrlActionsGroup.Controls.Add(this.ctrlCancel);
-         this.ctrlActionsGroup.Controls.Add(this.ctrlRetry);
-         this.ctrlActionsGroup.Controls.Add(this.ctrlUpload);
-         this.ctrlActionsGroup.Location = new System.Drawing.Point(13, 256);
-         this.ctrlActionsGroup.Name = "ctrlActionsGroup";
-         this.ctrlActionsGroup.Size = new System.Drawing.Size(322, 71);
-         this.ctrlActionsGroup.TabIndex = 2;
-         this.ctrlActionsGroup.TabStop = false;
-         this.ctrlActionsGroup.Text = "Actions";
+         this.label6.AutoSize = true;
+         this.label6.Location = new System.Drawing.Point(3, 16);
+         this.label6.Name = "label6";
+         this.label6.Size = new System.Drawing.Size(56, 13);
+         this.label6.TabIndex = 14;
+         this.label6.Text = "File details";
          // 
-         // ctrlCancel
+         // ctrlRemovePending
          // 
-         this.ctrlCancel.Location = new System.Drawing.Point(129, 34);
-         this.ctrlCancel.Name = "ctrlCancel";
-         this.ctrlCancel.Size = new System.Drawing.Size(67, 23);
-         this.ctrlCancel.TabIndex = 2;
-         this.ctrlCancel.Text = "Cancel";
-         this.ctrlCancel.UseVisualStyleBackColor = true;
-         this.ctrlCancel.Click += new System.EventHandler(this.ctrlCancel_Click);
+         this.ctrlRemovePending.Location = new System.Drawing.Point(8, 185);
+         this.ctrlRemovePending.Name = "ctrlRemovePending";
+         this.ctrlRemovePending.Size = new System.Drawing.Size(62, 23);
+         this.ctrlRemovePending.TabIndex = 16;
+         this.ctrlRemovePending.Text = "Remove";
+         this.ctrlRemovePending.UseVisualStyleBackColor = true;
+         this.ctrlRemovePending.Click += new System.EventHandler(this.ctrlRemovePending_Click);
          // 
-         // ctrlRetry
+         // ctrlPendingMoveUp
          // 
-         this.ctrlRetry.Location = new System.Drawing.Point(245, 34);
-         this.ctrlRetry.Name = "ctrlRetry";
-         this.ctrlRetry.Size = new System.Drawing.Size(60, 23);
-         this.ctrlRetry.TabIndex = 1;
-         this.ctrlRetry.Text = "Retry";
-         this.ctrlRetry.UseVisualStyleBackColor = true;
-         this.ctrlRetry.Click += new System.EventHandler(this.ctrlRetry_Click);
+         this.ctrlPendingMoveUp.Location = new System.Drawing.Point(245, 185);
+         this.ctrlPendingMoveUp.Name = "ctrlPendingMoveUp";
+         this.ctrlPendingMoveUp.Size = new System.Drawing.Size(50, 23);
+         this.ctrlPendingMoveUp.TabIndex = 15;
+         this.ctrlPendingMoveUp.Text = "Up";
+         this.ctrlPendingMoveUp.UseVisualStyleBackColor = true;
+         this.ctrlPendingMoveUp.Click += new System.EventHandler(this.ctrlPendingMoveUp_Click);
          // 
-         // ctrlUpload
+         // ctrlPendingMoveDown
          // 
-         this.ctrlUpload.Location = new System.Drawing.Point(18, 34);
-         this.ctrlUpload.Name = "ctrlUpload";
-         this.ctrlUpload.Size = new System.Drawing.Size(65, 23);
-         this.ctrlUpload.TabIndex = 0;
-         this.ctrlUpload.Text = "Upload";
-         this.ctrlUpload.UseVisualStyleBackColor = true;
-         this.ctrlUpload.Click += new System.EventHandler(this.ctrlUpload_Click);
+         this.ctrlPendingMoveDown.Location = new System.Drawing.Point(301, 185);
+         this.ctrlPendingMoveDown.Name = "ctrlPendingMoveDown";
+         this.ctrlPendingMoveDown.Size = new System.Drawing.Size(48, 23);
+         this.ctrlPendingMoveDown.TabIndex = 13;
+         this.ctrlPendingMoveDown.Text = "Down";
+         this.ctrlPendingMoveDown.UseVisualStyleBackColor = true;
+         this.ctrlPendingMoveDown.Click += new System.EventHandler(this.ctrlPendingMoveDown_Click);
+         // 
+         // ctrlPendingList
+         // 
+         this.ctrlPendingList.FormattingEnabled = true;
+         this.ctrlPendingList.HorizontalScrollbar = true;
+         this.ctrlPendingList.Location = new System.Drawing.Point(8, 6);
+         this.ctrlPendingList.Name = "ctrlPendingList";
+         this.ctrlPendingList.ScrollAlwaysVisible = true;
+         this.ctrlPendingList.Size = new System.Drawing.Size(341, 173);
+         this.ctrlPendingList.TabIndex = 14;
+         // 
+         // tabControl1
+         // 
+         this.tabControl1.Controls.Add(this.tabPage1);
+         this.tabControl1.Controls.Add(this.tabPage2);
+         this.tabControl1.Controls.Add(this.tabPage3);
+         this.tabControl1.Controls.Add(this.tabPage4);
+         this.tabControl1.Location = new System.Drawing.Point(3, 270);
+         this.tabControl1.Name = "tabControl1";
+         this.tabControl1.SelectedIndex = 0;
+         this.tabControl1.Size = new System.Drawing.Size(363, 238);
+         this.tabControl1.TabIndex = 2;
+         // 
+         // tabPage1
+         // 
+         this.tabPage1.Controls.Add(this.ctrlPendingList);
+         this.tabPage1.Controls.Add(this.ctrlRemovePending);
+         this.tabPage1.Controls.Add(this.ctrlPendingMoveUp);
+         this.tabPage1.Controls.Add(this.ctrlPendingMoveDown);
+         this.tabPage1.Location = new System.Drawing.Point(4, 22);
+         this.tabPage1.Name = "tabPage1";
+         this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+         this.tabPage1.Size = new System.Drawing.Size(355, 212);
+         this.tabPage1.TabIndex = 0;
+         this.tabPage1.Text = "Pending";
+         this.tabPage1.UseVisualStyleBackColor = true;
+         // 
+         // tabPage2
+         // 
+         this.tabPage2.Controls.Add(this.ctrlInProgressDetails);
+         this.tabPage2.Controls.Add(this.ctrlCancelActiveUpload);
+         this.tabPage2.Controls.Add(this.label6);
+         this.tabPage2.Location = new System.Drawing.Point(4, 22);
+         this.tabPage2.Name = "tabPage2";
+         this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+         this.tabPage2.Size = new System.Drawing.Size(355, 212);
+         this.tabPage2.TabIndex = 1;
+         this.tabPage2.Text = "In Progress";
+         this.tabPage2.UseVisualStyleBackColor = true;
+         // 
+         // ctrlInProgressDetails
+         // 
+         this.ctrlInProgressDetails.FormattingEnabled = true;
+         this.ctrlInProgressDetails.HorizontalScrollbar = true;
+         this.ctrlInProgressDetails.Location = new System.Drawing.Point(5, 32);
+         this.ctrlInProgressDetails.Name = "ctrlInProgressDetails";
+         this.ctrlInProgressDetails.ScrollAlwaysVisible = true;
+         this.ctrlInProgressDetails.Size = new System.Drawing.Size(344, 147);
+         this.ctrlInProgressDetails.TabIndex = 17;
+         // 
+         // ctrlCancelActiveUpload
+         // 
+         this.ctrlCancelActiveUpload.Location = new System.Drawing.Point(292, 183);
+         this.ctrlCancelActiveUpload.Name = "ctrlCancelActiveUpload";
+         this.ctrlCancelActiveUpload.Size = new System.Drawing.Size(60, 23);
+         this.ctrlCancelActiveUpload.TabIndex = 16;
+         this.ctrlCancelActiveUpload.Text = "Cancel";
+         this.ctrlCancelActiveUpload.UseVisualStyleBackColor = true;
+         // 
+         // tabPage3
+         // 
+         this.tabPage3.Controls.Add(this.button6);
+         this.tabPage3.Controls.Add(this.listBox2);
+         this.tabPage3.Location = new System.Drawing.Point(4, 22);
+         this.tabPage3.Name = "tabPage3";
+         this.tabPage3.Size = new System.Drawing.Size(355, 212);
+         this.tabPage3.TabIndex = 2;
+         this.tabPage3.Text = "Completed";
+         this.tabPage3.UseVisualStyleBackColor = true;
+         // 
+         // button6
+         // 
+         this.button6.Location = new System.Drawing.Point(289, 185);
+         this.button6.Name = "button6";
+         this.button6.Size = new System.Drawing.Size(60, 23);
+         this.button6.TabIndex = 17;
+         this.button6.Text = "Clear";
+         this.button6.UseVisualStyleBackColor = true;
+         // 
+         // listBox2
+         // 
+         this.listBox2.FormattingEnabled = true;
+         this.listBox2.Location = new System.Drawing.Point(3, 6);
+         this.listBox2.Name = "listBox2";
+         this.listBox2.Size = new System.Drawing.Size(346, 173);
+         this.listBox2.TabIndex = 0;
+         // 
+         // tabPage4
+         // 
+         this.tabPage4.Controls.Add(this.button7);
+         this.tabPage4.Controls.Add(this.listBox3);
+         this.tabPage4.Location = new System.Drawing.Point(4, 22);
+         this.tabPage4.Name = "tabPage4";
+         this.tabPage4.Size = new System.Drawing.Size(355, 212);
+         this.tabPage4.TabIndex = 3;
+         this.tabPage4.Text = "Failed";
+         this.tabPage4.UseVisualStyleBackColor = true;
+         // 
+         // button7
+         // 
+         this.button7.Location = new System.Drawing.Point(289, 182);
+         this.button7.Name = "button7";
+         this.button7.Size = new System.Drawing.Size(60, 23);
+         this.button7.TabIndex = 19;
+         this.button7.Text = "Clear";
+         this.button7.UseVisualStyleBackColor = true;
+         // 
+         // listBox3
+         // 
+         this.listBox3.FormattingEnabled = true;
+         this.listBox3.Location = new System.Drawing.Point(3, 3);
+         this.listBox3.Name = "listBox3";
+         this.listBox3.Size = new System.Drawing.Size(346, 173);
+         this.listBox3.TabIndex = 18;
          // 
          // FormUploadVideo
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.BackColor = System.Drawing.SystemColors.Window;
-         this.Controls.Add(this.ctrlActionsGroup);
-         this.Controls.Add(this.ctrlOptionsGroup);
-         this.Controls.Add(this.ctrlStatusGroup);
+         this.Controls.Add(this.tabControl1);
+         this.Controls.Add(this.ctrlEnqueueGroup);
          this.Name = "FormUploadVideo";
-         this.Size = new System.Drawing.Size(350, 480);
-         this.Load += new System.EventHandler(this.FormUploadVideo_Load);
-         this.ctrlStatusGroup.ResumeLayout(false);
-         this.ctrlOptionsGroup.ResumeLayout(false);
-         this.ctrlOptionsGroup.PerformLayout();
-         this.ctrlActionsGroup.ResumeLayout(false);
+         this.Size = new System.Drawing.Size(369, 510);
+         this.ctrlEnqueueGroup.ResumeLayout(false);
+         this.ctrlEnqueueGroup.PerformLayout();
+         this.tabControl1.ResumeLayout(false);
+         this.tabPage1.ResumeLayout(false);
+         this.tabPage2.ResumeLayout(false);
+         this.tabPage2.PerformLayout();
+         this.tabPage3.ResumeLayout(false);
+         this.tabPage4.ResumeLayout(false);
          this.ResumeLayout(false);
 
       }
@@ -255,23 +373,33 @@
       #endregion
 
       private System.Windows.Forms.OpenFileDialog ctrlVideoChooser;
-      private System.Windows.Forms.GroupBox ctrlStatusGroup;
-      private System.Windows.Forms.Label ctrlRawProgress;
-      private System.Windows.Forms.ProgressBar ctrlProgressBar;
-      private System.Windows.Forms.Label ctrlUploadStatus;
-      private System.Windows.Forms.GroupBox ctrlOptionsGroup;
+      private System.Windows.Forms.GroupBox ctrlEnqueueGroup;
       private System.Windows.Forms.Button ctrlSelectFile;
       private System.Windows.Forms.TextBox ctrlSelectedFile;
       private System.Windows.Forms.Label label2;
       private System.Windows.Forms.Label label1;
       private System.Windows.Forms.ComboBox ctrlPermission;
-      private System.Windows.Forms.GroupBox ctrlActionsGroup;
-      private System.Windows.Forms.Button ctrlCancel;
-      private System.Windows.Forms.Button ctrlRetry;
-      private System.Windows.Forms.Button ctrlUpload;
       private System.Windows.Forms.Label label3;
       private System.Windows.Forms.TextBox ctrlDescription;
       private System.Windows.Forms.Label label4;
       private System.Windows.Forms.TextBox ctrlTitle;
+      private System.Windows.Forms.Label label6;
+      private System.Windows.Forms.Button ctrlRemovePending;
+      private System.Windows.Forms.Button ctrlPendingMoveUp;
+      private System.Windows.Forms.Button ctrlPendingMoveDown;
+      private System.Windows.Forms.ListBox ctrlPendingList;
+      private System.Windows.Forms.Button ctrlEnqueue;
+      private System.Windows.Forms.TabControl tabControl1;
+      private System.Windows.Forms.TabPage tabPage1;
+      private System.Windows.Forms.TabPage tabPage2;
+      private System.Windows.Forms.TabPage tabPage3;
+      private System.Windows.Forms.TabPage tabPage4;
+      private System.Windows.Forms.Button ctrlCancelActiveUpload;
+      private System.Windows.Forms.Button button6;
+      private System.Windows.Forms.ListBox listBox2;
+      private System.Windows.Forms.Button button7;
+      private System.Windows.Forms.ListBox listBox3;
+      private System.Windows.Forms.Label ctrlEnqueueStatus;
+      private System.Windows.Forms.ListBox ctrlInProgressDetails;
    }
 }

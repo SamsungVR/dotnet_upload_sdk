@@ -23,18 +23,20 @@ namespace SampleApp {
       }
 
 
-      private Control mControl;
+      private FormBase mControl;
 
-      public void setControl(Control control) {
+      internal void setControl(FormBase control) {
          if (mControl == control) {
             return;
          }
          if (null != mControl) {
+            mControl.onUnload();
             ctrlCurrentAction.Controls.Remove(mControl);
          }
          mControl = control;
          if (null != mControl) {
             ctrlCurrentAction.Controls.Add(mControl);
+            mControl.onLoad();
             centerControl();
          }
       }
@@ -80,6 +82,10 @@ namespace SampleApp {
             return;
          }
          App.getInstance().showLoginForm();
+      }
+
+      private void panel2_Paint(object sender, PaintEventArgs e) {
+
       }
    }
 }

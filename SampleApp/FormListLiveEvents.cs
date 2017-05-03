@@ -11,7 +11,7 @@ using System.IO;
 namespace SampleApp {
 
 
-   public partial class FormListLiveEvents : UserControl {
+   public partial class FormListLiveEvents : FormBase {
 
       private static readonly string TAG = Util.getLogTag(typeof(FormListLiveEvents));
 

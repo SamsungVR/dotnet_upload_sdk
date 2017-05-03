@@ -9,6 +9,7 @@ namespace SDKLib {
    internal class APIClientImpl : Container.BaseImpl<APIClient.Observer>, APIClient.If {
 
       internal static readonly string HEADER_API_KEY = "X-API-KEY";
+      internal static bool DEBUG = Util.DEBUG;
 
       private readonly string mEndPoint, mApiKey;
 
@@ -215,6 +216,8 @@ namespace SDKLib {
          mUserId = null;
       }
 
+      private static readonly string TAG = Util.getLogTag(typeof(WorkItemGetUserBySessionToken));
+
       protected override void onRun() {
 
          HttpPlugin.GetRequest request = null;
@@ -225,6 +228,9 @@ namespace SDKLib {
                 };
 
          try {
+            if (APIClientImpl.DEBUG) {
+               Log.d(TAG, "Getting user by session token, user: " + mUserId + " token: " + mSessionToken);
+            }
 
             request = newGetRequest(string.Format("user/{0}", mUserId), headers);
 
