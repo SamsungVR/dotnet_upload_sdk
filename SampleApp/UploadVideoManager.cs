@@ -1,13 +1,25 @@
 ﻿using Newtonsoft.Json.Linq;
+using SDKLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace SampleApp {
 
-   class UploadVideoManager {
+   public class UploadVideoManager : SDKLib.User.Result.UploadVideo.If {
 
-      internal abstract class UploadItem {
+      internal interface Callback {
+         void onBeginUpload();
+         void onUploadProgress(float progressPercent, long complete, long max);
+         void onPendingItemsChanged();
+         void onFailedItemsChanged();
+      }
+
+      public abstract class UploadItem {
 
          protected JObject mJObject;
 
@@ -17,7 +29,6 @@ namespace SampleApp {
 
          internal UploadItem() {
             mJObject = new JObject();
-            setAttr("id", Guid.NewGuid().ToString());
          }
 
          internal JObject getJObject() {
@@ -48,21 +59,11 @@ namespace SampleApp {
             return result;
          }
 
-         protected bool matchesString(String str, int count, int idIndex) {
-            String[] parts = str.Split(',');
-            if (count != parts.Length) {
-               return false;
-            }
-            String id = parts[idIndex].Trim();
-            return getAttr("id").Equals(id);
-         }
-
          internal abstract String getAsString();
-         internal abstract bool matchesString(String str);
       }
 
 
-      internal class PendingUploadItem : UploadItem {
+      public class PendingUploadItem : UploadItem {
 
          internal PendingUploadItem(JObject item) : base(item) {
          }
@@ -75,21 +76,66 @@ namespace SampleApp {
          }
 
          internal override String getAsString() {
-            return getAsString("title", "filename", "id");
+            return getAsString("title", "filename");
          }
 
-         internal override bool matchesString(String str) {
-            return matchesString(str, 3, 2);
+         internal String getFilename() {
+            return getAttr("filename");
          }
 
+         internal String getTitle() {
+            return getAttr("title");
+         }
+
+         internal String getDescription() {
+            return getAttr("description");
+         }
+
+         internal String getPermission() {
+            return getAttr("permission");
+         }
+
+      }
+
+      public class ActiveUploadItem : PendingUploadItem {
+
+         internal ActiveUploadItem(JObject item) : base(item) {
+         }
+
+         internal ActiveUploadItem(String fileName, String permission, String title, String description) : base(fileName, permission, title, description) {
+         }
+
+         internal ActiveUploadItem(PendingUploadItem item) : this(
+            item.getFilename(), item.getPermission(), item.getTitle(), item.getDescription()) {
+         }
+
+      }
+
+      public class FailedUploadItem : PendingUploadItem {
+
+         internal FailedUploadItem(JObject item) : base(item) {
+         }
+
+         internal FailedUploadItem(String fileName, String permission, String title, String description, String reason) : base(fileName, permission, title, description) {
+            setAttr("reason", reason);
+         }
+
+         internal FailedUploadItem(ActiveUploadItem item, String reason) : this(item.getFilename(), item.getPermission(), item.getTitle(), item.getDescription(), reason) {
+         }
+
+         internal override String getAsString() {
+            return getAsString("title", "filename", "reason");
+         }
       }
 
       internal abstract class ItemsModel<T> where T : UploadItem {
 
          internal readonly List<T> mItems = new List<T>();
+         protected readonly UploadVideoManager mUploadVideoManager;
 
-         private int mSelectedIndex = -1;
-         private ListBox mView = null;
+         internal ItemsModel(UploadVideoManager uploadVideoManager) {
+            mUploadVideoManager = uploadVideoManager;
+         }
 
          internal bool loadItemsFrom(String data) {
             if (String.Empty.Equals(data)) {
@@ -102,12 +148,12 @@ namespace SampleApp {
                for (int i = 0; i < jItems.Count; i += 1) {
                   JObject jItem = jItems.Value<JObject>(i);
                   T newItem = newItemFromJObject(jItem);
-                  mItems.Add(newItem);
+                  addItem(newItem);
                }
             } catch (Exception ex) {
                return false;
             }
-            resyncView();
+            onChanged();
             return true;
          }
 
@@ -115,88 +161,44 @@ namespace SampleApp {
 
          internal virtual void addItem(T item) {
             mItems.Add(item);
-            resyncView();
-         }
-
-         internal void resyncView() {
-            resyncView(true);
-         }
-
-         internal void resyncView(bool shouldSave) {
-            if (shouldSave) {
-               save();
-            }
-            if (null != mView) {
-               mView.Items.Clear();
-               foreach (T item in mItems) {
-                  mView.Items.Add(item.getAsString());
-               }
-               if (mItems.Count < 1) {
-                  mSelectedIndex = -1;
-               } else {
-                  if (mSelectedIndex < 0) {
-                     mSelectedIndex = 0;
-                  } else if (mSelectedIndex >= mItems.Count) {
-                     mSelectedIndex = mItems.Count - 1;
-                  }
-                  mView.SelectedIndex = mSelectedIndex;
-               }
-            }
+            onChanged();
          }
 
          internal void removeAllItems() {
             mItems.Clear();
-            resyncView();
+            onChanged();
          }
 
-         internal void removeItem(T item) {
-            if (mItems.Count > 0 && mItems.Remove(item)) {
-               resyncView();
+
+         internal void removeItemAt(int index) {
+            if (mItems.Count > 0 && index >= 0 && index < mItems.Count) {
+               mItems.RemoveAt(index);
+               onChanged();
             }
          }
 
-         internal void removeSelectedItem() {
-            if (mItems.Count > 0 && mSelectedIndex >= 0 && mSelectedIndex < mItems.Count) {
-               mItems.RemoveAt(mSelectedIndex);
-               resyncView();
+         internal bool moveItemUp(int index) {
+            if (mItems.Count > 0 && index > 0 && index < mItems.Count) {
+               T item = mItems[index];
+               mItems.RemoveAt(index);
+               index -= 1;
+               mItems.Insert(index, item);
+               onChanged();
+               return true;
             }
+            return false;
          }
 
-         internal void moveSelectedItemUp() {
-            if (mItems.Count > 0 && mSelectedIndex > 0 && mSelectedIndex < mItems.Count) {
-               T item = mItems[mSelectedIndex];
-               mItems.RemoveAt(mSelectedIndex);
-               mSelectedIndex -= 1;
-               mItems.Insert(mSelectedIndex, item);
-               resyncView();
+         internal bool moveItemDown(int index) {
+            if (mItems.Count > 0 && index >= 0 && index < mItems.Count - 1) {
+               T item = mItems[index];
+               mItems.RemoveAt(index);
+               index += 1;
+               mItems.Insert(index, item);
+               onChanged();
+               return true;
             }
-         }
-
-         internal void moveSelectedItemDown() {
-            if (mItems.Count > 0 && mSelectedIndex >= 0 && mSelectedIndex < mItems.Count - 1) {
-               T item = mItems[mSelectedIndex];
-               mItems.RemoveAt(mSelectedIndex);
-               mSelectedIndex += 1;
-               mItems.Insert(mSelectedIndex, item);
-               resyncView();
-            }
-         }
-
-         internal void setView(ListBox view) {
-
-            if (null != mView) {
-               mView.SelectedIndexChanged -= onSelectedIndexChanged;
-            }
-            mView = view;
-            if (null != mView) {
-               mView.SelectedIndexChanged += onSelectedIndexChanged;
-               resyncView(false);
-            }
-            
-         }
-
-         internal void onSelectedIndexChanged(object sender, System.EventArgs e) {
-            mSelectedIndex = mView.SelectedIndex;
+            return false;
          }
 
          internal String getAsString() {
@@ -211,11 +213,27 @@ namespace SampleApp {
          }
 
          abstract internal void save();
+
+         virtual internal void onChanged() {
+            save();
+         }
+      }
+
+      private void onPendingItemsChanged() {
+         foreach (Callback callback in mCallbacks) {
+            callback.onPendingItemsChanged();
+         }
+      }
+
+      private void onFailedItemsChanged() {
+         foreach (Callback callback in mCallbacks) {
+            callback.onFailedItemsChanged();
+         }
       }
 
       internal class PendingUploadItemsModel : ItemsModel<PendingUploadItem> {
 
-         internal PendingUploadItemsModel() : base() {
+         internal PendingUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
             loadItemsFrom(AppSettings.Default.pendingUploadData);
          }
 
@@ -229,37 +247,220 @@ namespace SampleApp {
          }
 
          internal override void addItem(PendingUploadItem item) {
-            if (UploadVideoManager.sUploadVideoManager.tryUploadImmediate(item)) {
+            if (mUploadVideoManager.tryUpload(item)) {
                return;
             }
             base.addItem(item);
          }
+
+         internal override void onChanged() {
+            base.onChanged();
+            mUploadVideoManager.onPendingItemsChanged();
+         }
       }
 
-      private PendingUploadItem mActiveUpload = null;
+      internal class FailedUploadItemsModel : ItemsModel<FailedUploadItem> {
 
-      private readonly PendingUploadItemsModel mPendingUploads = new PendingUploadItemsModel();
+         internal FailedUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
+            loadItemsFrom(AppSettings.Default.failedUploadData);
+         }
+
+         internal override FailedUploadItem newItemFromJObject(JObject jObject) {
+            return new FailedUploadItem(jObject);
+         }
+
+         internal override void save() {
+            AppSettings.Default.failedUploadData = getAsString();
+            AppSettings.Default.Save();
+         }
+
+         internal override void onChanged() {
+            base.onChanged();
+            mUploadVideoManager.onFailedItemsChanged();
+         }
+      }
+
+      private ActiveUploadItem mActiveUpload = null;
+
+      private readonly PendingUploadItemsModel mPendingUploads;
+      private readonly FailedUploadItemsModel mFailedUploads;
+
+      internal PendingUploadItemsModel getPendingUploadsModel() {
+         return mPendingUploads;
+      }
+
+      internal FailedUploadItemsModel getFailedUploadsModel() {
+         return mFailedUploads;
+      }
+
+      private bool mIsNetworkAvailable = false;
+      private Thread mConnectivityCheckerThread;
+
+      void onNetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e) {
+         mIsNetworkAvailable = e.IsAvailable;
+      }
+
+      private bool mThreadCanContinue = true;
+      private bool mIsVRReachable = false;
+
+      private static readonly string TAG = Util.getLogTag(typeof(UploadVideoManager));
+
+      void connectivityCheckerThreadProc() {
+         try { 
+            while (mThreadCanContinue) {
+               Log.d(TAG, "Checking VR connectivity");
+               Thread.Sleep(5000);
+
+               
+                
+               if (!mIsNetworkAvailable) {
+                  mIsVRReachable = false;
+                  continue;
+               }
+               String endPoint = SDKLib.VR.getEndPoint();
+               Log.d(TAG, "VR reachable: " + mIsVRReachable + " network reachable: " + mIsNetworkAvailable + " ep: " + endPoint);
+               if (null == endPoint) {
+                  mIsVRReachable = false;
+                  continue;
+               }
+               char[] ch = endPoint.ToCharArray();
+               int index;
+               for (index = ch.Length - 1; index >= 0; index -= 1) {
+                  if (ch[index] == '/') {
+                     break;
+                  }
+               }
+               if (-1 != index) {
+                  endPoint.Remove(index);
+                  WebRequest request = WebRequest.Create(endPoint + "/ccheck");
+                  HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                  if (response != null && HttpStatusCode.OK == response.StatusCode) {
+                     mIsVRReachable = true;
+                     continue;
+                  }
+               }
+               mIsVRReachable = false;
+            }
+         } catch (ThreadInterruptedException ex) {
+            Log.d(TAG, "Connectivity checker exception: " + ex);
+         }
+         Log.d(TAG, "Ending connectivity checker");
+      }
+
+      public void destroy() {
+         mThreadCanContinue = false;
+         mConnectivityCheckerThread.Abort();
+         mConnectivityCheckerThread.Join();
+      }
 
       private UploadVideoManager() {
+         mFailedUploads = new FailedUploadItemsModel(this);
+         mPendingUploads = new PendingUploadItemsModel(this);
+         NetworkChange.NetworkAvailabilityChanged += onNetworkAvailabilityChanged;
+         mIsNetworkAvailable = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+         mConnectivityCheckerThread = new Thread(new ThreadStart(connectivityCheckerThreadProc));
+         mConnectivityCheckerThread.Start();
       }
 
-      private ListBox mActiveUploadView = null;
+      private readonly List<Callback> mCallbacks = new List<Callback>();
 
-      internal void setActiveUploadView(ListBox activeUploadView) {
-         mActiveUploadView = activeUploadView;
-         refreshActiveUploadView();
+      internal void addCallback(Callback callback) {
+         mCallbacks.Add(callback);
       }
 
-      private void refreshActiveUploadView() {
-
+      internal void removeCallback(Callback callback) {
+         mCallbacks.Remove(callback);
       }
 
-      private bool tryUploadImmediate(PendingUploadItem item) {
-         return false;
+      private SDKLib.UserVideo.If mVideo;
+      private Stream mSource;
+      private long mLength;
+
+
+      public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
+         mVideo = video;
       }
 
-      internal PendingUploadItemsModel getPendingUploads() {
-         return mPendingUploads;
+      public void onCancelled(object closure) {
+         onUploadComplete();
+         //ctrlUploadStatus.Text = ResourceStrings.uploadCancelled;
+      }
+
+      private void onUploadComplete() {
+         mVideo = null;
+         if (null != mSource) {
+            mSource.Close();
+            mSource = null;
+         }
+      }
+
+      public void onException(object closure, Exception ex) {
+      }
+
+      public void onFailure(object closure, int status) {
+      }
+
+      public void onProgress(object closure, float progressPercent, long complete, long max) {
+         foreach (Callback callback in mCallbacks) {
+            callback.onUploadProgress(progressPercent, complete, max);
+         }
+      }
+
+      public void onProgress(object closure, long complete) {
+         foreach (Callback callback in mCallbacks) {
+            callback.onUploadProgress(-1, complete, -1);
+         }
+      }
+
+      public void onSuccess(object closure) {
+      }
+
+      private bool tryUpload(PendingUploadItem item) {
+         if (null != mActiveUpload) {
+            return false;
+         }
+         SDKLib.User.If user = App.getInstance().getUser();
+         if (null == user) {
+            return false;
+         }
+         ActiveUploadItem aui = new ActiveUploadItem(item);
+         String fileName = aui.getFilename();
+         if (String.IsNullOrEmpty(fileName)) {
+            FailedUploadItem failedItem = new FailedUploadItem(aui, ResourceStrings.uploadFileDoesNotExist);
+            mFailedUploads.addItem(failedItem);
+            return true;
+         }
+         FileInfo fileInfo = new FileInfo(fileName);
+         if (!fileInfo.Exists) {
+            mFailedUploads.addItem(new FailedUploadItem(aui, ResourceStrings.uploadFileDoesNotExist));
+            return true;
+         }
+         FileStream stream = null;
+         try {
+            stream = fileInfo.OpenRead();
+         } catch (Exception) {
+            mFailedUploads.addItem(new FailedUploadItem(aui, ResourceStrings.uploadFileOpenFailed));
+            return true;
+         }
+         long length = fileInfo.Length;
+         SDKLib.UserVideo.Permission permission = SDKLib.UserVideo.fromString(aui.getPermission());
+         if (user.uploadVideo(stream, length, aui.getTitle(), aui.getDescription(), 
+            permission, this, App.getInstance().getHandler(), this)) {
+            mActiveUpload = aui;
+            mSource = stream;
+            mLength = length;
+
+            foreach (Callback callback in mCallbacks) {
+               callback.onBeginUpload();
+            }
+            return true;
+         }
+         mFailedUploads.addItem(new FailedUploadItem(aui, ResourceStrings.unableToQueueRequest));
+         return true;
+      }
+
+      internal ActiveUploadItem getActiveUpload() {
+         return mActiveUpload;
       }
 
       private static UploadVideoManager sUploadVideoManager = null;
@@ -270,9 +471,7 @@ namespace SampleApp {
          }
          return sUploadVideoManager;
       }
+
+
    }
-
-
-
-
 }

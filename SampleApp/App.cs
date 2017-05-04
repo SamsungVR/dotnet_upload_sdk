@@ -65,8 +65,10 @@ namespace SampleApp {
 
 
       private static App sApp;
+      private readonly UploadVideoManager mUploadVideoManager;
 
       private App() {
+         mUploadVideoManager = UploadVideoManager.getInstance();
       }
 
       private static readonly string TAG = Util.getLogTag(typeof(App));
@@ -118,6 +120,7 @@ namespace SampleApp {
          Application.Run();
          mFormDialog = null;
          mFormMain = null;
+         mUploadVideoManager.destroy();
          Log.closeLogFile();
       }
 

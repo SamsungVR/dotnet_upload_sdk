@@ -169,6 +169,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No active upload.
+        /// </summary>
+        internal static string noActiveUpload {
+            get {
+                return ResourceManager.GetString("noActiveUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no RTMP url for this live event. Check if this an RTMP live event..
         /// </summary>
         internal static string noRTMPUrlToCopy {

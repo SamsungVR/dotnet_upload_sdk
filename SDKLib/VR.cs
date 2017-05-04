@@ -398,7 +398,14 @@ namespace SDKLib {
 
       private static DestroyCallback sDestroyCallback;
 
-
+      public static string getEndPoint() {
+         lock (sLock) {
+            if (null == sAPIClient) {
+               return null;
+            }
+            return sAPIClient.getEndPoint();
+         }
+      }
 
       /// <summary>Destroy the SDK. Any calls made to SDK or its objects will fail after this.
       /// Call this to cleanup SDK resources when SDK services are no longer needed.</summary>
