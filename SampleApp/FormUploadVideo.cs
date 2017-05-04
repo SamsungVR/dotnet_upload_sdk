@@ -13,7 +13,7 @@ namespace SampleApp {
 
       public FormUploadVideo() {
          InitializeComponent();
-         mUploadVideoManager = UploadVideoManager.getInstance();
+         mUploadVideoManager = App.getInstance().getUploadVideoManager();
       }
 
       private void ctrlSelectFile_Click(object sender, EventArgs e) {
@@ -96,15 +96,15 @@ namespace SampleApp {
       }
 
       public override void onLoad() {
-         UploadVideoManager uploadVideoManager = UploadVideoManager.getInstance();
-         uploadVideoManager.addCallback(this);
+         
+         mUploadVideoManager.addCallback(this);
          onBeginUploadInternal();
          onPendingItemsChangedInternal();
          onFailedItemsChangedInternal();
       }
 
       public override void onUnload() {
-         UploadVideoManager.getInstance().removeCallback(this);
+         mUploadVideoManager.removeCallback(this);
       }
 
       private void ctrlEnqueue_Click(object sender, EventArgs e) {

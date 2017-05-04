@@ -7,8 +7,8 @@ namespace SDKLib {
 
    internal class ResultCallbackHolder {
 
-      private WeakReference mCallbackWeakRef = new WeakReference(null);
-      private WeakReference mHandlerWeakRef = new WeakReference(null);
+      private Object mCallback = null;
+      private SynchronizationContext mHandler = null;
       private object mClosure;
 
       private readonly object mLock;
@@ -36,8 +36,8 @@ namespace SDKLib {
 
       public virtual ResultCallbackHolder setNoLock(object callback, SynchronizationContext handler, object closure) {
          mClosure = closure;
-         mHandlerWeakRef.Target = handler;
-         mCallbackWeakRef.Target = callback;
+         mHandler = handler;
+         mCallback = callback;
          return this;
       }
 
@@ -51,22 +51,22 @@ namespace SDKLib {
 
       public virtual void clearNoLock() {
          mClosure = null;
-         mHandlerWeakRef.Target = null;
-         mCallbackWeakRef.Target = null;
+         mHandler = null;
+         mCallback = null;
       }
 
       public virtual void copyFromNoLock(ResultCallbackHolder other) {
          mClosure = other.mClosure;
-         mHandlerWeakRef.Target = other.mHandlerWeakRef.Target;
-         mCallbackWeakRef.Target = other.mCallbackWeakRef.Target;
+         mHandler = other.mHandler;
+         mCallback = other.mCallback;
       }
 
       public object getCallbackNoLock() {
-         return mCallbackWeakRef.Target;
+         return mCallback;
       }
 
       public SynchronizationContext getHandlerNoLock() {
-         return (SynchronizationContext)mHandlerWeakRef.Target;
+         return mHandler;
       }
 
       public void acquireLock() {

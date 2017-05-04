@@ -68,7 +68,11 @@ namespace SampleApp {
       private readonly UploadVideoManager mUploadVideoManager;
 
       private App() {
-         mUploadVideoManager = UploadVideoManager.getInstance();
+         mUploadVideoManager = new UploadVideoManager(this);
+      }
+
+      internal UploadVideoManager getUploadVideoManager() {
+         return mUploadVideoManager;
       }
 
       private static readonly string TAG = Util.getLogTag(typeof(App));
@@ -116,7 +120,7 @@ namespace SampleApp {
          mFormMain = new FormMain();
          mFormMain.Show();
          showLoginForm();
-         //Application.AddMessageFilter(new MyMessageFilter());
+         Application.AddMessageFilter(new MyMessageFilter());
          Application.Run();
          mFormDialog = null;
          mFormMain = null;

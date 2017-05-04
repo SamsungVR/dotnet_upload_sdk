@@ -310,8 +310,6 @@ namespace SampleApp {
             while (mThreadCanContinue) {
                Log.d(TAG, "Checking VR connectivity");
                Thread.Sleep(5000);
-
-               
                 
                if (!mIsNetworkAvailable) {
                   mIsVRReachable = false;
@@ -331,11 +329,17 @@ namespace SampleApp {
                   }
                }
                if (-1 != index) {
-                  endPoint.Remove(index);
-                  WebRequest request = WebRequest.Create(endPoint + "/ccheck");
+                  String temp = endPoint.Remove(index) + "/ccheck";
+                  Log.d(TAG, "VR reachable check endpoint: " + temp);
+                  WebRequest request = WebRequest.Create(temp);
                   HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                  if (response != null && HttpStatusCode.OK == response.StatusCode) {
-                     mIsVRReachable = true;
+                  
+                  if (response != null) {
+                     HttpStatusCode stc = response.StatusCode;
+                     response.Close();
+                     if (HttpStatusCode.OK == stc) {
+                        mIsVRReachable = true;
+                     }
                      continue;
                   }
                }
@@ -353,7 +357,10 @@ namespace SampleApp {
          mConnectivityCheckerThread.Join();
       }
 
-      private UploadVideoManager() {
+      private readonly App mApp;
+
+      internal UploadVideoManager(App app) {
+         mApp = app;
          mFailedUploads = new FailedUploadItemsModel(this);
          mPendingUploads = new PendingUploadItemsModel(this);
          NetworkChange.NetworkAvailabilityChanged += onNetworkAvailabilityChanged;
@@ -419,7 +426,7 @@ namespace SampleApp {
          if (null != mActiveUpload) {
             return false;
          }
-         SDKLib.User.If user = App.getInstance().getUser();
+         SDKLib.User.If user = mApp.getUser();
          if (null == user) {
             return false;
          }
@@ -462,16 +469,6 @@ namespace SampleApp {
       internal ActiveUploadItem getActiveUpload() {
          return mActiveUpload;
       }
-
-      private static UploadVideoManager sUploadVideoManager = null;
-
-      public static UploadVideoManager getInstance() {
-         if (null == sUploadVideoManager) {
-            sUploadVideoManager = new UploadVideoManager();
-         }
-         return sUploadVideoManager;
-      }
-
 
    }
 }
