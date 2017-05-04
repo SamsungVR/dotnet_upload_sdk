@@ -14,6 +14,7 @@ namespace SampleApp {
 
       internal interface Callback {
          void onBeginUpload();
+         void onEndUpload();
          void onUploadProgress(float progressPercent, long complete, long max);
          void onPendingItemsChanged();
          void onFailedItemsChanged();
@@ -29,6 +30,12 @@ namespace SampleApp {
 
          internal UploadItem() {
             mJObject = new JObject();
+         }
+
+         internal UploadItem(String[] fields, String[] values) : this() {
+            for (int i = 0; i < fields.Length; i += 1) {
+               setAttr(fields[i], values[i]);
+            }
          }
 
          internal JObject getJObject() {
@@ -66,6 +73,10 @@ namespace SampleApp {
       public class PendingUploadItem : UploadItem {
 
          internal PendingUploadItem(JObject item) : base(item) {
+         }
+
+         internal PendingUploadItem(String[] fields, String[] values) : base(fields, values) {
+
          }
 
          internal PendingUploadItem(String fileName, String permission, String title, String description) : base() {
@@ -109,6 +120,7 @@ namespace SampleApp {
             item.getFilename(), item.getPermission(), item.getTitle(), item.getDescription()) {
          }
 
+
       }
 
       public class FailedUploadItem : PendingUploadItem {
@@ -124,8 +136,13 @@ namespace SampleApp {
          }
 
          internal override String getAsString() {
-            return getAsString("title", "filename", "reason");
+            return getAsString("reason", "title", "filename", "description", "permission");
          }
+
+         internal FailedUploadItem(String[] fields, String[] values) : base(fields, values) {
+
+         }
+
       }
 
       internal abstract class ItemsModel<T> where T : UploadItem {
@@ -158,6 +175,22 @@ namespace SampleApp {
          }
 
          internal abstract T newItemFromJObject(JObject jObject);
+         internal abstract String[] getFields();
+
+         virtual internal T newItemFromString(String str) {
+            String[] fields = getFields();
+            if (null == fields) {
+               return null;
+            }
+            String [] parts = str.Split(',');
+            int max = Math.Min(fields.Length, parts.Length);
+            JObject jObject = new JObject();
+
+            for (int i = 0; i < max; i += 1) {
+               jObject.Add(fields[i], new JValue(parts[i].Trim()));
+            }
+            return newItemFromJObject(jObject);
+         }
 
          internal virtual void addItem(T item) {
             mItems.Add(item);
@@ -169,12 +202,14 @@ namespace SampleApp {
             onChanged();
          }
 
-
-         internal void removeItemAt(int index) {
+         internal T removeItemAt(int index) {
             if (mItems.Count > 0 && index >= 0 && index < mItems.Count) {
+               T item = mItems[index];
                mItems.RemoveAt(index);
                onChanged();
+               return item;
             }
+            return null;
          }
 
          internal bool moveItemUp(int index) {
@@ -257,6 +292,11 @@ namespace SampleApp {
             base.onChanged();
             mUploadVideoManager.onPendingItemsChanged();
          }
+
+         internal override String[] getFields() {
+            return new String[] { "title", "filename" };
+         }
+
       }
 
       internal class FailedUploadItemsModel : ItemsModel<FailedUploadItem> {
@@ -277,6 +317,10 @@ namespace SampleApp {
          internal override void onChanged() {
             base.onChanged();
             mUploadVideoManager.onFailedItemsChanged();
+         }
+
+         internal override String[] getFields() {
+            return new String[] { "title", "filename" };
          }
       }
 
@@ -383,28 +427,39 @@ namespace SampleApp {
       private Stream mSource;
       private long mLength;
 
-
       public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
          mVideo = video;
       }
 
       public void onCancelled(object closure) {
+         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, ResourceStrings.uploadCancelled));
          onUploadComplete();
-         //ctrlUploadStatus.Text = ResourceStrings.uploadCancelled;
       }
 
       private void onUploadComplete() {
+         foreach (Callback callback in mCallbacks) {
+            callback.onEndUpload();
+         }
+
          mVideo = null;
+         mActiveUpload = null;
          if (null != mSource) {
             mSource.Close();
             mSource = null;
          }
+         PendingUploadItem nextItem = mPendingUploads.removeItemAt(0);
+         if (null != nextItem) {
+            tryUpload(nextItem);
+         }
       }
 
       public void onException(object closure, Exception ex) {
+         onUploadComplete();
       }
 
       public void onFailure(object closure, int status) {
+         onUploadComplete();
+         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, status)));
       }
 
       public void onProgress(object closure, float progressPercent, long complete, long max) {
@@ -420,6 +475,7 @@ namespace SampleApp {
       }
 
       public void onSuccess(object closure) {
+         onUploadComplete();
       }
 
       private bool tryUpload(PendingUploadItem item) {
@@ -470,5 +526,26 @@ namespace SampleApp {
          return mActiveUpload;
       }
 
+      internal bool cancelActiveUpload() {
+         if (null != mVideo) {
+            return mVideo.cancelUpload(this);
+         }
+         SDKLib.User.If user = mApp.getUser();
+         if (null == user) {
+            return false;
+         }
+         return user.cancelUploadVideo(this);
+      }
+
+      internal void onLoggedIn() {
+         PendingUploadItem nextItem = mPendingUploads.removeItemAt(0);
+         if (null != nextItem) {
+            tryUpload(nextItem);
+         }
+      }
+
+      internal void onLoggedOut() {
+
+      }
    }
 }

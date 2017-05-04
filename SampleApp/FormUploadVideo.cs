@@ -30,6 +30,11 @@ namespace SampleApp {
          ctrlUploadDashboard.SelectTab(1);
       }
 
+      public void onEndUpload() {
+         onEndUploadInternal();
+         ctrlUploadDashboard.SelectTab(1);
+      }
+
       public void onUploadProgress(float progressPercent, long complete, long max) {
          if (-1 != progressPercent) {
             ctrlUploadProgressVisual.Value = (int)progressPercent;
@@ -95,6 +100,13 @@ namespace SampleApp {
          ctrlInProgressDetails.Items.Add(item.getPermission());
       }
 
+      private void onEndUploadInternal() {
+         ctrlInProgressDetails.Items.Clear();
+         ctrlInProgressDetails.Items.Add(ResourceStrings.noActiveUpload);
+         ctrlUploadProgressRaw.Text = "";
+         ctrlUploadProgressVisual.Value = 0;
+      }
+
       public override void onLoad() {
          
          mUploadVideoManager.addCallback(this);
@@ -145,10 +157,10 @@ namespace SampleApp {
       }
 
       private void ctrlCancelActiveUpload_Click(object sender, EventArgs e) {
-
+         mUploadVideoManager.cancelActiveUpload();
       }
 
-      private void tabPage2_Click(object sender, EventArgs e) {
+      private void ctrlRequeueFailed_Click(object sender, EventArgs e) {
 
       }
    }

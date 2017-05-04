@@ -40,6 +40,7 @@ namespace SampleApp {
 
          public void onLoginSuccess(SDKLib.User.If user, object closure) {
             Log.d(TAG, "onLoggedIn " + user.getName());
+            sApp.setUser(user);
             UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
             foreach (UILib.UILib.Callback subCallback in temp) {
                subCallback.onLoginSuccess(user, closure);
@@ -61,8 +62,16 @@ namespace SampleApp {
                subCallback.showLoginUI(loginUI, closure);
             }
          }
-      }
 
+         public void onLogout(object closure) {
+            Log.d(TAG, "logout");
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.onLogout(closure);
+            }
+            sApp.setUser(null);
+         }
+      }
 
       private static App sApp;
       private readonly UploadVideoManager mUploadVideoManager;
@@ -157,6 +166,11 @@ namespace SampleApp {
 
       public void setUser(User.If user) {
          mUser = user;
+         if (null == mUser) {
+            mUploadVideoManager.onLoggedOut();
+         } else {
+            mUploadVideoManager.onLoggedIn();
+         }
       }
 
       private FormDialog mFormDialog;

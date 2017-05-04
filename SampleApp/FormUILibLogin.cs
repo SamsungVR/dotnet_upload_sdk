@@ -32,8 +32,10 @@ namespace SampleApp {
          public void onLibDestroyStatus(object closure, bool status) {
          }
 
+         public void onLogout(object closure) {
+         }
+
          public void onLoginSuccess(SDKLib.User.If user, object closure) {
-            mFormLogin.mApp.setUser(user);
             mFormLogin.mApp.getFormMain().setControl(new FormLoggedIn());
          }
 

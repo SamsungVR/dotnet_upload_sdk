@@ -98,6 +98,8 @@ namespace UILib {
          void onLoginSuccess(SDKLib.User.If user, object closure);
          void onLoginFailure(object closure);
 
+         void onLogout(object closure);
+
          void showLoginUI(UserControl loginUI, object closure);
       }
 
@@ -365,12 +367,23 @@ namespace UILib {
          }
       }
 
+      internal class LogoutStatusNotifier : CallbackNotifier {
+
+         public LogoutStatusNotifier(UILibImpl uiLibImpl) : base(uiLibImpl) {
+         }
+
+         protected override void onRun(UILib.Callback callback, object closure) {
+            callback.onLogout(closure);
+         }
+      }
+
       internal class LogoutRunnable : Runnable {
 
          public override void run() {
             UILibSettings.Default.userId = null;
             UILibSettings.Default.userSessionToken = null;
             UILibSettings.Default.Save();
+            new LogoutStatusNotifier(sUILib).postSelf(sUILib.mHandler);
          }
       }
 

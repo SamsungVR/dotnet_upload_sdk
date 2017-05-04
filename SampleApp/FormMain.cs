@@ -60,6 +60,10 @@ namespace SampleApp {
          public void onLoginFailure(object closure) {
          }
 
+         public void onLogout(object closure) {
+
+         }
+
          public void showLoginUI(UserControl loginUI, object closure) {
          }
       }
