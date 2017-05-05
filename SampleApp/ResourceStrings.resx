@@ -187,6 +187,9 @@
   <data name="uploadDescriptionInvalid" xml:space="preserve">
     <value>Please provide an upload description</value>
   </data>
+  <data name="uploadFailedWithException" xml:space="preserve">
+    <value>Upload failed with exception {0}</value>
+  </data>
   <data name="uploadFailedWithStatus" xml:space="preserve">
     <value>Upload failed with status {0}</value>
   </data>

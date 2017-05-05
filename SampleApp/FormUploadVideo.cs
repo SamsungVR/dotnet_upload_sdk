@@ -98,6 +98,7 @@ namespace SampleApp {
          ctrlInProgressDetails.Items.Add(item.getDescription());
          ctrlInProgressDetails.Items.Add(item.getFilename());
          ctrlInProgressDetails.Items.Add(item.getPermission());
+         onUploadProgress(item.getProgressPercent(), item.getComplete(), item.getMax());
       }
 
       private void onEndUploadInternal() {
@@ -161,7 +162,8 @@ namespace SampleApp {
       }
 
       private void ctrlRequeueFailed_Click(object sender, EventArgs e) {
-
+         int selectedIndex = ctrlFailedList.SelectedIndex;
+         mUploadVideoManager.moveFailedToPending(selectedIndex);
       }
    }
 }

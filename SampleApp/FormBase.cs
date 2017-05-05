@@ -1,24 +1,22 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Text;
+using System.Windows.Forms;
 
 namespace SampleApp {
+   public partial class FormBase : UserControl {
+      public FormBase() {
+         InitializeComponent();
+      }
 
-   public class FormBase : UserControl {
 
       virtual public void onLoad() {
       }
 
       virtual public void onUnload() {
-      }
-
-      private void InitializeComponent() {
-         this.SuspendLayout();
-         // 
-         // FormBase
-         // 
-         this.Name = "FormBase";
-         this.Size = new System.Drawing.Size(100, 100);
-         this.ResumeLayout(false);
-
       }
    }
 }

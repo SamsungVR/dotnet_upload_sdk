@@ -81,6 +81,9 @@
     <Compile Include="FormBase.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="FormBase.Designer.cs">
+      <DependentUpon>FormBase.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormSub.cs">
       <SubType>UserControl</SubType>
     </Compile>

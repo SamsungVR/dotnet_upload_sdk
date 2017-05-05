@@ -268,6 +268,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Upload failed with exception {0}.
+        /// </summary>
+        internal static string uploadFailedWithException {
+            get {
+                return ResourceManager.GetString("uploadFailedWithException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Upload failed with status {0}.
         /// </summary>
         internal static string uploadFailedWithStatus {

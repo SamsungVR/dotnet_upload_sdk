@@ -24,29 +24,23 @@ namespace SampleApp {
 
          protected JObject mJObject;
 
-         internal UploadItem(JObject jObject) {
-            mJObject = jObject;
+         internal void setJObject(JObject jObject) {
+            mJObject = (JObject)jObject.DeepClone();
          }
 
          internal UploadItem() {
             mJObject = new JObject();
          }
 
-         internal UploadItem(String[] fields, String[] values) : this() {
-            for (int i = 0; i < fields.Length; i += 1) {
-               setAttr(fields[i], values[i]);
-            }
-         }
-
          internal JObject getJObject() {
             return mJObject;
          }
 
-         protected void setAttr(String attr, String value) {
+         internal void setAttr(String attr, String value) {
             mJObject.Add(attr, new JValue(value));
          }
 
-         protected String getAttr(String attr) {
+         internal String getAttr(String attr) {
             JToken value;
             if (mJObject.TryGetValue(attr, out value)) {
                return value.ToString();
@@ -66,16 +60,19 @@ namespace SampleApp {
             return result;
          }
 
+         internal void copyAttrs(UploadItem other, String[] attrs) {
+            for (int i = 0; i < attrs.Length; i += 1) {
+               setAttr(attrs[i], other.getAttr(attrs[i]));
+            }
+         }
+
          internal abstract String getAsString();
       }
 
 
       public class PendingUploadItem : UploadItem {
 
-         internal PendingUploadItem(JObject item) : base(item) {
-         }
-
-         internal PendingUploadItem(String[] fields, String[] values) : base(fields, values) {
+         internal PendingUploadItem() : base() {
 
          }
 
@@ -86,8 +83,12 @@ namespace SampleApp {
             setAttr("description", description);
          }
 
+         internal PendingUploadItem(UploadItem uploadItem) : base() {
+            copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
+         }
+
          internal override String getAsString() {
-            return getAsString("title", "filename");
+            return getAsString(PendingUploadItemsModel.sAttrs);
          }
 
          internal String getFilename() {
@@ -110,37 +111,57 @@ namespace SampleApp {
 
       public class ActiveUploadItem : PendingUploadItem {
 
-         internal ActiveUploadItem(JObject item) : base(item) {
+         internal ActiveUploadItem() : base() {
+
          }
 
-         internal ActiveUploadItem(String fileName, String permission, String title, String description) : base(fileName, permission, title, description) {
+         internal ActiveUploadItem(UploadItem uploadItem) : base() {
+            copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
          }
 
-         internal ActiveUploadItem(PendingUploadItem item) : this(
-            item.getFilename(), item.getPermission(), item.getTitle(), item.getDescription()) {
+         internal ActiveUploadItem(String fileName, String permission, String title, String description) : 
+            base(fileName, permission, title, description) {
          }
 
+         private float mProgressPercent;
+         private long mComplete, mMax;
 
+         internal void setProgress(float progressPercent, long complete, long max) {
+            mProgressPercent = progressPercent;
+            mComplete = complete;
+            mMax = max;
+         }
+
+         internal float getProgressPercent() {
+            return mProgressPercent;
+         }
+
+         internal long getComplete() {
+            return mComplete;
+         }
+
+         internal long getMax() {
+            return mMax;
+         }
       }
 
       public class FailedUploadItem : PendingUploadItem {
 
-         internal FailedUploadItem(JObject item) : base(item) {
+         internal FailedUploadItem() : base() {
          }
 
-         internal FailedUploadItem(String fileName, String permission, String title, String description, String reason) : base(fileName, permission, title, description) {
+         internal FailedUploadItem(String fileName, String permission, String title, String description, String reason) : 
+            base(fileName, permission, title, description) {
             setAttr("reason", reason);
          }
 
-         internal FailedUploadItem(ActiveUploadItem item, String reason) : this(item.getFilename(), item.getPermission(), item.getTitle(), item.getDescription(), reason) {
+         internal FailedUploadItem(ActiveUploadItem item, String reason) : base() {
+            copyAttrs(item, PendingUploadItemsModel.sAttrs);
+            setAttr("reason", reason);
          }
 
          internal override String getAsString() {
-            return getAsString("reason", "title", "filename", "description", "permission");
-         }
-
-         internal FailedUploadItem(String[] fields, String[] values) : base(fields, values) {
-
+            return getAsString(FailedUploadItemsModel.sAttrs);
          }
 
       }
@@ -164,8 +185,9 @@ namespace SampleApp {
                JArray jItems = (JArray)jObject.GetValue("items");
                for (int i = 0; i < jItems.Count; i += 1) {
                   JObject jItem = jItems.Value<JObject>(i);
-                  T newItem = newItemFromJObject(jItem);
-                  addItem(newItem);
+                  T nItem = newItem();
+                  nItem.setJObject(jItem);
+                  addItem(nItem);
                }
             } catch (Exception ex) {
                return false;
@@ -174,22 +196,13 @@ namespace SampleApp {
             return true;
          }
 
-         internal abstract T newItemFromJObject(JObject jObject);
-         internal abstract String[] getFields();
+         internal abstract T newItem();
+         internal abstract String[] getAttrs();
 
-         virtual internal T newItemFromString(String str) {
-            String[] fields = getFields();
-            if (null == fields) {
-               return null;
-            }
-            String [] parts = str.Split(',');
-            int max = Math.Min(fields.Length, parts.Length);
-            JObject jObject = new JObject();
-
-            for (int i = 0; i < max; i += 1) {
-               jObject.Add(fields[i], new JValue(parts[i].Trim()));
-            }
-            return newItemFromJObject(jObject);
+         internal virtual void cloneAndAddItem(T item) {
+            T clone = newItem();
+            clone.copyAttrs(item, getAttrs());
+            addItem(clone);
          }
 
          internal virtual void addItem(T item) {
@@ -268,12 +281,18 @@ namespace SampleApp {
 
       internal class PendingUploadItemsModel : ItemsModel<PendingUploadItem> {
 
+         internal static String[] sAttrs = { "title", "filename", "permission", "description" };
+
+         internal override String[] getAttrs() {
+            return sAttrs;
+         }
+
          internal PendingUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
             loadItemsFrom(AppSettings.Default.pendingUploadData);
          }
 
-         internal override PendingUploadItem newItemFromJObject(JObject jObject) {
-            return new PendingUploadItem(jObject);
+         internal override PendingUploadItem newItem() {
+            return new PendingUploadItem();
          }
 
          internal override void save() {
@@ -293,20 +312,18 @@ namespace SampleApp {
             mUploadVideoManager.onPendingItemsChanged();
          }
 
-         internal override String[] getFields() {
-            return new String[] { "title", "filename" };
-         }
-
       }
 
       internal class FailedUploadItemsModel : ItemsModel<FailedUploadItem> {
 
-         internal FailedUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
-            loadItemsFrom(AppSettings.Default.failedUploadData);
+         internal static String[] sAttrs = { "reason", "title", "filename", "permission", "description" };
+
+         internal override String[] getAttrs() {
+            return sAttrs;
          }
 
-         internal override FailedUploadItem newItemFromJObject(JObject jObject) {
-            return new FailedUploadItem(jObject);
+         internal FailedUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
+            loadItemsFrom(AppSettings.Default.failedUploadData);
          }
 
          internal override void save() {
@@ -319,15 +336,16 @@ namespace SampleApp {
             mUploadVideoManager.onFailedItemsChanged();
          }
 
-         internal override String[] getFields() {
-            return new String[] { "title", "filename" };
+
+         internal override FailedUploadItem newItem() {
+            throw new NotImplementedException();
          }
       }
 
       private ActiveUploadItem mActiveUpload = null;
 
-      private readonly PendingUploadItemsModel mPendingUploads;
-      private readonly FailedUploadItemsModel mFailedUploads;
+      internal readonly PendingUploadItemsModel mPendingUploads;
+      internal readonly FailedUploadItemsModel mFailedUploads;
 
       internal PendingUploadItemsModel getPendingUploadsModel() {
          return mPendingUploads;
@@ -375,15 +393,19 @@ namespace SampleApp {
                if (-1 != index) {
                   String temp = endPoint.Remove(index) + "/ccheck";
                   Log.d(TAG, "VR reachable check endpoint: " + temp);
-                  WebRequest request = WebRequest.Create(temp);
-                  HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                  try {
+                     WebRequest request = WebRequest.Create(temp);
+                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                   
-                  if (response != null) {
-                     HttpStatusCode stc = response.StatusCode;
-                     response.Close();
-                     if (HttpStatusCode.OK == stc) {
-                        mIsVRReachable = true;
+                     if (response != null) {
+                        HttpStatusCode stc = response.StatusCode;
+                        response.Close();
+                        if (HttpStatusCode.OK == stc) {
+                           mIsVRReachable = true;
+                        }
+                        continue;
                      }
+                  } catch (Exception ex) {
                      continue;
                   }
                }
@@ -454,23 +476,30 @@ namespace SampleApp {
       }
 
       public void onException(object closure, Exception ex) {
+         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithException, ex.ToString())));
          onUploadComplete();
       }
 
       public void onFailure(object closure, int status) {
-         onUploadComplete();
          mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, status)));
+         onUploadComplete();
       }
 
       public void onProgress(object closure, float progressPercent, long complete, long max) {
-         foreach (Callback callback in mCallbacks) {
-            callback.onUploadProgress(progressPercent, complete, max);
+         if (null != mActiveUpload) {
+            mActiveUpload.setProgress(progressPercent, complete, max);
+            foreach (Callback callback in mCallbacks) {
+               callback.onUploadProgress(progressPercent, complete, max);
+            }
          }
       }
 
       public void onProgress(object closure, long complete) {
-         foreach (Callback callback in mCallbacks) {
-            callback.onUploadProgress(-1, complete, -1);
+         if (null != mActiveUpload) {
+            mActiveUpload.setProgress(-1, complete, -1);
+            foreach (Callback callback in mCallbacks) {
+               callback.onUploadProgress(-1, complete, -1);
+            }
          }
       }
 
@@ -546,6 +575,16 @@ namespace SampleApp {
 
       internal void onLoggedOut() {
 
+      }
+
+      internal bool moveFailedToPending(int index) {
+         if (mFailedUploads.mItems.Count > 0 && index >= 0 && index < mFailedUploads.mItems.Count) {
+            FailedUploadItem item = mFailedUploads.removeItemAt(index);
+            if (null != item) { 
+               mPendingUploads.cloneAndAddItem(item);
+            }
+         }
+         return true;
       }
    }
 }
