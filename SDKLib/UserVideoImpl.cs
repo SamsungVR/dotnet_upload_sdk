@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 
 namespace SDKLib {
@@ -14,18 +12,36 @@ namespace SDKLib {
       private static readonly string TAG = Util.getLogTag(typeof(UserVideo));
 
       private readonly UserImpl mUser;
-      private string mTitle, mDesc;
+      private readonly string mTitle, mDesc;
       private UserVideo.Permission mPermission;
+      private readonly int mChunkSize, mNumChunks;
+      private readonly string mVideoId, mUploadId, mInitialSignedUrl;
+      private readonly JObject mJObject;
 
-      public UserVideoImpl(UserImpl user, string title, string desc, UserVideo.Permission permission) {
+      public UserVideoImpl(UserImpl user, string title, string desc, UserVideo.Permission permission,
+         string videoId, string uploadId, string initialSignedUrl, int chunkSize, int numChunks) {
          mUser = user;
          mTitle = title;
          mDesc = desc;
          mPermission = permission;
+         mVideoId = videoId;
+         mUploadId = uploadId;
+         mInitialSignedUrl = initialSignedUrl;
+         mChunkSize = chunkSize;
+         mNumChunks = numChunks;
+
+         mJObject = new JObject();
+         mJObject.Add("userId", new JValue(mUser.getUserId()));
+         mJObject.Add("title", new JValue(mTitle));
+         mJObject.Add("desc", new JValue(mDesc));
+         mJObject.Add("permission", new JValue(UserVideo.toString(mPermission)));
+         mJObject.Add("videoId", new JValue(mVideoId));
+         mJObject.Add("uploadId", new JValue(mUploadId));
+         mJObject.Add("initialSignedUrl", new JValue(mInitialSignedUrl));
+         mJObject.Add("chunkSize", mChunkSize);
+         mJObject.Add("numChunks", mNumChunks);
       }
 
-      private int mChunkSize, mNumChunks;
-      private string mVideoId, mUploadId, mInitialSignedUrl;
 
       private int mLastSuccessfulChunk = -1;
       private bool mUploading = false;
@@ -45,18 +61,11 @@ namespace SDKLib {
          }
       }
 
-      public bool uploadContent(ObjectHolder<bool> cancelHolder, Stream source, long length, string initialSignedUrl,
-                            string videoId, string uploadId, int chunkSize, int numChunks,
-                            ResultCallbackHolder callbackHolder) {
+      public bool uploadContent(ObjectHolder<bool> cancelHolder, Stream source, long length, ResultCallbackHolder callbackHolder) {
          lock (this) {
             if (mUploading) {
                return false;
             }
-            mInitialSignedUrl = initialSignedUrl;
-            mVideoId = videoId;
-            mUploadId = uploadId;
-            mChunkSize = chunkSize;
-            mNumChunks = numChunks;
             return retryUploadNoLock(cancelHolder, source, length,
                (User.Result.UploadVideo.If)callbackHolder.getCallbackNoLock(),
                callbackHolder.getHandlerNoLock(), callbackHolder.getClosureNoLock());
@@ -65,9 +74,6 @@ namespace SDKLib {
 
       public void onUploadComplete() {
          lock (this) {
-            mInitialSignedUrl = null;
-            mUploadId = null;
-            mVideoId = null;
             mUploading = false;
          }
       }
@@ -104,6 +110,10 @@ namespace SDKLib {
                  callback, handler, closure);
          mUploading = workQueue.enqueue(workItem);
          return mUploading;
+      }
+
+      public JObject asJObject() {
+         return mJObject;
       }
 
 
@@ -254,7 +264,6 @@ namespace SDKLib {
             };
 
             long length = mLength;
-
 
             if ((numChunks * chunkSize) < length) {
                dispatchFailure(User.Result.UploadVideo.STATUS_FILE_MODIFIED_AFTER_UPLOAD_REQUEST);

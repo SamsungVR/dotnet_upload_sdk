@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -112,6 +113,12 @@ namespace SDKLib {
 
          bool retryUpload(Stream source, long length, User.Result.UploadVideo.If callback,
                              System.Threading.SynchronizationContext handler, object closure);
+
+         /**
+          * Retrun a JSON representation of self. Can be used later to reconstruct this UserVideo
+          */
+
+         JObject asJObject();
 
 
       }

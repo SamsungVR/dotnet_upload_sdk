@@ -49,13 +49,14 @@
          this.ctrlInProgressDetails = new System.Windows.Forms.ListBox();
          this.ctrlCancelActiveUpload = new System.Windows.Forms.Button();
          this.tabPage3 = new System.Windows.Forms.TabPage();
+         this.ctrlRequeueCompleted = new System.Windows.Forms.Button();
          this.ctrlClearCompletedList = new System.Windows.Forms.Button();
          this.ctrlCompletedList = new System.Windows.Forms.ListBox();
          this.tabPage4 = new System.Windows.Forms.TabPage();
          this.ctrlRequeueFailed = new System.Windows.Forms.Button();
          this.ctrlClearFailedList = new System.Windows.Forms.Button();
          this.ctrlFailedList = new System.Windows.Forms.ListBox();
-         this.ctrlRequeueCompleted = new System.Windows.Forms.Button();
+         this.label5 = new System.Windows.Forms.Label();
          this.ctrlEnqueueGroup.SuspendLayout();
          this.ctrlUploadDashboard.SuspendLayout();
          this.tabPage1.SuspendLayout();
@@ -94,7 +95,6 @@
          this.ctrlEnqueueStatus.Name = "ctrlEnqueueStatus";
          this.ctrlEnqueueStatus.Size = new System.Drawing.Size(347, 26);
          this.ctrlEnqueueStatus.TabIndex = 10;
-         this.ctrlEnqueueStatus.Text = "label5";
          // 
          // ctrlEnqueue
          // 
@@ -267,6 +267,7 @@
          // 
          // tabPage2
          // 
+         this.tabPage2.Controls.Add(this.label5);
          this.tabPage2.Controls.Add(this.ctrlUploadProgressRaw);
          this.tabPage2.Controls.Add(this.ctrlUploadProgressVisual);
          this.tabPage2.Controls.Add(this.ctrlInProgressDetails);
@@ -282,17 +283,17 @@
          // 
          // ctrlUploadProgressRaw
          // 
-         this.ctrlUploadProgressRaw.Location = new System.Drawing.Point(6, 160);
+         this.ctrlUploadProgressRaw.Location = new System.Drawing.Point(50, 160);
          this.ctrlUploadProgressRaw.Name = "ctrlUploadProgressRaw";
          this.ctrlUploadProgressRaw.ReadOnly = true;
-         this.ctrlUploadProgressRaw.Size = new System.Drawing.Size(76, 20);
+         this.ctrlUploadProgressRaw.Size = new System.Drawing.Size(104, 20);
          this.ctrlUploadProgressRaw.TabIndex = 19;
          // 
          // ctrlUploadProgressVisual
          // 
-         this.ctrlUploadProgressVisual.Location = new System.Drawing.Point(88, 160);
+         this.ctrlUploadProgressVisual.Location = new System.Drawing.Point(160, 160);
          this.ctrlUploadProgressVisual.Name = "ctrlUploadProgressVisual";
-         this.ctrlUploadProgressVisual.Size = new System.Drawing.Size(261, 20);
+         this.ctrlUploadProgressVisual.Size = new System.Drawing.Size(189, 20);
          this.ctrlUploadProgressVisual.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
          this.ctrlUploadProgressVisual.TabIndex = 18;
          // 
@@ -328,6 +329,16 @@
          this.tabPage3.TabIndex = 2;
          this.tabPage3.Text = "Completed";
          this.tabPage3.UseVisualStyleBackColor = true;
+         // 
+         // ctrlRequeueCompleted
+         // 
+         this.ctrlRequeueCompleted.Location = new System.Drawing.Point(266, 185);
+         this.ctrlRequeueCompleted.Name = "ctrlRequeueCompleted";
+         this.ctrlRequeueCompleted.Size = new System.Drawing.Size(83, 23);
+         this.ctrlRequeueCompleted.TabIndex = 18;
+         this.ctrlRequeueCompleted.Text = "Requeue";
+         this.ctrlRequeueCompleted.UseVisualStyleBackColor = true;
+         this.ctrlRequeueCompleted.Click += new System.EventHandler(this.ctrlRequeueCompleted_Click);
          // 
          // ctrlClearCompletedList
          // 
@@ -389,15 +400,14 @@
          this.ctrlFailedList.Size = new System.Drawing.Size(346, 173);
          this.ctrlFailedList.TabIndex = 18;
          // 
-         // ctrlRequeueCompleted
+         // label5
          // 
-         this.ctrlRequeueCompleted.Location = new System.Drawing.Point(266, 185);
-         this.ctrlRequeueCompleted.Name = "ctrlRequeueCompleted";
-         this.ctrlRequeueCompleted.Size = new System.Drawing.Size(83, 23);
-         this.ctrlRequeueCompleted.TabIndex = 18;
-         this.ctrlRequeueCompleted.Text = "Requeue";
-         this.ctrlRequeueCompleted.UseVisualStyleBackColor = true;
-         this.ctrlRequeueCompleted.Click += new System.EventHandler(this.ctrlRequeueCompleted_Click);
+         this.label5.AutoSize = true;
+         this.label5.Location = new System.Drawing.Point(6, 163);
+         this.label5.Name = "label5";
+         this.label5.Size = new System.Drawing.Size(38, 13);
+         this.label5.TabIndex = 20;
+         this.label5.Text = "Chunk";
          // 
          // FormUploadVideo
          // 
@@ -455,5 +465,6 @@
       private System.Windows.Forms.ProgressBar ctrlUploadProgressVisual;
       private System.Windows.Forms.Button ctrlRequeueFailed;
       private System.Windows.Forms.Button ctrlRequeueCompleted;
+      private System.Windows.Forms.Label label5;
    }
 }

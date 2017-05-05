@@ -6,7 +6,6 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace SampleApp {
 
@@ -36,7 +35,7 @@ namespace SampleApp {
             return mJObject;
          }
 
-         internal void setAttr(String attr, object value) {
+         internal void setAttr(string attr, object value) {
             JObject jObject = getJObject();
             JToken currentValue = null;
 
@@ -47,7 +46,7 @@ namespace SampleApp {
             }
          }
 
-         internal object getAttr(String attr) {
+         internal object getAttr(string attr) {
             JObject jObject = getJObject();
             JToken value;
             if (jObject.TryGetValue(attr, out value)) {
@@ -56,9 +55,9 @@ namespace SampleApp {
             return null;
          }
 
-         protected String getAsString(String[] fields) {
-            String result = null;
-            foreach (String field in fields) {
+         protected string getAsString(string[] fields) {
+            string result = null;
+            foreach (string field in fields) {
                object value = getAttr(field);
                if (null == value) {
                   continue;
@@ -72,13 +71,13 @@ namespace SampleApp {
             return result;
          }
 
-         internal void copyAttrs(UploadItem other, String[] attrs) {
+         internal void copyAttrs(UploadItem other, string[] attrs) {
             for (int i = 0; i < attrs.Length; i += 1) {
                setAttr(attrs[i], other.getAttr(attrs[i]));
             }
          }
 
-         internal abstract String getAsString();
+         internal abstract string getAsString();
       }
 
 
@@ -87,7 +86,7 @@ namespace SampleApp {
          internal PendingUploadItem() : base() {
          }
 
-         internal PendingUploadItem(String fileName, String permission, String title, String description) : base() {
+         internal PendingUploadItem(string fileName, string permission, string title, string description) : base() {
             setAttr("filename", fileName);
             setAttr("permission", permission);
             setAttr("title", title);
@@ -98,31 +97,31 @@ namespace SampleApp {
             copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
          }
 
-         internal override String getAsString() {
+         internal override string getAsString() {
             return getAsString(PendingUploadItemsModel.sAttrs);
          }
 
-         internal String getFilename() {
-            return (String)getAttr("filename");
+         internal string getFilename() {
+            return (string)getAttr("filename");
          }
 
-         internal String getTitle() {
-            return (String)getAttr("title");
+         internal string getTitle() {
+            return (string)getAttr("title");
          }
 
-         internal String getDescription() {
-            return (String)getAttr("description");
+         internal string getDescription() {
+            return (string)getAttr("description");
          }
 
-         internal String getPermission() {
-            return (String)getAttr("permission");
+         internal string getPermission() {
+            return (string)getAttr("permission");
          }
 
       }
 
       public class ActiveUploadItem : PendingUploadItem {
 
-         internal static String[] sAttrs = { "title", "filename", "permission", "description", "chunk_complete", "num_chunks" };
+         internal static string[] sAttrs = { "title", "filename", "permission", "description", "chunk_complete", "num_chunks" };
 
          internal ActiveUploadItem() : base() {
          }
@@ -131,7 +130,7 @@ namespace SampleApp {
             copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
          }
 
-         internal ActiveUploadItem(String fileName, String permission, String title, String description) : 
+         internal ActiveUploadItem(string fileName, string permission, string title, string description) : 
             base(fileName, permission, title, description) {
          }
 
@@ -158,7 +157,7 @@ namespace SampleApp {
             return mMax;
          }
 
-         internal override String getAsString() {
+         internal override string getAsString() {
             return getAsString(ActiveUploadItem.sAttrs);
          }
       }
@@ -168,20 +167,19 @@ namespace SampleApp {
          internal FailedUploadItem() : base() {
          }
 
-         internal FailedUploadItem(String fileName, String permission, String title, String description, String reason) : 
+         internal FailedUploadItem(string fileName, string permission, string title, string description, string reason) : 
             base(fileName, permission, title, description) {
             setAttr("reason", reason);
          }
 
-         internal FailedUploadItem(ActiveUploadItem item, String reason) : base() {
+         internal FailedUploadItem(ActiveUploadItem item, string reason) : base() {
             copyAttrs(item, PendingUploadItemsModel.sAttrs);
             setAttr("reason", reason);
          }
 
-         internal override String getAsString() {
+         internal override string getAsString() {
             return getAsString(FailedUploadItemsModel.sAttrs);
          }
-
       }
 
       public class CompletedUploadItem : PendingUploadItem {
@@ -189,7 +187,7 @@ namespace SampleApp {
          internal CompletedUploadItem() : base() {
          }
 
-         internal CompletedUploadItem(String fileName, String permission, String title, String description) :
+         internal CompletedUploadItem(string fileName, string permission, string title, string description) :
             base(fileName, permission, title, description) {
          }
 
@@ -197,10 +195,9 @@ namespace SampleApp {
             copyAttrs(item, PendingUploadItemsModel.sAttrs);
          }
 
-         internal override String getAsString() {
+         internal override string getAsString() {
             return getAsString(PendingUploadItemsModel.sAttrs);
          }
-
       }
 
       internal abstract class ItemsModel<T> where T : UploadItem {
@@ -212,8 +209,8 @@ namespace SampleApp {
             mUploadVideoManager = uploadVideoManager;
          }
 
-         internal bool loadItemsFrom(String data) {
-            if (String.Empty.Equals(data)) {
+         internal bool loadItemsFrom(string data) {
+            if (string.Empty.Equals(data)) {
                return false;
             }
             mItems.Clear();
@@ -234,7 +231,7 @@ namespace SampleApp {
          }
 
          internal abstract T newItem();
-         internal abstract String[] getAttrs();
+         internal abstract string[] getAttrs();
 
          internal virtual void cloneAndAddItem(T item) {
             T clone = newItem();
@@ -294,7 +291,7 @@ namespace SampleApp {
             return false;
          }
 
-         internal String getAsString() {
+         internal string getAsString() {
             JArray jItems = new JArray();
 
             foreach (T item in mItems) {
@@ -332,9 +329,9 @@ namespace SampleApp {
 
       internal class PendingUploadItemsModel : ItemsModel<PendingUploadItem> {
 
-         internal static String[] sAttrs = { "title", "filename", "permission", "description" };
+         internal static string[] sAttrs = { "title", "filename", "permission", "description" };
 
-         internal override String[] getAttrs() {
+         internal override string[] getAttrs() {
             return sAttrs;
          }
 
@@ -367,9 +364,9 @@ namespace SampleApp {
 
       internal class FailedUploadItemsModel : ItemsModel<FailedUploadItem> {
 
-         internal static String[] sAttrs = { "reason", "title", "filename", "permission", "description" };
+         internal static string[] sAttrs = { "reason", "title", "filename", "permission", "description" };
 
-         internal override String[] getAttrs() {
+         internal override string[] getAttrs() {
             return sAttrs;
          }
 
@@ -387,17 +384,16 @@ namespace SampleApp {
             mUploadVideoManager.onFailedItemsChanged();
          }
 
-
          internal override FailedUploadItem newItem() {
-            throw new NotImplementedException();
+            return new FailedUploadItem();
          }
       }
 
       internal class CompletedUploadItemsModel : ItemsModel<CompletedUploadItem> {
 
-         internal static String[] sAttrs = { "reason", "title", "filename", "permission", "description" };
+         internal static string[] sAttrs = { "reason", "title", "filename", "permission", "description" };
 
-         internal override String[] getAttrs() {
+         internal override string[] getAttrs() {
             return sAttrs;
          }
 
@@ -460,7 +456,7 @@ namespace SampleApp {
                   mIsVRReachable = false;
                   continue;
                }
-               String endPoint = SDKLib.VR.getEndPoint();
+               string endPoint = SDKLib.VR.getEndPoint();
                Log.d(TAG, "VR reachable: " + mIsVRReachable + " network reachable: " + mIsNetworkAvailable + " ep: " + endPoint);
                if (null == endPoint) {
                   mIsVRReachable = false;
@@ -474,7 +470,7 @@ namespace SampleApp {
                   }
                }
                if (-1 != index) {
-                  String temp = endPoint.Remove(index) + "/ccheck";
+                  string temp = endPoint.Remove(index) + "/ccheck";
                   Log.d(TAG, "VR reachable check endpoint: " + temp);
                   try {
                      WebRequest request = WebRequest.Create(temp);
@@ -536,6 +532,7 @@ namespace SampleApp {
 
       public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
          mVideo = video;
+         saveInProgressVideo();
       }
 
       public void onCancelled(object closure) {
@@ -547,11 +544,9 @@ namespace SampleApp {
          foreach (Callback callback in mCallbacks) {
             callback.onEndUpload();
          }
-         AppSettings.Default.inProgressUpload = new JObject().ToString();
-         AppSettings.Default.Save();
-
          mVideo = null;
          mActiveUpload = null;
+         saveInProgressVideo();
          if (null != mSource) {
             mSource.Close();
             mSource = null;
@@ -575,8 +570,7 @@ namespace SampleApp {
       public void onProgress(object closure, float progressPercent, long complete, long max) {
          if (null != mActiveUpload) {
             mActiveUpload.setProgress(progressPercent, complete, max);
-            AppSettings.Default.inProgressUpload = mActiveUpload.getJObject().ToString();
-            AppSettings.Default.Save();
+            saveInProgressVideo();
 
             foreach (Callback callback in mCallbacks) {
                callback.onUploadProgress(progressPercent, complete, max);
@@ -602,8 +596,8 @@ namespace SampleApp {
             return false;
          }
          ActiveUploadItem aui = new ActiveUploadItem(item);
-         String fileName = aui.getFilename();
-         if (String.IsNullOrEmpty(fileName)) {
+         string fileName = aui.getFilename();
+         if (string.IsNullOrEmpty(fileName)) {
             FailedUploadItem failedItem = new FailedUploadItem(aui, ResourceStrings.uploadFileDoesNotExist);
             mFailedUploads.addItem(failedItem);
             return true;
@@ -627,8 +621,9 @@ namespace SampleApp {
             mActiveUpload = aui;
             mSource = stream;
             mLength = length;
-            AppSettings.Default.inProgressUpload = mActiveUpload.getJObject().ToString();
-            AppSettings.Default.Save();
+
+            saveInProgressVideo();
+
             foreach (Callback callback in mCallbacks) {
                callback.onBeginUpload();
             }
@@ -658,6 +653,20 @@ namespace SampleApp {
          if (null != nextItem && tryUpload(nextItem)) {
             mPendingUploads.removeItemAt(0);
          }
+      }
+
+      private void saveInProgressVideo() {
+         JObject value = new JObject();
+         if (null != mActiveUpload) {
+            value.Add("file", mActiveUpload.getJObject());
+         }
+         if (null != mVideo) {
+            value.Add("video", mVideo.asJObject());
+         }
+         string result = value.ToString();
+         Log.d(TAG, "Save in progress video: " + result);
+         AppSettings.Default.inProgressUpload = result;
+         AppSettings.Default.Save();
       }
 
       internal void onLoggedOut() {

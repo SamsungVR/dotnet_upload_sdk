@@ -416,11 +416,11 @@ namespace SDKLib {
                chunkSize = Util.jsonGet<int>(jsonObject, "chunk_size");
                numChunks = Util.jsonGet<int>(jsonObject, "chunks");
 
-               UserVideoImpl userVideo = new UserVideoImpl(mUser, mTitle, mDescription, mPermission);
+               UserVideoImpl userVideo = new UserVideoImpl(mUser, mTitle, mDescription, mPermission,
+                  videoId, uploadId, signedUrl, chunkSize, numChunks);
                VideoIdAvailableCallbackNotifier notifier = new VideoIdAvailableCallbackNotifier(mCallbackHolder, userVideo);
 
-               if (!userVideo.uploadContent(getCancelHolder(), mSource, mSource.Length, signedUrl, videoId, uploadId,
-                       chunkSize, numChunks, mCallbackHolder)) {
+               if (!userVideo.uploadContent(getCancelHolder(), mSource, mSource.Length, mCallbackHolder)) {
                   dispatchUncounted(notifier);
                   dispatchFailure(User.Result.UploadVideo.STATUS_CONTENT_UPLOAD_SCHEDULING_FAILED);
                } else {
