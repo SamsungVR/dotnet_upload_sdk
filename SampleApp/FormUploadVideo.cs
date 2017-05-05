@@ -58,6 +58,11 @@ namespace SampleApp {
          ctrlUploadDashboard.SelectTab(3);
       }
 
+      public void onCompletedItemsChanged() {
+         onCompletedItemsChangedInternal();
+         ctrlUploadDashboard.SelectTab(2);
+      }
+
       private void onPendingItemsChangedInternal() {
          UploadVideoManager.PendingUploadItemsModel model = mUploadVideoManager.getPendingUploadsModel();
          populateList(ctrlPendingList, model.mItems);
@@ -87,6 +92,11 @@ namespace SampleApp {
          populateList(ctrlFailedList, model.mItems);
       }
 
+      private void onCompletedItemsChangedInternal() {
+         UploadVideoManager.CompletedUploadItemsModel model = mUploadVideoManager.getCompletedUploadsModel();
+         populateList(ctrlCompletedList, model.mItems);
+      }
+
       private void onBeginUploadInternal() {
          UploadVideoManager.ActiveUploadItem item = mUploadVideoManager.getActiveUpload();
          ctrlInProgressDetails.Items.Clear();
@@ -109,11 +119,11 @@ namespace SampleApp {
       }
 
       public override void onLoad() {
-         
          mUploadVideoManager.addCallback(this);
-         onBeginUploadInternal();
          onPendingItemsChangedInternal();
          onFailedItemsChangedInternal();
+         onCompletedItemsChangedInternal();
+         onBeginUploadInternal();
       }
 
       public override void onUnload() {
@@ -164,6 +174,15 @@ namespace SampleApp {
       private void ctrlRequeueFailed_Click(object sender, EventArgs e) {
          int selectedIndex = ctrlFailedList.SelectedIndex;
          mUploadVideoManager.moveFailedToPending(selectedIndex);
+      }
+
+      private void ctrlClearCompletedList_Click(object sender, EventArgs e) {
+         mUploadVideoManager.getCompletedUploadsModel().removeAllItems();
+      }
+
+      private void ctrlRequeueCompleted_Click(object sender, EventArgs e) {
+         int selectedIndex = ctrlCompletedList.SelectedIndex;
+         mUploadVideoManager.moveCompletedToPending(selectedIndex);
       }
    }
 }

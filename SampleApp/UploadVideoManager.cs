@@ -18,43 +18,55 @@ namespace SampleApp {
          void onUploadProgress(float progressPercent, long complete, long max);
          void onPendingItemsChanged();
          void onFailedItemsChanged();
+         void onCompletedItemsChanged();
       }
 
       public abstract class UploadItem {
 
-         protected JObject mJObject;
+         protected JObject mJObject = null;
 
          internal void setJObject(JObject jObject) {
             mJObject = (JObject)jObject.DeepClone();
          }
 
-         internal UploadItem() {
-            mJObject = new JObject();
-         }
-
          internal JObject getJObject() {
+            if (null == mJObject) {
+               mJObject = new JObject();
+            }
             return mJObject;
          }
 
-         internal void setAttr(String attr, String value) {
-            mJObject.Add(attr, new JValue(value));
+         internal void setAttr(String attr, object value) {
+            JObject jObject = getJObject();
+            JToken currentValue = null;
+
+            if (jObject.TryGetValue(attr, out currentValue)) {
+               ((JValue)currentValue).Value = value;
+            } else {
+               jObject.Add(attr, new JValue(value));
+            }
          }
 
-         internal String getAttr(String attr) {
+         internal object getAttr(String attr) {
+            JObject jObject = getJObject();
             JToken value;
-            if (mJObject.TryGetValue(attr, out value)) {
-               return value.ToString();
+            if (jObject.TryGetValue(attr, out value)) {
+               return ((JValue)value).Value;
             }
             return null;
          }
 
-         protected String getAsString(params String[] fields) {
+         protected String getAsString(String[] fields) {
             String result = null;
             foreach (String field in fields) {
+               object value = getAttr(field);
+               if (null == value) {
+                  continue;
+               }
                if (null == result) {
-                  result = getAttr(field);
+                  result = value.ToString();
                } else {
-                  result += ", " + getAttr(field);
+                  result += ", " + value.ToString();
                }
             }
             return result;
@@ -73,7 +85,6 @@ namespace SampleApp {
       public class PendingUploadItem : UploadItem {
 
          internal PendingUploadItem() : base() {
-
          }
 
          internal PendingUploadItem(String fileName, String permission, String title, String description) : base() {
@@ -92,27 +103,28 @@ namespace SampleApp {
          }
 
          internal String getFilename() {
-            return getAttr("filename");
+            return (String)getAttr("filename");
          }
 
          internal String getTitle() {
-            return getAttr("title");
+            return (String)getAttr("title");
          }
 
          internal String getDescription() {
-            return getAttr("description");
+            return (String)getAttr("description");
          }
 
          internal String getPermission() {
-            return getAttr("permission");
+            return (String)getAttr("permission");
          }
 
       }
 
       public class ActiveUploadItem : PendingUploadItem {
 
-         internal ActiveUploadItem() : base() {
+         internal static String[] sAttrs = { "title", "filename", "permission", "description", "chunk_complete", "num_chunks" };
 
+         internal ActiveUploadItem() : base() {
          }
 
          internal ActiveUploadItem(UploadItem uploadItem) : base() {
@@ -127,6 +139,8 @@ namespace SampleApp {
          private long mComplete, mMax;
 
          internal void setProgress(float progressPercent, long complete, long max) {
+            setAttr("chunk_complete", complete);
+            setAttr("num_chunks", max);
             mProgressPercent = progressPercent;
             mComplete = complete;
             mMax = max;
@@ -142,6 +156,10 @@ namespace SampleApp {
 
          internal long getMax() {
             return mMax;
+         }
+
+         internal override String getAsString() {
+            return getAsString(ActiveUploadItem.sAttrs);
          }
       }
 
@@ -162,6 +180,25 @@ namespace SampleApp {
 
          internal override String getAsString() {
             return getAsString(FailedUploadItemsModel.sAttrs);
+         }
+
+      }
+
+      public class CompletedUploadItem : PendingUploadItem {
+
+         internal CompletedUploadItem() : base() {
+         }
+
+         internal CompletedUploadItem(String fileName, String permission, String title, String description) :
+            base(fileName, permission, title, description) {
+         }
+
+         internal CompletedUploadItem(ActiveUploadItem item) : base() {
+            copyAttrs(item, PendingUploadItemsModel.sAttrs);
+         }
+
+         internal override String getAsString() {
+            return getAsString(PendingUploadItemsModel.sAttrs);
          }
 
       }
@@ -213,6 +250,14 @@ namespace SampleApp {
          internal void removeAllItems() {
             mItems.Clear();
             onChanged();
+         }
+
+         internal T getItemAt(int index) {
+            if (mItems.Count > 0 && index >= 0 && index < mItems.Count) {
+               T item = mItems[index];
+               return item;
+            }
+            return null;
          }
 
          internal T removeItemAt(int index) {
@@ -279,6 +324,12 @@ namespace SampleApp {
          }
       }
 
+      private void onCompletedItemsChanged() {
+         foreach (Callback callback in mCallbacks) {
+            callback.onCompletedItemsChanged();
+         }
+      }
+
       internal class PendingUploadItemsModel : ItemsModel<PendingUploadItem> {
 
          internal static String[] sAttrs = { "title", "filename", "permission", "description" };
@@ -342,13 +393,45 @@ namespace SampleApp {
          }
       }
 
+      internal class CompletedUploadItemsModel : ItemsModel<CompletedUploadItem> {
+
+         internal static String[] sAttrs = { "reason", "title", "filename", "permission", "description" };
+
+         internal override String[] getAttrs() {
+            return sAttrs;
+         }
+
+         internal CompletedUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
+            loadItemsFrom(AppSettings.Default.completedUploadData);
+         }
+
+         internal override void save() {
+            AppSettings.Default.completedUploadData = getAsString();
+            AppSettings.Default.Save();
+         }
+
+         internal override void onChanged() {
+            base.onChanged();
+            mUploadVideoManager.onCompletedItemsChanged();
+         }
+
+
+         internal override CompletedUploadItem newItem() {
+            return new CompletedUploadItem();
+         }
+      }
       private ActiveUploadItem mActiveUpload = null;
 
       internal readonly PendingUploadItemsModel mPendingUploads;
       internal readonly FailedUploadItemsModel mFailedUploads;
+      internal readonly CompletedUploadItemsModel mCompletedUploads;
 
       internal PendingUploadItemsModel getPendingUploadsModel() {
          return mPendingUploads;
+      }
+
+      internal CompletedUploadItemsModel getCompletedUploadsModel() {
+         return mCompletedUploads;
       }
 
       internal FailedUploadItemsModel getFailedUploadsModel() {
@@ -429,6 +512,8 @@ namespace SampleApp {
          mApp = app;
          mFailedUploads = new FailedUploadItemsModel(this);
          mPendingUploads = new PendingUploadItemsModel(this);
+         mCompletedUploads = new CompletedUploadItemsModel(this);
+
          NetworkChange.NetworkAvailabilityChanged += onNetworkAvailabilityChanged;
          mIsNetworkAvailable = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
          mConnectivityCheckerThread = new Thread(new ThreadStart(connectivityCheckerThreadProc));
@@ -462,6 +547,8 @@ namespace SampleApp {
          foreach (Callback callback in mCallbacks) {
             callback.onEndUpload();
          }
+         AppSettings.Default.inProgressUpload = new JObject().ToString();
+         AppSettings.Default.Save();
 
          mVideo = null;
          mActiveUpload = null;
@@ -469,9 +556,9 @@ namespace SampleApp {
             mSource.Close();
             mSource = null;
          }
-         PendingUploadItem nextItem = mPendingUploads.removeItemAt(0);
-         if (null != nextItem) {
-            tryUpload(nextItem);
+         PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
+         if (null != nextItem && tryUpload(nextItem)) {
+            mPendingUploads.removeItemAt(0);
          }
       }
 
@@ -488,6 +575,9 @@ namespace SampleApp {
       public void onProgress(object closure, float progressPercent, long complete, long max) {
          if (null != mActiveUpload) {
             mActiveUpload.setProgress(progressPercent, complete, max);
+            AppSettings.Default.inProgressUpload = mActiveUpload.getJObject().ToString();
+            AppSettings.Default.Save();
+
             foreach (Callback callback in mCallbacks) {
                callback.onUploadProgress(progressPercent, complete, max);
             }
@@ -495,15 +585,11 @@ namespace SampleApp {
       }
 
       public void onProgress(object closure, long complete) {
-         if (null != mActiveUpload) {
-            mActiveUpload.setProgress(-1, complete, -1);
-            foreach (Callback callback in mCallbacks) {
-               callback.onUploadProgress(-1, complete, -1);
-            }
-         }
+         onProgress(closure, -1, complete, -1);
       }
 
       public void onSuccess(object closure) {
+         mCompletedUploads.addItem(new CompletedUploadItem(mActiveUpload));
          onUploadComplete();
       }
 
@@ -541,7 +627,8 @@ namespace SampleApp {
             mActiveUpload = aui;
             mSource = stream;
             mLength = length;
-
+            AppSettings.Default.inProgressUpload = mActiveUpload.getJObject().ToString();
+            AppSettings.Default.Save();
             foreach (Callback callback in mCallbacks) {
                callback.onBeginUpload();
             }
@@ -567,9 +654,9 @@ namespace SampleApp {
       }
 
       internal void onLoggedIn() {
-         PendingUploadItem nextItem = mPendingUploads.removeItemAt(0);
-         if (null != nextItem) {
-            tryUpload(nextItem);
+         PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
+         if (null != nextItem && tryUpload(nextItem)) {
+            mPendingUploads.removeItemAt(0);
          }
       }
 
@@ -581,6 +668,16 @@ namespace SampleApp {
          if (mFailedUploads.mItems.Count > 0 && index >= 0 && index < mFailedUploads.mItems.Count) {
             FailedUploadItem item = mFailedUploads.removeItemAt(index);
             if (null != item) { 
+               mPendingUploads.cloneAndAddItem(item);
+            }
+         }
+         return true;
+      }
+
+      internal bool moveCompletedToPending(int index) {
+         if (mCompletedUploads.mItems.Count > 0 && index >= 0 && index < mCompletedUploads.mItems.Count) {
+            CompletedUploadItem item = mCompletedUploads.removeItemAt(index);
+            if (null != item) {
                mPendingUploads.cloneAndAddItem(item);
             }
          }

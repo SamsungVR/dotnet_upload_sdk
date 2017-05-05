@@ -82,5 +82,29 @@ namespace SampleApp {
                 this["failedUploadData"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string completedUploadData {
+            get {
+                return ((string)(this["completedUploadData"]));
+            }
+            set {
+                this["completedUploadData"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string inProgressUpload {
+            get {
+                return ((string)(this["inProgressUpload"]));
+            }
+            set {
+                this["inProgressUpload"] = value;
+            }
+        }
     }
 }

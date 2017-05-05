@@ -49,12 +49,13 @@
          this.ctrlInProgressDetails = new System.Windows.Forms.ListBox();
          this.ctrlCancelActiveUpload = new System.Windows.Forms.Button();
          this.tabPage3 = new System.Windows.Forms.TabPage();
-         this.button6 = new System.Windows.Forms.Button();
-         this.listBox2 = new System.Windows.Forms.ListBox();
+         this.ctrlClearCompletedList = new System.Windows.Forms.Button();
+         this.ctrlCompletedList = new System.Windows.Forms.ListBox();
          this.tabPage4 = new System.Windows.Forms.TabPage();
+         this.ctrlRequeueFailed = new System.Windows.Forms.Button();
          this.ctrlClearFailedList = new System.Windows.Forms.Button();
          this.ctrlFailedList = new System.Windows.Forms.ListBox();
-         this.ctrlRequeueFailed = new System.Windows.Forms.Button();
+         this.ctrlRequeueCompleted = new System.Windows.Forms.Button();
          this.ctrlEnqueueGroup.SuspendLayout();
          this.ctrlUploadDashboard.SuspendLayout();
          this.tabPage1.SuspendLayout();
@@ -278,7 +279,6 @@
          this.tabPage2.TabIndex = 1;
          this.tabPage2.Text = "In Progress";
          this.tabPage2.UseVisualStyleBackColor = true;
-
          // 
          // ctrlUploadProgressRaw
          // 
@@ -319,8 +319,9 @@
          // 
          // tabPage3
          // 
-         this.tabPage3.Controls.Add(this.button6);
-         this.tabPage3.Controls.Add(this.listBox2);
+         this.tabPage3.Controls.Add(this.ctrlRequeueCompleted);
+         this.tabPage3.Controls.Add(this.ctrlClearCompletedList);
+         this.tabPage3.Controls.Add(this.ctrlCompletedList);
          this.tabPage3.Location = new System.Drawing.Point(4, 22);
          this.tabPage3.Name = "tabPage3";
          this.tabPage3.Size = new System.Drawing.Size(355, 212);
@@ -328,22 +329,23 @@
          this.tabPage3.Text = "Completed";
          this.tabPage3.UseVisualStyleBackColor = true;
          // 
-         // button6
+         // ctrlClearCompletedList
          // 
-         this.button6.Location = new System.Drawing.Point(289, 185);
-         this.button6.Name = "button6";
-         this.button6.Size = new System.Drawing.Size(60, 23);
-         this.button6.TabIndex = 17;
-         this.button6.Text = "Clear";
-         this.button6.UseVisualStyleBackColor = true;
+         this.ctrlClearCompletedList.Location = new System.Drawing.Point(200, 185);
+         this.ctrlClearCompletedList.Name = "ctrlClearCompletedList";
+         this.ctrlClearCompletedList.Size = new System.Drawing.Size(60, 23);
+         this.ctrlClearCompletedList.TabIndex = 17;
+         this.ctrlClearCompletedList.Text = "Clear";
+         this.ctrlClearCompletedList.UseVisualStyleBackColor = true;
+         this.ctrlClearCompletedList.Click += new System.EventHandler(this.ctrlClearCompletedList_Click);
          // 
-         // listBox2
+         // ctrlCompletedList
          // 
-         this.listBox2.FormattingEnabled = true;
-         this.listBox2.Location = new System.Drawing.Point(3, 6);
-         this.listBox2.Name = "listBox2";
-         this.listBox2.Size = new System.Drawing.Size(346, 173);
-         this.listBox2.TabIndex = 0;
+         this.ctrlCompletedList.FormattingEnabled = true;
+         this.ctrlCompletedList.Location = new System.Drawing.Point(3, 6);
+         this.ctrlCompletedList.Name = "ctrlCompletedList";
+         this.ctrlCompletedList.Size = new System.Drawing.Size(346, 173);
+         this.ctrlCompletedList.TabIndex = 0;
          // 
          // tabPage4
          // 
@@ -356,6 +358,16 @@
          this.tabPage4.TabIndex = 3;
          this.tabPage4.Text = "Failed";
          this.tabPage4.UseVisualStyleBackColor = true;
+         // 
+         // ctrlRequeueFailed
+         // 
+         this.ctrlRequeueFailed.Location = new System.Drawing.Point(266, 182);
+         this.ctrlRequeueFailed.Name = "ctrlRequeueFailed";
+         this.ctrlRequeueFailed.Size = new System.Drawing.Size(83, 23);
+         this.ctrlRequeueFailed.TabIndex = 20;
+         this.ctrlRequeueFailed.Text = "Requeue";
+         this.ctrlRequeueFailed.UseVisualStyleBackColor = true;
+         this.ctrlRequeueFailed.Click += new System.EventHandler(this.ctrlRequeueFailed_Click);
          // 
          // ctrlClearFailedList
          // 
@@ -377,15 +389,15 @@
          this.ctrlFailedList.Size = new System.Drawing.Size(346, 173);
          this.ctrlFailedList.TabIndex = 18;
          // 
-         // ctrlRequeueFailed
+         // ctrlRequeueCompleted
          // 
-         this.ctrlRequeueFailed.Location = new System.Drawing.Point(266, 182);
-         this.ctrlRequeueFailed.Name = "ctrlRequeueFailed";
-         this.ctrlRequeueFailed.Size = new System.Drawing.Size(83, 23);
-         this.ctrlRequeueFailed.TabIndex = 20;
-         this.ctrlRequeueFailed.Text = "Requeue";
-         this.ctrlRequeueFailed.UseVisualStyleBackColor = true;
-         this.ctrlRequeueFailed.Click += new System.EventHandler(this.ctrlRequeueFailed_Click);
+         this.ctrlRequeueCompleted.Location = new System.Drawing.Point(266, 185);
+         this.ctrlRequeueCompleted.Name = "ctrlRequeueCompleted";
+         this.ctrlRequeueCompleted.Size = new System.Drawing.Size(83, 23);
+         this.ctrlRequeueCompleted.TabIndex = 18;
+         this.ctrlRequeueCompleted.Text = "Requeue";
+         this.ctrlRequeueCompleted.UseVisualStyleBackColor = true;
+         this.ctrlRequeueCompleted.Click += new System.EventHandler(this.ctrlRequeueCompleted_Click);
          // 
          // FormUploadVideo
          // 
@@ -433,8 +445,8 @@
       private System.Windows.Forms.TabPage tabPage3;
       private System.Windows.Forms.TabPage tabPage4;
       private System.Windows.Forms.Button ctrlCancelActiveUpload;
-      private System.Windows.Forms.Button button6;
-      private System.Windows.Forms.ListBox listBox2;
+      private System.Windows.Forms.Button ctrlClearCompletedList;
+      private System.Windows.Forms.ListBox ctrlCompletedList;
       private System.Windows.Forms.Button ctrlClearFailedList;
       private System.Windows.Forms.ListBox ctrlFailedList;
       private System.Windows.Forms.Label ctrlEnqueueStatus;
@@ -442,5 +454,6 @@
       private System.Windows.Forms.TextBox ctrlUploadProgressRaw;
       private System.Windows.Forms.ProgressBar ctrlUploadProgressVisual;
       private System.Windows.Forms.Button ctrlRequeueFailed;
+      private System.Windows.Forms.Button ctrlRequeueCompleted;
    }
 }
