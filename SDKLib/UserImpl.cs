@@ -152,6 +152,22 @@ namespace SDKLib {
          return workQueue.enqueue(workItem);
       }
 
+
+      public bool uploadVideo(Stream source, long length, JObject serializedUserVideo, User.Result.UploadVideo.If callback,
+         SynchronizationContext handler, object closure) {
+
+         UserVideoImpl userVideo = UserVideoImpl.fromJObject(this, serializedUserVideo);
+         if (null == userVideo) {
+            return false;
+         }
+         APIClientImpl apiClient = getContainer() as APIClientImpl;
+         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+
+         WorkItemStaleVideoUpload workItem = (WorkItemStaleVideoUpload)workQueue.obtainWorkItem(WorkItemStaleVideoUpload.TYPE);
+         workItem.set(this, source, length, userVideo, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+      }
+
       private class UploadVideoCanceller : AsyncWorkQueue.IterationObserver {
 
          private readonly object mClosure;
@@ -333,11 +349,11 @@ namespace SDKLib {
             return this;
          }
 
-
          protected override void recycle() {
             base.recycle();
             mSource = null;
             mTitle = null;
+            mUser = null;
             mDescription = null;
          }
 
@@ -429,6 +445,82 @@ namespace SDKLib {
 
             } finally {
                destroy(request);
+            }
+
+         }
+      }
+
+      internal class WorkItemStaleVideoUpload : WorkItemVideoUploadBase {
+
+         private class VideoIdAvailableCallbackNotifier : Util.CallbackNotifier {
+
+            private readonly UserVideo.If mUserVideo;
+
+            public VideoIdAvailableCallbackNotifier(ResultCallbackHolder callbackHolder, UserVideo.If userVideo)
+               : base(callbackHolder) {
+               mUserVideo = userVideo;
+            }
+
+            protected override void notify(object callback, object closure) {
+               User.Result.UploadVideo.If tCallback = callback as User.Result.UploadVideo.If;
+               tCallback.onVideoIdAvailable(closure, mUserVideo);
+            }
+         }
+
+         private class WorkItemTypeStaleVideoUpload : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemStaleVideoUpload(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeStaleVideoUpload();
+
+         WorkItemStaleVideoUpload(APIClientImpl apiClient) : base(apiClient, TYPE) {
+         }
+
+         private Stream mSource;
+         private long mLength;
+         private UserImpl mUser;
+         private UserVideoImpl mUserVideo;
+
+         public WorkItemStaleVideoUpload set(UserImpl user,
+                 Stream source, long length, UserVideoImpl userVideo, User.Result.UploadVideo.If callback, 
+                 SynchronizationContext handler, object closure) {
+
+            set(new ObjectHolder<bool>(false), callback, handler, closure);
+            mUser = user;
+            mSource = source;
+            mLength = length;
+            mUserVideo = userVideo;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mSource = null;
+            mUserVideo = null;
+            mUser = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemStaleVideoUpload));
+
+         protected override void onRun() {
+
+            try {
+
+               UserVideoImpl userVideo = mUserVideo;
+               VideoIdAvailableCallbackNotifier notifier = new VideoIdAvailableCallbackNotifier(mCallbackHolder, userVideo);
+
+               if (!userVideo.uploadContent(getCancelHolder(), mSource, mLength, mCallbackHolder)) {
+                  dispatchUncounted(notifier);
+                  dispatchFailure(User.Result.UploadVideo.STATUS_CONTENT_UPLOAD_SCHEDULING_FAILED);
+               } else {
+                  dispatchCounted(notifier);
+               }
+
+            } finally {
+               
             }
 
          }

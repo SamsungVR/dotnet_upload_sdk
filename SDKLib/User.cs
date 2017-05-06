@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -36,6 +37,16 @@ namespace SDKLib {
                      UserVideo.Permission permission, Result.UploadVideo.If callback,
                      SynchronizationContext handler, object closure);
 
+         /// <summary>Upload a video using a JObject acquired from UserVideo.asJObject()</summary>
+         /// <param name="callback">This may be NULL. SDK does not close the source parcel file descriptor.
+         ///                        SDK transfers back ownership of the FD only on the callback.  Consider
+         ///                        providing a Non Null callback so that the application can close the FD.L</param>
+         /// <param name="handler">A handler on which callback should be called. If null, main handler is used.</param>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the upload was succesfully scheduled</returns>
+
+         bool uploadVideo(Stream source, long length, JObject serializedUserVideo, Result.UploadVideo.If callback,
+            SynchronizationContext handler, object closure);
 
          /// <summary>Cancel an already schedule video upload</summary>
          /// <param name="closure">An object that the application can use to uniquely identify this request.</param>

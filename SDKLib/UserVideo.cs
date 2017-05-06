@@ -118,7 +118,7 @@ namespace SDKLib {
           * Retrun a JSON representation of self. Can be used later to reconstruct this UserVideo
           */
 
-         JObject asJObject();
+         JObject toJObject(JObject jObject);
 
 
       }

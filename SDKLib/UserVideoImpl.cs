@@ -18,8 +18,48 @@ namespace SDKLib {
       private readonly string mVideoId, mUploadId, mInitialSignedUrl;
       private readonly JObject mJObject;
 
+
+      private static object getAttrFromJObject(JObject jObject, string attr, object d) {
+         JToken value = null;
+         if (!jObject.TryGetValue(attr, out value)) {
+            return d;
+         }
+         return ((JValue)value).Value;
+      }
+
+      public static UserVideoImpl fromJObject(UserImpl user, JObject jObject) {
+         
+         string title = (string)getAttrFromJObject(jObject, "title", null);
+         string desc = (string)getAttrFromJObject(jObject, "desc", null);
+         string permission = (string)getAttrFromJObject(jObject, "permission", null);
+         string videoId = (string)getAttrFromJObject(jObject, "videoId", null);
+         string uploadId = (string)getAttrFromJObject(jObject, "uploadId", null);
+         string initialSignedUrl = (string)getAttrFromJObject(jObject, "initialSignedUrl", null);
+         if (null == title || null == desc || null == permission || null == videoId || null == uploadId
+            || null == initialSignedUrl) {
+            return null;
+         }
+         object temp = getAttrFromJObject(jObject, "chunkSize", -1);
+         long chunkSize = (long)temp;
+         temp = getAttrFromJObject(jObject, "numChunks", -1);
+         long numChunks = (long)temp;
+         if (-1 == chunkSize || -1 == numChunks) {
+            return null;
+         }
+         long lastSuccessfulChunk = (long)getAttrFromJObject(jObject, "lastSuccessfulChunk", -1);
+
+         return new UserVideoImpl(user, title, desc, UserVideo.fromString(permission), videoId,
+            uploadId, initialSignedUrl, (int)chunkSize, (int)numChunks, (int)lastSuccessfulChunk);
+      }
+
       public UserVideoImpl(UserImpl user, string title, string desc, UserVideo.Permission permission,
-         string videoId, string uploadId, string initialSignedUrl, int chunkSize, int numChunks) {
+         string videoId, string uploadId, string initialSignedUrl, int chunkSize, int numChunks) :
+         this(user, title, desc, permission, videoId, uploadId, initialSignedUrl, chunkSize, numChunks, -1) {
+      }
+
+      public UserVideoImpl(UserImpl user, string title, string desc, UserVideo.Permission permission,
+         string videoId, string uploadId, string initialSignedUrl, int chunkSize, int numChunks, 
+         int lastSuccessfulChunk) {
          mUser = user;
          mTitle = title;
          mDesc = desc;
@@ -29,19 +69,8 @@ namespace SDKLib {
          mInitialSignedUrl = initialSignedUrl;
          mChunkSize = chunkSize;
          mNumChunks = numChunks;
-
-         mJObject = new JObject();
-         mJObject.Add("userId", new JValue(mUser.getUserId()));
-         mJObject.Add("title", new JValue(mTitle));
-         mJObject.Add("desc", new JValue(mDesc));
-         mJObject.Add("permission", new JValue(UserVideo.toString(mPermission)));
-         mJObject.Add("videoId", new JValue(mVideoId));
-         mJObject.Add("uploadId", new JValue(mUploadId));
-         mJObject.Add("initialSignedUrl", new JValue(mInitialSignedUrl));
-         mJObject.Add("chunkSize", mChunkSize);
-         mJObject.Add("numChunks", mNumChunks);
+         mLastSuccessfulChunk = lastSuccessfulChunk;
       }
-
 
       private int mLastSuccessfulChunk = -1;
       private bool mUploading = false;
@@ -88,7 +117,6 @@ namespace SDKLib {
          }
       }
 
-
       public bool retryUpload(Stream source, long length, User.Result.UploadVideo.If callback,
                                  SynchronizationContext handler, object closure) {
          Log.d(TAG, "Retry video upload requested this: " + this);
@@ -112,10 +140,26 @@ namespace SDKLib {
          return mUploading;
       }
 
-      public JObject asJObject() {
-         return mJObject;
+      public JObject toJObject(JObject jObject) {
+         if (null == jObject) {
+            jObject = new JObject();
+         } else {
+            jObject.RemoveAll();
+         }
+         jObject.Add("userId", new JValue(mUser.getUserId()));
+         jObject.Add("title", new JValue(mTitle));
+         jObject.Add("desc", new JValue(mDesc));
+         jObject.Add("permission", new JValue(UserVideo.toString(mPermission)));
+         jObject.Add("videoId", new JValue(mVideoId));
+         jObject.Add("uploadId", new JValue(mUploadId));
+         jObject.Add("initialSignedUrl", new JValue(mInitialSignedUrl));
+         jObject.Add("chunkSize", mChunkSize);
+         jObject.Add("numChunks", mNumChunks);
+         lock (this) {
+            jObject.Add("lastSuccessfulChunk", mLastSuccessfulChunk);
+         }
+         return jObject;
       }
-
 
       public class WorkItemVideoContentUpload : UserImpl.WorkItemVideoUploadBase {
 
