@@ -35,6 +35,11 @@ namespace SampleApp {
          ctrlUploadDashboard.SelectTab(1);
       }
 
+      public void onPauseUpload() {
+         onPauseUploadInternal();
+         ctrlUploadDashboard.SelectTab(1);
+      }
+
       public void onUploadProgress(float progressPercent, long complete, long max) {
          if (-1 != progressPercent) {
             ctrlUploadProgressVisual.Value = (int)progressPercent;
@@ -109,6 +114,10 @@ namespace SampleApp {
          ctrlInProgressDetails.Items.Add(item.getFilename());
          ctrlInProgressDetails.Items.Add(item.getPermission());
          onUploadProgress(item.getProgressPercent(), item.getComplete(), item.getMax());
+      }
+
+      private void onPauseUploadInternal() {
+
       }
 
       private void onEndUploadInternal() {

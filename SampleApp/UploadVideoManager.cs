@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
+using System.Timers;
 
 namespace SampleApp {
 
@@ -13,6 +14,7 @@ namespace SampleApp {
 
       internal interface Callback {
          void onBeginUpload();
+         void onPauseUpload();
          void onEndUpload();
          void onUploadProgress(float progressPercent, long complete, long max);
          void onPendingItemsChanged();
@@ -126,23 +128,47 @@ namespace SampleApp {
       public class ActiveUploadItem : PendingUploadItem {
 
          internal static string[] sAttrs = PendingUploadItemsModel.sAttrs;
+         internal readonly UploadVideoManager mUploadManager;
+         internal readonly User.If mUser;
 
-         internal ActiveUploadItem() : base() {
+         internal ActiveUploadItem(User.If user, UploadVideoManager manager) : base() {
+            mUploadManager = manager;
+            mUser = user;
          }
 
-         internal ActiveUploadItem(UploadItem uploadItem) : base() {
+         internal ActiveUploadItem(User.If user, UploadVideoManager videoManager, UploadItem uploadItem) : this(user, videoManager) {
             copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
          }
 
-         internal ActiveUploadItem(string fileName, string permission, string title, string description) : 
+         internal ActiveUploadItem(User.If user, UploadVideoManager uploadManager,
+               string fileName, string permission, string title, string description) : 
             base(fileName, permission, title, description) {
+            mUser = user;
+            mUploadManager = uploadManager;
          }
 
-         internal ActiveUploadItem(JObject jObject) : base(jObject) {
+         internal ActiveUploadItem(User.If user, UploadVideoManager videoManager, JObject jObject) : this(user, videoManager) {
+            JToken file;
+            if (jObject.TryGetValue("file", out file)) {
+               setJObject((JObject)file);
+               JToken video;
+               if (jObject.TryGetValue("video", out video)) {
+                  mVideoJson = (JObject)video;
+               }
+            }
          }
 
          private float mProgressPercent;
          private long mComplete, mMax;
+         private JObject mVideoJson;
+         private int mRetryCount = 5;
+
+         internal void destroy() {
+            if (null != mSource) {
+               mSource.Close();
+               mSource = null;
+            }
+         }
 
          internal void setProgress(float progressPercent, long complete, long max) {
             mProgressPercent = progressPercent;
@@ -164,6 +190,85 @@ namespace SampleApp {
 
          internal override string getAsString() {
             return getAsString(ActiveUploadItem.sAttrs);
+         }
+
+         private UserVideo.If mVideo = null;
+         private Stream mSource = null;
+         private long mSourceLength;
+
+         internal void onVideoIdAvailable(SDKLib.UserVideo.If video) {
+            mVideo = video;
+         }
+
+         internal FailedUploadItem tryUpload() {
+            if (mRetryCount < 0) {
+               return new FailedUploadItem(this, ResourceStrings.uploadFailedTooManyAttempts);
+            }
+            SynchronizationContext handler = App.getInstance().getHandler();
+            SDKLib.UserVideo.Permission permission = SDKLib.UserVideo.fromString(getPermission());
+            User.If user = mUser;
+
+            if (null != mSource) {
+               if (null != mVideo) {
+                  if (mVideo.retryUpload(mSource, mSourceLength, mUploadManager, handler, this)) {
+                     return null;
+                  }
+                  return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
+               }
+               if (null != mVideoJson) {
+                  if (user.uploadVideo(mSource, mSourceLength, mVideoJson, mUploadManager, handler, this)) {
+                     return null;
+                  }
+                  return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
+               }
+               
+               if (user.uploadVideo(mSource, mSourceLength, getTitle(), getDescription(),
+                     permission, mUploadManager, handler, this)) {
+                  return null;
+               }
+               return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
+            }
+
+            string fileName = getFilename();
+            if (string.IsNullOrEmpty(fileName)) {
+               return new FailedUploadItem(this, ResourceStrings.uploadFileDoesNotExist);
+            }
+            FileInfo fileInfo = new FileInfo(fileName);
+            if (!fileInfo.Exists) {
+               return new FailedUploadItem(this, ResourceStrings.uploadFileDoesNotExist);
+            }
+            try {
+               mSource = fileInfo.OpenRead();
+            } catch (Exception) {
+               mSource = null;
+               return new FailedUploadItem(this, ResourceStrings.uploadFileOpenFailed);
+            }
+            mSourceLength = fileInfo.Length;
+            if (user.uploadVideo(mSource, mSourceLength, getTitle(), getDescription(),
+                     permission, mUploadManager, handler, this)) {
+               return null;
+            }
+            return new FailedUploadItem(this, ResourceStrings.uploadRetryFailed);
+         }
+
+         internal bool cancelUpload() {
+            if (null != mVideo) {
+               return mVideo.cancelUpload(this);
+            }
+            if (null == mUser) {
+               return false;
+            }
+            return mUser.cancelUploadVideo(this);
+         }
+
+         internal JObject getPersistableJObject() {
+            JObject result = new JObject();
+            result.Add("time", new JValue(DateTime.Now));
+            result.Add("file", getJObject());
+            if (null != mVideo) {
+               result.Add("video", mVideo.toJObject(null));
+            }
+            return result;
          }
       }
 
@@ -409,8 +514,6 @@ namespace SampleApp {
             mItems.Clear();
             mUploadVideoManager.onFailedItemsChanged();
          }
-
-
       }
 
       internal class CompletedUploadItemsModel : ItemsModel<CompletedUploadItem> {
@@ -474,64 +577,123 @@ namespace SampleApp {
          mIsNetworkAvailable = e.IsAvailable;
       }
 
-      private bool mThreadCanContinue = true;
-      private bool mIsVRReachable = false;
+      private volatile bool mThreadCanContinue = true;
+      private volatile bool mIsVRReachable = false;
+      
 
       private static readonly string TAG = Util.getLogTag(typeof(UploadVideoManager));
 
-      void connectivityCheckerThreadProc() {
+      public virtual void connectivityChecksBegin(object args) {
+         Log.d(TAG, "Connectivity checks begin");
+      }
+
+      public virtual void connectivityChecksEnd(object args) {
+         Log.d(TAG, "Connectivity checks end");
+      }
+
+      private void clearFailedUploadFlags() {
+         mUploadException = null;
+         mUploadFailureStatus = -1;
+      }
+
+      public virtual void connectivityNotification(object args) {
+         bool isVRReachable = (bool)args;
+         Log.d(TAG, "VR reachable: " + isVRReachable + " ep: " + VR.getEndPoint() 
+            + " ex: " + mUploadException + " status: " + mUploadFailureStatus + " active: " + mActiveUpload);
+
+         if (!isVRReachable) {
+            return;
+         }
+         if (null == mActiveUpload) {
+            doNextUpload();
+            return;
+         }
+         if (null == mUploadException && -1 == mUploadFailureStatus) {
+            return;
+         }
+         if ((User.Result.UploadVideo.STATUS_OUT_OF_UPLOAD_QUOTA == mUploadFailureStatus) ||
+            (User.Result.UploadVideo.STATUS_BAD_FILE_LENGTH == mUploadFailureStatus) ||
+            (User.Result.UploadVideo.STATUS_FILE_LENGTH_TOO_LONG == mUploadFailureStatus) ||
+            (User.Result.UploadVideo.STATUS_INVALID_STEREOSCOPIC_TYPE == mUploadFailureStatus) ||
+            (User.Result.UploadVideo.STATUS_INVALID_AUDIO_TYPE == mUploadFailureStatus)) {
+
+            mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, mUploadFailureStatus)));
+            doNextUpload();
+            return;
+         }
+         FailedUploadItem failure = mActiveUpload.tryUpload();
+         if (null == failure) {
+            onBeginUpload();
+            return;
+         }
+         if (null != mUploadException) {
+            mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithException, 
+               mUploadException.ToString())));
+         }
+         if (-1 != mUploadFailureStatus) {
+            mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, mUploadFailureStatus)));
+         }
+         doNextUpload();
+      }
+
+      internal void connectivityCheckerThreadProc() {
+         SynchronizationContext handler = mApp.getHandler();
+         handler.Post(connectivityChecksBegin, null);
          try { 
             while (mThreadCanContinue) {
-               Log.d(TAG, "Checking VR connectivity");
-               Thread.Sleep(5000);
-                
-               if (!mIsNetworkAvailable) {
-                  mIsVRReachable = false;
-                  continue;
-               }
+               bool reachable = false;
+
                string endPoint = SDKLib.VR.getEndPoint();
-               Log.d(TAG, "VR reachable: " + mIsVRReachable + " network reachable: " + mIsNetworkAvailable + " ep: " + endPoint);
-               if (null == endPoint) {
-                  mIsVRReachable = false;
-                  continue;
-               }
-               char[] ch = endPoint.ToCharArray();
-               int index;
-               for (index = ch.Length - 1; index >= 0; index -= 1) {
-                  if (ch[index] == '/') {
-                     break;
-                  }
-               }
-               if (-1 != index) {
-                  string temp = endPoint.Remove(index) + "/ccheck";
-                  Log.d(TAG, "VR reachable check endpoint: " + temp);
-                  try {
-                     WebRequest request = WebRequest.Create(temp);
-                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                  
-                     if (response != null) {
-                        HttpStatusCode stc = response.StatusCode;
-                        response.Close();
-                        if (HttpStatusCode.OK == stc) {
-                           mIsVRReachable = true;
-                        }
-                        continue;
+               if (null != endPoint) {
+                  char[] ch = endPoint.ToCharArray();
+                  int index;
+                  for (index = ch.Length - 1; index >= 0; index -= 1) {
+                     if (ch[index] == '/') {
+                        break;
                      }
-                  } catch (Exception ex) {
-                     continue;
+                  }
+                  if (-1 != index) {
+                     string temp = endPoint.Remove(index) + "/ccheck";
+                     try {
+                        WebRequest request = WebRequest.Create(temp);
+                        request.Timeout = 2000;
+
+                        if (request is HttpWebRequest) {
+                           HttpWebRequest httpWebRequest = (HttpWebRequest)request;
+                           httpWebRequest.ReadWriteTimeout = request.Timeout;
+                           httpWebRequest.AllowWriteStreamBuffering = false;
+                           httpWebRequest.AllowAutoRedirect = false;
+                           httpWebRequest.KeepAlive = false;
+                        }
+                        WebResponse response = request.GetResponse();
+                        if (null != response) {
+                           HttpStatusCode stc = HttpStatusCode.NoContent;
+                           if (response is HttpWebResponse) {
+                              HttpWebResponse httpResponse = (HttpWebResponse)response;
+                              stc = httpResponse.StatusCode;
+                           }
+                           response.Close();
+                           if (HttpStatusCode.OK == stc) {
+                              reachable = true;
+                           }
+                        }
+                     } catch (Exception ex) {
+                        Log.d(TAG, "VR reachable check exception: " + DateTime.Now.ToLongTimeString() + " " + ex);
+                     }
                   }
                }
-               mIsVRReachable = false;
+               handler.Post(connectivityNotification, reachable);
+               Thread.Sleep(5000);
             }
          } catch (ThreadInterruptedException ex) {
             Log.d(TAG, "Connectivity checker exception: " + ex);
          }
+         handler.Post(connectivityChecksEnd, null);
          Log.d(TAG, "Ending connectivity checker");
       }
 
       public void destroy() {
          mThreadCanContinue = false;
-         mConnectivityCheckerThread.Abort();
          mConnectivityCheckerThread.Join();
       }
 
@@ -552,6 +714,8 @@ namespace SampleApp {
       }
 
       private readonly List<Callback> mCallbacks = new List<Callback>();
+      private Exception mUploadException = null;
+      private int mUploadFailureStatus = -1;
 
       internal void addCallback(Callback callback) {
          mCallbacks.Add(callback);
@@ -561,44 +725,16 @@ namespace SampleApp {
          mCallbacks.Remove(callback);
       }
 
-      private UserVideo.If mVideo = null;
-      private Stream mSource;
-
-      public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
-         mVideo = video;
-         saveInProgressVideo();
-      }
-
-      public void onCancelled(object closure) {
-         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, ResourceStrings.uploadCancelled));
-         onUploadComplete();
-      }
-
-      private void onUploadComplete() {
-         foreach (Callback callback in mCallbacks) {
-            callback.onEndUpload();
-         }
-         mVideo = null;
-         mActiveUpload = null;
-         saveInProgressVideo();
-         if (null != mSource) {
-            mSource.Close();
-            mSource = null;
-         }
-         PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
-         if (null != nextItem && tryUpload(nextItem)) {
-            mPendingUploads.removeItemAt(0);
-         }
-      }
-
       public void onException(object closure, Exception ex) {
-         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithException, ex.ToString())));
-         onUploadComplete();
+         onPauseUpload();
+         mUploadException = ex;
+         
       }
 
       public void onFailure(object closure, int status) {
-         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, status)));
-         onUploadComplete();
+         onPauseUpload();
+         mUploadFailureStatus = status;
+         
       }
 
       public void onProgress(object closure, float progressPercent, long complete, long max) {
@@ -618,60 +754,80 @@ namespace SampleApp {
 
       public void onSuccess(object closure) {
          mCompletedUploads.addItem(new CompletedUploadItem(mActiveUpload));
-         onUploadComplete();
+         doNextUpload();
+      }
+
+      public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
+         mActiveUpload.onVideoIdAvailable(video);
+         saveInProgressVideo();
+      }
+
+      public void onCancelled(object closure) {
+         mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, ResourceStrings.uploadCancelled));
+         doNextUpload();
+      }
+
+      private void onEndUpload() {
+         clearFailedUploadFlags();
+         foreach (Callback callback in mCallbacks) {
+            callback.onEndUpload();
+         }
+      }
+
+      private void onPauseUpload() {
+         foreach (Callback callback in mCallbacks) {
+            callback.onPauseUpload();
+         }
+      }
+
+      internal void onBeginUpload() {
+         clearFailedUploadFlags();
+         foreach (Callback callback in mCallbacks) {
+            callback.onBeginUpload();
+         }
+      }
+
+      private void doNextUpload() {
+         clearFailedUploadFlags();
+         if (null != mActiveUpload) {
+            onEndUpload();
+            mActiveUpload.destroy();
+            mActiveUpload = null;
+            saveInProgressVideo();
+         }
+         do {
+            PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
+            if (null == nextItem) {
+               break;
+            }
+            if (tryUpload(nextItem)) {
+               mPendingUploads.removeItemAt(0);
+            }
+         } while (null == mActiveUpload);
       }
 
 
       private bool tryUpload(PendingUploadItem item) {
-         return tryUpload(new ActiveUploadItem(item), null);
+         return tryUpload(new ActiveUploadItem(mApp.getUser(), this, item));
       }
 
-      private bool tryUpload(ActiveUploadItem aui, JObject userVideo) {
+      private bool tryUpload(ActiveUploadItem aui) {
+         if (null != mActiveUpload) {
+            return false;
+         }
          User.If user = mApp.getUser();
-         if (null == user || null != mActiveUpload) {
+         if (null == user || null == aui) {
             return false;
          }
 
-         string fileName = aui.getFilename();
-         if (string.IsNullOrEmpty(fileName)) {
-            FailedUploadItem failedItem = new FailedUploadItem(aui, ResourceStrings.uploadFileDoesNotExist);
-            mFailedUploads.addItem(failedItem);
-            return true;
-         }
-         FileInfo fileInfo = new FileInfo(fileName);
-         if (!fileInfo.Exists) {
-            mFailedUploads.addItem(new FailedUploadItem(aui, ResourceStrings.uploadFileDoesNotExist));
-            return true;
-         }
-         FileStream stream = null;
-         try {
-            stream = fileInfo.OpenRead();
-         } catch (Exception) {
-            mFailedUploads.addItem(new FailedUploadItem(aui, ResourceStrings.uploadFileOpenFailed));
-            return true;
-         }
-         long length = fileInfo.Length;
-         bool uploadQueued = false;
-
-         if (null == userVideo) {
-            SDKLib.UserVideo.Permission permission = SDKLib.UserVideo.fromString(aui.getPermission());
-            uploadQueued = user.uploadVideo(stream, length, aui.getTitle(), aui.getDescription(), 
-               permission, this, App.getInstance().getHandler(), this);
-         } else {
-            uploadQueued = user.uploadVideo(stream, length, userVideo, this, App.getInstance().getHandler(), this);
-         }
-         if (uploadQueued) {
+         FailedUploadItem failure = aui.tryUpload();
+         if (null == failure) {
             mActiveUpload = aui;
-            mSource = stream;
-
             saveInProgressVideo();
-
-            foreach (Callback callback in mCallbacks) {
-               callback.onBeginUpload();
-            }
+            onBeginUpload();
             return true;
          }
-         mFailedUploads.addItem(new FailedUploadItem(aui, ResourceStrings.unableToQueueRequest));
+         mFailedUploads.addItem(failure);
          return true;
       }
 
@@ -680,28 +836,21 @@ namespace SampleApp {
       }
 
       internal bool cancelActiveUpload() {
-         if (null != mVideo) {
-            return mVideo.cancelUpload(this);
+         if (null != mActiveUpload) {
+            if (!mActiveUpload.cancelUpload()) {
+               onCancelled(this);
+            }
          }
-         SDKLib.User.If user = mApp.getUser();
-         if (null == user) {
-            return false;
-         }
-         return user.cancelUploadVideo(this);
+         return false;
       }
 
       internal void onLoggedIn() {
          try {
             JObject value = JObject.Parse(AppSettings.Default.inProgressUpload);
-            if (null != value) {
-               JToken file;
-               if (value.TryGetValue("file", out file)) {
-                  ActiveUploadItem aui = new ActiveUploadItem((JObject)file);
-                  JToken video;
-                  if (value.TryGetValue("video", out video)) {
-                     tryUpload(aui, (JObject)video);
-                  }
-               }               
+            JToken check = null;
+            if (null != value && value.TryGetValue("time", out check)) {
+               ActiveUploadItem aui = new ActiveUploadItem(mApp.getUser(), this, value);
+               tryUpload(aui);
             }
          } catch (Exception ex) {
          }
@@ -718,14 +867,16 @@ namespace SampleApp {
       }
 
       private void saveInProgressVideo() {
-         JObject value = new JObject();
+         JObject value = null;
          if (null != mActiveUpload) {
-            value.Add("file", mActiveUpload.getJObject());
+            value = mActiveUpload.getPersistableJObject();
+         } else {
+            value = null;
          }
-         if (null != mVideo) {
-            value.Add("video", mVideo.toJObject(null));
+         string result = null;
+         if (null != value) {
+            result = value.ToString();
          }
-         string result = value.ToString();
          Log.d(TAG, "Save in progress video: " + result);
          AppSettings.Default.inProgressUpload = result;
          AppSettings.Default.Save();

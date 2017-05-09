@@ -268,6 +268,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed upload after trying several times.
+        /// </summary>
+        internal static string uploadFailedTooManyAttempts {
+            get {
+                return ResourceManager.GetString("uploadFailedTooManyAttempts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Upload failed with exception {0}.
         /// </summary>
         internal static string uploadFailedWithException {

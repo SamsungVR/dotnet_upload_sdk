@@ -75,8 +75,12 @@ namespace SampleApp {
 
       private static App sApp;
       private readonly UploadVideoManager mUploadVideoManager;
+      private readonly WindowsFormsSynchronizationContext mHandler;
 
       private App() {
+         mHandler = new WindowsFormsSynchronizationContext();
+         SynchronizationContext.SetSynchronizationContext(mHandler);
+
          mUploadVideoManager = new UploadVideoManager(this);
       }
 
@@ -124,12 +128,10 @@ namespace SampleApp {
          Log.setLogFilePath(FormManageLogs.getCurrentLogFile());
          AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
          Application.EnableVisualStyles();
-         WindowsFormsSynchronizationContext handler = new WindowsFormsSynchronizationContext();
-         SynchronizationContext.SetSynchronizationContext(handler);
          mFormMain = new FormMain();
          mFormMain.Show();
          showLoginForm();
-         Application.AddMessageFilter(new MyMessageFilter());
+         //Application.AddMessageFilter(new MyMessageFilter());
          Application.Run();
          mFormDialog = null;
          mFormMain = null;
@@ -196,7 +198,7 @@ namespace SampleApp {
       }
 
       public SynchronizationContext getHandler() {
-         return SynchronizationContext.Current;
+         return mHandler;
       }
 
       private readonly EndPointConfigManager mEndPointCfgMgr = new EndPointConfigManager();

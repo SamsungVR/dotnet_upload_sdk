@@ -18,7 +18,6 @@ namespace SDKLib {
       private readonly string mVideoId, mUploadId, mInitialSignedUrl;
       private readonly JObject mJObject;
 
-
       private static object getAttrFromJObject(JObject jObject, string attr, object d) {
          JToken value = null;
          if (!jObject.TryGetValue(attr, out value)) {
@@ -387,6 +386,10 @@ namespace SDKLib {
                      try {
                         writeHttpStream(uploadRequest, split);
                      } catch (Exception ex) {
+                        if (isCancelled()) {
+                           dispatchCancelled();
+                           return;
+                        }
                         Log.d(TAG, "Exception writing chunk ex: " + ex);
                         throw ex;
                      }
