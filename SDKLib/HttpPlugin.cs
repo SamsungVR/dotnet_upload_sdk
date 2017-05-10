@@ -126,6 +126,8 @@ namespace SDKLib {
          PutRequest newPutRequest(string url, string[,] headers);
       }
 
+      private const bool DEBUG = false;
+
       private class BaseRequestImpl : BaseRequest {
 
          private static readonly string TAG = Util.getLogTag(typeof(HttpPlugin));
@@ -143,12 +145,16 @@ namespace SDKLib {
                 
             if (null != headers) {
                int count = headers.GetLength(0);
-               Log.d(TAG, "Adding headers count: " + count);
+               if (DEBUG) {
+                  Log.d(TAG, "Adding headers count: " + count);
+               }
                for (int i = 0; i < count; i += 1) {
                   string attr = headers[i, 0];
                   string attrLowerCase = attr.ToLower(mCulture);
                   string value = headers[i, 1];
-                  Log.d(TAG, "Add header attr: " + attr + " value: " + value + " index: " + i);
+                  if (DEBUG) {
+                     Log.d(TAG, "Add header attr: " + attr + " value: " + value + " index: " + i);
+                  }
                   if ("content-length".Equals(attrLowerCase)) {
                      mHttpRequest.ContentLength = long.Parse(value);
                      continue;

@@ -6,16 +6,21 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
-using System.Timers;
 
 namespace SampleApp {
 
    public class UploadVideoManager : SDKLib.User.Result.UploadVideo.If {
 
+      public enum UploadState {
+         BEGIN,
+         PAUSED,
+         RESUMED,
+         END
+      }
+      
       internal interface Callback {
-         void onBeginUpload();
-         void onPauseUpload();
-         void onEndUpload();
+         void onServiceReachable(bool reachable);
+         void onUploadStateChanged(UploadState state);
          void onUploadProgress(float progressPercent, long complete, long max);
          void onPendingItemsChanged();
          void onFailedItemsChanged();
@@ -204,6 +209,7 @@ namespace SampleApp {
             if (mRetryCount < 0) {
                return new FailedUploadItem(this, ResourceStrings.uploadFailedTooManyAttempts);
             }
+            mRetryCount -= 1;
             SynchronizationContext handler = App.getInstance().getHandler();
             SDKLib.UserVideo.Permission permission = SDKLib.UserVideo.fromString(getPermission());
             User.If user = mUser;
@@ -578,8 +584,6 @@ namespace SampleApp {
       }
 
       private volatile bool mThreadCanContinue = true;
-      private volatile bool mIsVRReachable = false;
-      
 
       private static readonly string TAG = Util.getLogTag(typeof(UploadVideoManager));
 
@@ -596,19 +600,22 @@ namespace SampleApp {
          mUploadFailureStatus = -1;
       }
 
-      public virtual void connectivityNotification(object args) {
-         bool isVRReachable = (bool)args;
-         Log.d(TAG, "VR reachable: " + isVRReachable + " ep: " + VR.getEndPoint() 
-            + " ex: " + mUploadException + " status: " + mUploadFailureStatus + " active: " + mActiveUpload);
+      private bool mIsServiceReachable = false;
 
-         if (!isVRReachable) {
-            return;
+      internal bool isServiceReachable() {
+         return mIsServiceReachable;
+      }
+
+      public virtual void connectivityNotification(object args) {
+         mIsServiceReachable = (bool)args;
+         if (DEBUG) {
+            Log.d(TAG, "VR reachable: " + mIsServiceReachable + " ep: " + VR.getEndPoint() 
+               + " ex: " + mUploadException + " status: " + mUploadFailureStatus + " active: " + mActiveUpload);
          }
-         if (null == mActiveUpload) {
-            doNextUpload();
-            return;
+         foreach (Callback callback in mCallbacks) {
+            callback.onServiceReachable(mIsServiceReachable);
          }
-         if (null == mUploadException && -1 == mUploadFailureStatus) {
+         if (!mIsServiceReachable || null == mActiveUpload || (null == mUploadException && -1 == mUploadFailureStatus)) {
             return;
          }
          if ((User.Result.UploadVideo.STATUS_OUT_OF_UPLOAD_QUOTA == mUploadFailureStatus) ||
@@ -616,24 +623,23 @@ namespace SampleApp {
             (User.Result.UploadVideo.STATUS_FILE_LENGTH_TOO_LONG == mUploadFailureStatus) ||
             (User.Result.UploadVideo.STATUS_INVALID_STEREOSCOPIC_TYPE == mUploadFailureStatus) ||
             (User.Result.UploadVideo.STATUS_INVALID_AUDIO_TYPE == mUploadFailureStatus)) {
-
-            mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, mUploadFailureStatus)));
-            doNextUpload();
+            mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, 
+               string.Format(ResourceStrings.uploadFailedWithStatus, mUploadFailureStatus)));
+            onEndUpload();
             return;
          }
          FailedUploadItem failure = mActiveUpload.tryUpload();
          if (null == failure) {
-            onBeginUpload();
+            onResumeUpload();
             return;
          }
          if (null != mUploadException) {
             mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithException, 
                mUploadException.ToString())));
-         }
-         if (-1 != mUploadFailureStatus) {
+         } else if (-1 != mUploadFailureStatus) {
             mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, string.Format(ResourceStrings.uploadFailedWithStatus, mUploadFailureStatus)));
          }
-         doNextUpload();
+         onEndUpload();
       }
 
       internal void connectivityCheckerThreadProc() {
@@ -656,7 +662,7 @@ namespace SampleApp {
                      string temp = endPoint.Remove(index) + "/ccheck";
                      try {
                         WebRequest request = WebRequest.Create(temp);
-                        request.Timeout = 2000;
+                        request.Timeout = 1500;
 
                         if (request is HttpWebRequest) {
                            HttpWebRequest httpWebRequest = (HttpWebRequest)request;
@@ -683,7 +689,7 @@ namespace SampleApp {
                   }
                }
                handler.Post(connectivityNotification, reachable);
-               Thread.Sleep(5000);
+               Thread.Sleep(reachable ? 5000 : 1000);
             }
          } catch (ThreadInterruptedException ex) {
             Log.d(TAG, "Connectivity checker exception: " + ex);
@@ -726,15 +732,13 @@ namespace SampleApp {
       }
 
       public void onException(object closure, Exception ex) {
-         onPauseUpload();
          mUploadException = ex;
-         
+         setUploadState(UploadState.PAUSED);
       }
 
       public void onFailure(object closure, int status) {
-         onPauseUpload();
          mUploadFailureStatus = status;
-         
+         setUploadState(UploadState.PAUSED);
       }
 
       public void onProgress(object closure, float progressPercent, long complete, long max) {
@@ -754,7 +758,7 @@ namespace SampleApp {
 
       public void onSuccess(object closure) {
          mCompletedUploads.addItem(new CompletedUploadItem(mActiveUpload));
-         doNextUpload();
+         onEndUpload();
       }
 
       public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
@@ -764,48 +768,49 @@ namespace SampleApp {
 
       public void onCancelled(object closure) {
          mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, ResourceStrings.uploadCancelled));
-         doNextUpload();
+         onEndUpload();
+      }
+
+      internal UploadState getUploadState() {
+         return mUploadState;
+      }
+
+      private UploadState mUploadState = UploadState.END;
+
+      private void setUploadState(UploadState state) {
+         if (state == mUploadState) {
+            return;
+         }
+         mUploadState = state;
+         foreach (Callback callback in mCallbacks) {
+            callback.onUploadStateChanged(mUploadState);
+         }
       }
 
       private void onEndUpload() {
          clearFailedUploadFlags();
-         foreach (Callback callback in mCallbacks) {
-            callback.onEndUpload();
-         }
-      }
-
-      private void onPauseUpload() {
-         foreach (Callback callback in mCallbacks) {
-            callback.onPauseUpload();
-         }
-      }
-
-      internal void onBeginUpload() {
-         clearFailedUploadFlags();
-         foreach (Callback callback in mCallbacks) {
-            callback.onBeginUpload();
-         }
-      }
-
-      private void doNextUpload() {
-         clearFailedUploadFlags();
+         setUploadState(UploadState.END);
          if (null != mActiveUpload) {
-            onEndUpload();
             mActiveUpload.destroy();
             mActiveUpload = null;
             saveInProgressVideo();
          }
-         do {
-            PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
-            if (null == nextItem) {
-               break;
-            }
-            if (tryUpload(nextItem)) {
-               mPendingUploads.removeItemAt(0);
-            }
-         } while (null == mActiveUpload);
+         PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
+         while (null != nextItem && null == mActiveUpload && tryUpload(nextItem)) {
+            mPendingUploads.removeItemAt(0);
+            nextItem = mPendingUploads.getItemAt(0);
+         }
       }
 
+      private void onResumeUpload() {
+         setUploadState(UploadState.RESUMED);
+         clearFailedUploadFlags();
+      }
+
+      internal void onBeginUpload() {
+         clearFailedUploadFlags();
+         setUploadState(UploadState.BEGIN);
+      }
 
       private bool tryUpload(PendingUploadItem item) {
          return tryUpload(new ActiveUploadItem(mApp.getUser(), this, item));
@@ -819,7 +824,6 @@ namespace SampleApp {
          if (null == user || null == aui) {
             return false;
          }
-
          FailedUploadItem failure = aui.tryUpload();
          if (null == failure) {
             mActiveUpload = aui;
@@ -866,6 +870,8 @@ namespace SampleApp {
          mPendingUploads.onLoggedOut();
       }
 
+      private const bool DEBUG = false;
+
       private void saveInProgressVideo() {
          JObject value = null;
          if (null != mActiveUpload) {
@@ -877,7 +883,9 @@ namespace SampleApp {
          if (null != value) {
             result = value.ToString();
          }
-         Log.d(TAG, "Save in progress video: " + result);
+         if (DEBUG) {
+            Log.d(TAG, "Save in progress video: " + result);
+         }
          AppSettings.Default.inProgressUpload = result;
          AppSettings.Default.Save();
       }

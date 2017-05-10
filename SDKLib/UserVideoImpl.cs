@@ -238,7 +238,9 @@ namespace SDKLib {
             try {
                string url = string.Format("user/{0}/video/{1}/upload/{2}/{3}/next",
                        userId, videoId, uploadId, chunkId);
-               Log.d(TAG, "Requesting next chunk endpoint from: " + url);
+               if (DEBUG) {
+                  Log.d(TAG, "Requesting next chunk endpoint from: " + url);
+               }
                nextRequest = newGetRequest(url, headers);
                if (null == nextRequest) {
                   dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
@@ -247,6 +249,9 @@ namespace SDKLib {
                HttpStatusCode rsp3 = getResponseCode(nextRequest);
 
                if (!isHTTPSuccess(rsp3)) {
+                  if (DEBUG) {
+                     Log.d(TAG, "Signed url query failed with http status: " + rsp3);
+                  }
                   dispatchFailure(User.Result.UploadVideo.STATUS_SIGNED_URL_QUERY_FAILED);
                   return null;
                }
@@ -262,6 +267,9 @@ namespace SDKLib {
                JObject jsonObject2 = JObject.Parse(data3);
                string signedUrl = Util.jsonOpt<string>(jsonObject2, "signed_url", null);
                if (null == signedUrl) {
+                  if (DEBUG) {
+                     Log.d(TAG, "Signed url json did not contain url json: " + data3);
+                  }
                   dispatchFailure(User.Result.UploadVideo.STATUS_SIGNED_URL_QUERY_FAILED);
                   return null;
                }
@@ -287,6 +295,8 @@ namespace SDKLib {
             }
 
          }
+
+         private const bool DEBUG = false;
 
          protected override void onRun() {
 
@@ -319,11 +329,12 @@ namespace SDKLib {
                return;
             }
 
-            Log.d(TAG, "Uploading content for videoId: " + videoId + " uploadId: " + uploadId +
-                  " chunkSize: " + chunkSize + " numChunks: " + numChunks +
-                  " lastSuccessfulChunk: " + lastSuccessfulChunk + " length: " + length +
-                  " currentPos: " + filePos + " remaining: " + remaining);
-
+            if (DEBUG) {
+               Log.d(TAG, "Uploading content for videoId: " + videoId + " uploadId: " + uploadId +
+                     " chunkSize: " + chunkSize + " numChunks: " + numChunks +
+                     " lastSuccessfulChunk: " + lastSuccessfulChunk + " length: " + length +
+                     " currentPos: " + filePos + " remaining: " + remaining);
+            }
             try {
                source.Seek(filePos, SeekOrigin.Begin);
 
@@ -365,8 +376,9 @@ namespace SDKLib {
                      }
                   }
 
-
-                  Log.d(TAG, "Uploading chunk: " + i + " url: " + signedUrl);
+                  if (DEBUG) {
+                     Log.d(TAG, "Uploading chunk: " + i + " url: " + signedUrl);
+                  }
                   if (isCancelled()) {
                      dispatchCancelled();
                      return;
@@ -412,9 +424,10 @@ namespace SDKLib {
                      destroy(uploadRequest);
                   }
                }
-               dispatchUncounted(new ProgressCallbackNotifier(mCallbackHolder));
-
-               Log.d(TAG, "After successful upload, bytes remaining: " + split.availableAsLong());
+               dispatchUncounted(new ProgressCallbackNotifier(mCallbackHolder, numChunks, numChunks));
+               if (DEBUG) {
+                  Log.d(TAG, "After successful upload, bytes remaining: " + split.availableAsLong());
+               }
                /*
                 * next of the last chunk is what triggers the server to declare
                 * that file upload is complete

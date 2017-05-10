@@ -44,6 +44,7 @@
          this.ctrlUploadDashboard = new System.Windows.Forms.TabControl();
          this.tabPage1 = new System.Windows.Forms.TabPage();
          this.tabPage2 = new System.Windows.Forms.TabPage();
+         this.ctrlInProgressStatus = new System.Windows.Forms.Label();
          this.ctrlUploadProgressRaw = new System.Windows.Forms.Label();
          this.label5 = new System.Windows.Forms.Label();
          this.ctrlUploadProgressVisual = new System.Windows.Forms.ProgressBar();
@@ -57,6 +58,7 @@
          this.ctrlRequeueFailed = new System.Windows.Forms.Button();
          this.ctrlClearFailedList = new System.Windows.Forms.Button();
          this.ctrlFailedList = new System.Windows.Forms.ListBox();
+         this.ctrlConnectivityStatus = new System.Windows.Forms.Label();
          this.ctrlEnqueueGroup.SuspendLayout();
          this.ctrlUploadDashboard.SuspendLayout();
          this.tabPage1.SuspendLayout();
@@ -82,19 +84,20 @@
          this.ctrlEnqueueGroup.Controls.Add(this.label2);
          this.ctrlEnqueueGroup.Controls.Add(this.label1);
          this.ctrlEnqueueGroup.Controls.Add(this.ctrlPermission);
-         this.ctrlEnqueueGroup.Location = new System.Drawing.Point(3, 3);
+         this.ctrlEnqueueGroup.Location = new System.Drawing.Point(3, 34);
          this.ctrlEnqueueGroup.Name = "ctrlEnqueueGroup";
-         this.ctrlEnqueueGroup.Size = new System.Drawing.Size(359, 261);
+         this.ctrlEnqueueGroup.Size = new System.Drawing.Size(359, 252);
          this.ctrlEnqueueGroup.TabIndex = 1;
          this.ctrlEnqueueGroup.TabStop = false;
          this.ctrlEnqueueGroup.Text = "Enqueue";
          // 
          // ctrlEnqueueStatus
          // 
-         this.ctrlEnqueueStatus.Location = new System.Drawing.Point(6, 225);
+         this.ctrlEnqueueStatus.Location = new System.Drawing.Point(6, 223);
          this.ctrlEnqueueStatus.Name = "ctrlEnqueueStatus";
-         this.ctrlEnqueueStatus.Size = new System.Drawing.Size(347, 26);
+         this.ctrlEnqueueStatus.Size = new System.Drawing.Size(344, 18);
          this.ctrlEnqueueStatus.TabIndex = 10;
+         this.ctrlEnqueueStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // ctrlEnqueue
          // 
@@ -193,7 +196,7 @@
          // label6
          // 
          this.label6.AutoSize = true;
-         this.label6.Location = new System.Drawing.Point(3, 16);
+         this.label6.Location = new System.Drawing.Point(3, 34);
          this.label6.Name = "label6";
          this.label6.Size = new System.Drawing.Size(56, 13);
          this.label6.TabIndex = 14;
@@ -201,7 +204,7 @@
          // 
          // ctrlRemovePending
          // 
-         this.ctrlRemovePending.Location = new System.Drawing.Point(8, 185);
+         this.ctrlRemovePending.Location = new System.Drawing.Point(8, 201);
          this.ctrlRemovePending.Name = "ctrlRemovePending";
          this.ctrlRemovePending.Size = new System.Drawing.Size(62, 23);
          this.ctrlRemovePending.TabIndex = 16;
@@ -211,7 +214,7 @@
          // 
          // ctrlPendingMoveUp
          // 
-         this.ctrlPendingMoveUp.Location = new System.Drawing.Point(245, 185);
+         this.ctrlPendingMoveUp.Location = new System.Drawing.Point(245, 201);
          this.ctrlPendingMoveUp.Name = "ctrlPendingMoveUp";
          this.ctrlPendingMoveUp.Size = new System.Drawing.Size(50, 23);
          this.ctrlPendingMoveUp.TabIndex = 15;
@@ -221,7 +224,7 @@
          // 
          // ctrlPendingMoveDown
          // 
-         this.ctrlPendingMoveDown.Location = new System.Drawing.Point(301, 185);
+         this.ctrlPendingMoveDown.Location = new System.Drawing.Point(301, 201);
          this.ctrlPendingMoveDown.Name = "ctrlPendingMoveDown";
          this.ctrlPendingMoveDown.Size = new System.Drawing.Size(48, 23);
          this.ctrlPendingMoveDown.TabIndex = 13;
@@ -245,10 +248,10 @@
          this.ctrlUploadDashboard.Controls.Add(this.tabPage2);
          this.ctrlUploadDashboard.Controls.Add(this.tabPage3);
          this.ctrlUploadDashboard.Controls.Add(this.tabPage4);
-         this.ctrlUploadDashboard.Location = new System.Drawing.Point(3, 270);
+         this.ctrlUploadDashboard.Location = new System.Drawing.Point(0, 292);
          this.ctrlUploadDashboard.Name = "ctrlUploadDashboard";
          this.ctrlUploadDashboard.SelectedIndex = 0;
-         this.ctrlUploadDashboard.Size = new System.Drawing.Size(363, 238);
+         this.ctrlUploadDashboard.Size = new System.Drawing.Size(363, 256);
          this.ctrlUploadDashboard.TabIndex = 2;
          // 
          // tabPage1
@@ -260,13 +263,14 @@
          this.tabPage1.Location = new System.Drawing.Point(4, 22);
          this.tabPage1.Name = "tabPage1";
          this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-         this.tabPage1.Size = new System.Drawing.Size(355, 212);
+         this.tabPage1.Size = new System.Drawing.Size(355, 230);
          this.tabPage1.TabIndex = 0;
          this.tabPage1.Text = "Pending";
          this.tabPage1.UseVisualStyleBackColor = true;
          // 
          // tabPage2
          // 
+         this.tabPage2.Controls.Add(this.ctrlInProgressStatus);
          this.tabPage2.Controls.Add(this.ctrlUploadProgressRaw);
          this.tabPage2.Controls.Add(this.label5);
          this.tabPage2.Controls.Add(this.ctrlUploadProgressVisual);
@@ -276,15 +280,25 @@
          this.tabPage2.Location = new System.Drawing.Point(4, 22);
          this.tabPage2.Name = "tabPage2";
          this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-         this.tabPage2.Size = new System.Drawing.Size(355, 212);
+         this.tabPage2.Size = new System.Drawing.Size(355, 230);
          this.tabPage2.TabIndex = 1;
          this.tabPage2.Text = "In Progress";
          this.tabPage2.UseVisualStyleBackColor = true;
          // 
+         // ctrlInProgressStatus
+         // 
+         this.ctrlInProgressStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.ctrlInProgressStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+         this.ctrlInProgressStatus.Location = new System.Drawing.Point(5, 7);
+         this.ctrlInProgressStatus.Name = "ctrlInProgressStatus";
+         this.ctrlInProgressStatus.Size = new System.Drawing.Size(344, 23);
+         this.ctrlInProgressStatus.TabIndex = 22;
+         this.ctrlInProgressStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+         // 
          // ctrlUploadProgressRaw
          // 
          this.ctrlUploadProgressRaw.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-         this.ctrlUploadProgressRaw.Location = new System.Drawing.Point(50, 160);
+         this.ctrlUploadProgressRaw.Location = new System.Drawing.Point(50, 179);
          this.ctrlUploadProgressRaw.Name = "ctrlUploadProgressRaw";
          this.ctrlUploadProgressRaw.Size = new System.Drawing.Size(104, 19);
          this.ctrlUploadProgressRaw.TabIndex = 21;
@@ -293,7 +307,7 @@
          // label5
          // 
          this.label5.AutoSize = true;
-         this.label5.Location = new System.Drawing.Point(6, 163);
+         this.label5.Location = new System.Drawing.Point(6, 182);
          this.label5.Name = "label5";
          this.label5.Size = new System.Drawing.Size(38, 13);
          this.label5.TabIndex = 20;
@@ -301,9 +315,9 @@
          // 
          // ctrlUploadProgressVisual
          // 
-         this.ctrlUploadProgressVisual.Location = new System.Drawing.Point(160, 160);
+         this.ctrlUploadProgressVisual.Location = new System.Drawing.Point(160, 179);
          this.ctrlUploadProgressVisual.Name = "ctrlUploadProgressVisual";
-         this.ctrlUploadProgressVisual.Size = new System.Drawing.Size(189, 20);
+         this.ctrlUploadProgressVisual.Size = new System.Drawing.Size(192, 20);
          this.ctrlUploadProgressVisual.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
          this.ctrlUploadProgressVisual.TabIndex = 18;
          // 
@@ -311,7 +325,7 @@
          // 
          this.ctrlInProgressDetails.FormattingEnabled = true;
          this.ctrlInProgressDetails.HorizontalScrollbar = true;
-         this.ctrlInProgressDetails.Location = new System.Drawing.Point(5, 32);
+         this.ctrlInProgressDetails.Location = new System.Drawing.Point(5, 51);
          this.ctrlInProgressDetails.Name = "ctrlInProgressDetails";
          this.ctrlInProgressDetails.ScrollAlwaysVisible = true;
          this.ctrlInProgressDetails.SelectionMode = System.Windows.Forms.SelectionMode.None;
@@ -320,7 +334,7 @@
          // 
          // ctrlCancelActiveUpload
          // 
-         this.ctrlCancelActiveUpload.Location = new System.Drawing.Point(227, 183);
+         this.ctrlCancelActiveUpload.Location = new System.Drawing.Point(227, 202);
          this.ctrlCancelActiveUpload.Name = "ctrlCancelActiveUpload";
          this.ctrlCancelActiveUpload.Size = new System.Drawing.Size(125, 23);
          this.ctrlCancelActiveUpload.TabIndex = 16;
@@ -335,7 +349,7 @@
          this.tabPage3.Controls.Add(this.ctrlCompletedList);
          this.tabPage3.Location = new System.Drawing.Point(4, 22);
          this.tabPage3.Name = "tabPage3";
-         this.tabPage3.Size = new System.Drawing.Size(355, 212);
+         this.tabPage3.Size = new System.Drawing.Size(355, 230);
          this.tabPage3.TabIndex = 2;
          this.tabPage3.Text = "Completed";
          this.tabPage3.UseVisualStyleBackColor = true;
@@ -375,7 +389,7 @@
          this.tabPage4.Controls.Add(this.ctrlFailedList);
          this.tabPage4.Location = new System.Drawing.Point(4, 22);
          this.tabPage4.Name = "tabPage4";
-         this.tabPage4.Size = new System.Drawing.Size(355, 212);
+         this.tabPage4.Size = new System.Drawing.Size(355, 230);
          this.tabPage4.TabIndex = 3;
          this.tabPage4.Text = "Failed";
          this.tabPage4.UseVisualStyleBackColor = true;
@@ -410,15 +424,24 @@
          this.ctrlFailedList.Size = new System.Drawing.Size(346, 173);
          this.ctrlFailedList.TabIndex = 18;
          // 
+         // ctrlConnectivityStatus
+         // 
+         this.ctrlConnectivityStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.ctrlConnectivityStatus.Location = new System.Drawing.Point(4, 9);
+         this.ctrlConnectivityStatus.Name = "ctrlConnectivityStatus";
+         this.ctrlConnectivityStatus.Size = new System.Drawing.Size(358, 22);
+         this.ctrlConnectivityStatus.TabIndex = 3;
+         // 
          // FormUploadVideo
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.BackColor = System.Drawing.SystemColors.Window;
+         this.Controls.Add(this.ctrlConnectivityStatus);
          this.Controls.Add(this.ctrlUploadDashboard);
          this.Controls.Add(this.ctrlEnqueueGroup);
          this.Name = "FormUploadVideo";
-         this.Size = new System.Drawing.Size(369, 510);
+         this.Size = new System.Drawing.Size(369, 551);
          this.ctrlEnqueueGroup.ResumeLayout(false);
          this.ctrlEnqueueGroup.PerformLayout();
          this.ctrlUploadDashboard.ResumeLayout(false);
@@ -460,12 +483,14 @@
       private System.Windows.Forms.ListBox ctrlCompletedList;
       private System.Windows.Forms.Button ctrlClearFailedList;
       private System.Windows.Forms.ListBox ctrlFailedList;
-      private System.Windows.Forms.Label ctrlEnqueueStatus;
       private System.Windows.Forms.ListBox ctrlInProgressDetails;
       private System.Windows.Forms.ProgressBar ctrlUploadProgressVisual;
       private System.Windows.Forms.Button ctrlRequeueFailed;
       private System.Windows.Forms.Button ctrlRequeueCompleted;
       private System.Windows.Forms.Label label5;
       private System.Windows.Forms.Label ctrlUploadProgressRaw;
+      private System.Windows.Forms.Label ctrlConnectivityStatus;
+      private System.Windows.Forms.Label ctrlEnqueueStatus;
+      private System.Windows.Forms.Label ctrlInProgressStatus;
    }
 }

@@ -250,6 +250,15 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to In progress.
+        /// </summary>
+        internal static string uploadBegin {
+            get {
+                return ResourceManager.GetString("uploadBegin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Upload cancelled.
         /// </summary>
         internal static string uploadCancelled {
@@ -264,6 +273,15 @@ namespace SampleApp {
         internal static string uploadDescriptionInvalid {
             get {
                 return ResourceManager.GetString("uploadDescriptionInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No upload in progress.
+        /// </summary>
+        internal static string uploadEnd {
+            get {
+                return ResourceManager.GetString("uploadEnd", resourceCulture);
             }
         }
         
@@ -322,6 +340,24 @@ namespace SampleApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Paused.
+        /// </summary>
+        internal static string uploadPaused {
+            get {
+                return ResourceManager.GetString("uploadPaused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to In progress.
+        /// </summary>
+        internal static string uploadResumed {
+            get {
+                return ResourceManager.GetString("uploadResumed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Upload retry failed. Try again in a minute..
         /// </summary>
         internal static string uploadRetryFailed {
@@ -345,6 +381,24 @@ namespace SampleApp {
         internal static string uploadTitleInvalid {
             get {
                 return ResourceManager.GetString("uploadTitleInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VR Service not reachable. Check network / firewall..
+        /// </summary>
+        internal static string vrServiceNotReachable {
+            get {
+                return ResourceManager.GetString("vrServiceNotReachable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VR Service reachable..
+        /// </summary>
+        internal static string vrServiceReachable {
+            get {
+                return ResourceManager.GetString("vrServiceReachable", resourceCulture);
             }
         }
     }

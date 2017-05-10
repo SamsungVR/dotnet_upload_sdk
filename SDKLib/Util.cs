@@ -8,7 +8,7 @@ namespace SDKLib {
 
    public static class Util {
 
-      internal static readonly bool DEBUG = true;
+      internal static readonly bool DEBUG = false;
 
       public static string getLogTag(object who) {
          return Log.getLogTag(who);
@@ -108,7 +108,9 @@ namespace SDKLib {
             object callback = getCallbackNoLock();
             object closure = getClosureNoLock();
             releaseLock();
-            Log.d(TAG, "Notifying " + this + " cb: " + callback + " closure: " + closure);
+            if (DEBUG) {
+               Log.d(TAG, "Notifying " + this + " cb: " + callback + " closure: " + closure);
+            }
             if (null != callback) {
                notify(callback, closure);
             }

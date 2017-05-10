@@ -25,19 +25,35 @@ namespace SampleApp {
          }
       }
 
-      public void onBeginUpload() {
-         onBeginUploadInternal();
+      public void onUploadStateChanged(UploadVideoManager.UploadState state) {
+         switch (state) {
+            case UploadVideoManager.UploadState.BEGIN:
+               ctrlInProgressStatus.Text = ResourceStrings.uploadBegin;
+               onBeginUploadInternal();
+               break;
+            case UploadVideoManager.UploadState.END:
+               ctrlInProgressStatus.Text = ResourceStrings.uploadEnd;
+               onEndUploadInternal();
+               break;
+            case UploadVideoManager.UploadState.PAUSED:
+               ctrlInProgressStatus.Text = ResourceStrings.uploadPaused;
+               break;
+            case UploadVideoManager.UploadState.RESUMED:
+               ctrlInProgressStatus.Text = ResourceStrings.uploadResumed;
+               break;
+         }
          ctrlUploadDashboard.SelectTab(1);
+
       }
 
-      public void onEndUpload() {
-         onEndUploadInternal();
-         ctrlUploadDashboard.SelectTab(1);
-      }
-
-      public void onPauseUpload() {
-         onPauseUploadInternal();
-         ctrlUploadDashboard.SelectTab(1);
+      public void onServiceReachable(bool isReachable) {
+         if (isReachable) {
+            ctrlConnectivityStatus.Text = ResourceStrings.vrServiceReachable;
+            ctrlConnectivityStatus.ForeColor = System.Drawing.Color.Green;
+         } else {
+            ctrlConnectivityStatus.Text = ResourceStrings.vrServiceNotReachable;
+            ctrlConnectivityStatus.ForeColor = System.Drawing.Color.Red;
+         }
       }
 
       public void onUploadProgress(float progressPercent, long complete, long max) {
@@ -113,11 +129,6 @@ namespace SampleApp {
          ctrlInProgressDetails.Items.Add(item.getDescription());
          ctrlInProgressDetails.Items.Add(item.getFilename());
          ctrlInProgressDetails.Items.Add(item.getPermission());
-         onUploadProgress(item.getProgressPercent(), item.getComplete(), item.getMax());
-      }
-
-      private void onPauseUploadInternal() {
-
       }
 
       private void onEndUploadInternal() {
@@ -133,6 +144,8 @@ namespace SampleApp {
          onFailedItemsChangedInternal();
          onCompletedItemsChangedInternal();
          onBeginUploadInternal();
+         onServiceReachable(mUploadVideoManager.isServiceReachable());
+         onUploadStateChanged(mUploadVideoManager.getUploadState());
       }
 
       public override void onUnload() {

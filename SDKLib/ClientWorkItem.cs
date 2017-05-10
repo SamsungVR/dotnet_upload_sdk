@@ -8,6 +8,7 @@ namespace SDKLib {
 
    internal abstract class ClientWorkItem : AsyncWorkItem {
 
+      private const bool DEBUG = false;
 
       protected class ProgressCallbackNotifier : Util.CallbackNotifier {
 
@@ -122,8 +123,9 @@ namespace SDKLib {
 
       public override void run() {
          mDispatchedCount = 0;
-
-         Log.d(TAG, "Running work item: " + this + " type: " + getType());
+         if (DEBUG) {
+            Log.d(TAG, "Running work item: " + this + " type: " + getType());
+         }
          if (isCancelled()) {
             dispatchCancelled();
          } else {
@@ -164,7 +166,9 @@ namespace SDKLib {
 
       protected virtual HttpStatusCode getResponseCode(HttpPlugin.ReadableRequest request) {
          HttpStatusCode responseCode = request.responseCode();
-         Log.d(TAG, "Returning response code " + responseCode + " from request " + request);
+         if (DEBUG) {
+            Log.d(TAG, "Returning response code " + responseCode + " from request " + request);
+         }
          return responseCode;
       }
 
@@ -248,7 +252,9 @@ namespace SDKLib {
       }
 
       protected virtual void destroy(HttpPlugin.BaseRequest request) {
-         Log.d(TAG, "Disconnecting " + request);
+         if (DEBUG) {
+            Log.d(TAG, "Disconnecting " + request);
+         }
          if (null != request) {
             request.destroy();
          }
@@ -256,7 +262,7 @@ namespace SDKLib {
 
       protected virtual void writeBytes(HttpPlugin.WritableRequest request, byte[] data, string debugMsg) {
          int len = data.Length;
-         if (null != debugMsg) {
+         if (DEBUG && null != debugMsg) {
             Log.d(TAG, "Writing len: " + len + " msg: " + debugMsg);
          }
          MemoryStream bis = new MemoryStream(data);
@@ -273,7 +279,7 @@ namespace SDKLib {
          StreamReader bos = new StreamReader(stream);
          string result = bos.ReadToEnd();
          bos.Close();
-         if (null != debugMsg) {
+         if (DEBUG && null != debugMsg) {
             Log.d(TAG, "readHttpStream str: " + result + " msg: " + debugMsg);
          }
          return result;
@@ -301,9 +307,13 @@ namespace SDKLib {
       }
 
       protected virtual void writeHttpStream(HttpPlugin.WritableRequest request, Stream input) {
-         Log.d(TAG, "Writing input stream to output stream " + request);
+         if (DEBUG) {
+            Log.d(TAG, "Writing input stream to output stream " + request);
+         }
          request.output(input, mIOBuf);
-         Log.d(TAG, "Done writing to stream " + request);
+         if (DEBUG) {
+            Log.d(TAG, "Done writing to stream " + request);
+         }
       }
 
       protected override void recycle() {
@@ -516,16 +526,20 @@ namespace SDKLib {
             byteOffset = Math.Max(byteOffset, 0);
             int bufAvailable = Math.Min(buffer.Length - byteOffset, byteCount);
             int canRead = (int)Math.Min(bufAvailable, available);
-            Log.d(TAG, "Split pre read buf remaining: " + available + " canRead: " +
-                    canRead + " byteCount: " + byteCount + " byteOffset: " + byteOffset);
+            if (DEBUG) {
+               Log.d(TAG, "Split pre read buf remaining: " + available + " canRead: " +
+                       canRead + " byteCount: " + byteCount + " byteOffset: " + byteOffset);
+            }
             if (canRead < 1) {
                return -1;
             }
             int wasRead = mBase.Read(buffer, byteOffset, canRead);
             onRead(wasRead);
-            Log.d(TAG, "Split post read buf remaining: " + availableAsLong() + " canRead: " +
-                    canRead + " wasRead: " + wasRead + " byteCount: " + byteCount +
-                    " byteOffset: " + byteOffset);
+            if (DEBUG) {
+               Log.d(TAG, "Split post read buf remaining: " + availableAsLong() + " canRead: " +
+                       canRead + " wasRead: " + wasRead + " byteCount: " + byteCount +
+                       " byteOffset: " + byteOffset);
+            }
             return wasRead;
 
          }
