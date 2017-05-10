@@ -250,6 +250,12 @@ namespace SampleApp {
                return new FailedUploadItem(this, ResourceStrings.uploadFileOpenFailed);
             }
             mSourceLength = fileInfo.Length;
+            if (null != mVideoJson) {
+               if (user.uploadVideo(mSource, mSourceLength, mVideoJson, mUploadManager, handler, this)) {
+                  return null;
+               }
+               return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
+            }
             if (user.uploadVideo(mSource, mSourceLength, getTitle(), getDescription(),
                      permission, mUploadManager, handler, this)) {
                return null;
