@@ -45,7 +45,7 @@
          this.ctrlCurrentAction.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
          this.ctrlCurrentAction.Location = new System.Drawing.Point(210, 4);
          this.ctrlCurrentAction.Name = "ctrlCurrentAction";
-         this.ctrlCurrentAction.Size = new System.Drawing.Size(504, 575);
+         this.ctrlCurrentAction.Size = new System.Drawing.Size(449, 626);
          this.ctrlCurrentAction.TabIndex = 1;
          // 
          // panel2
@@ -59,7 +59,7 @@
          this.panel2.Controls.Add(this.ctrlUploadVideo);
          this.panel2.Location = new System.Drawing.Point(4, 4);
          this.panel2.Name = "panel2";
-         this.panel2.Size = new System.Drawing.Size(200, 575);
+         this.panel2.Size = new System.Drawing.Size(200, 626);
          this.panel2.TabIndex = 2;
          this.panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
          // 
@@ -163,7 +163,7 @@
          this.Controls.Add(this.panel2);
          this.Controls.Add(this.ctrlCurrentAction);
          this.Name = "FormLoggedIn";
-         this.Size = new System.Drawing.Size(717, 582);
+         this.Size = new System.Drawing.Size(662, 633);
          this.Load += new System.EventHandler(this.FormLoggedIn_Load);
          this.panel2.ResumeLayout(false);
          this.panel2.PerformLayout();

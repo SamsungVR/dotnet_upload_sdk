@@ -18,10 +18,14 @@ namespace SampleApp {
 
       private void ctrlSelectFile_Click(object sender, EventArgs e) {
          DialogResult result = ctrlVideoChooser.ShowDialog();
+         ctrlSelectedFiles.Items.Clear();
          if (DialogResult.OK == result) {
-            ctrlSelectedFile.Text = ctrlVideoChooser.FileName;
-         } else {
-            ctrlSelectedFile.Text = string.Empty;
+            string[] files = ctrlVideoChooser.FileNames;
+            if (null != files) {
+               foreach (string file in files) {
+                  ctrlSelectedFiles.Items.Add(file);
+               }
+            }
          }
       }
 
@@ -164,9 +168,23 @@ namespace SampleApp {
             ctrlEnqueueStatus.Text = ResourceStrings.uploadDescriptionInvalid;
             return;
          }
-         String fileName = ctrlSelectedFile.Text;
-         mUploadVideoManager.getPendingUploadsModel().
-            addItem(new UploadVideoManager.PendingUploadItem(fileName, permission, title, description));
+         int count = ctrlSelectedFiles.Items.Count;
+         if (count > 0) {
+            if (count == 1) {
+               string fileName = (string)ctrlSelectedFiles.Items[0];
+               mUploadVideoManager.getPendingUploadsModel().
+                  addItem(new UploadVideoManager.PendingUploadItem(fileName, permission, title, description));
+            } else {
+               for (int i = 0; i < count; i += 1) {
+                  object fileObj = ctrlSelectedFiles.Items[i];
+                  string fileName = (string)fileObj;
+                  mUploadVideoManager.getPendingUploadsModel().
+                     addItem(new UploadVideoManager.PendingUploadItem(fileName, permission, 
+                     title + "_" + i, description + "_" + i));
+
+               }
+            }
+         }
       }
 
       private void ctrlRemovePending_Click(object sender, EventArgs e) {
