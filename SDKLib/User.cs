@@ -144,6 +144,14 @@ namespace SDKLib {
 
             public static readonly int STATUS_FILE_MODIFIED_AFTER_UPLOAD_REQUEST = 104;
 
+            /**
+             * The chunk that was requested to be uploaded is more than the number of 
+             * chunks the file has.  This could mean an attempt to upload a completely
+             * uploaded file or the file was truncated after an initial upload
+             */
+
+            public static readonly int STATUS_CURRENT_CHUNK_GREATER_THAN_NUM_CHUNKS = 105;
+
 
          }
 

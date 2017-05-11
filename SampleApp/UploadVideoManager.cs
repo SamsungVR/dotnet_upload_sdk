@@ -326,19 +326,24 @@ namespace SampleApp {
 
          internal readonly List<T> mItems = new List<T>();
          protected readonly UploadVideoManager mUploadVideoManager;
+         protected User.If mUser;
 
          internal ItemsModel(UploadVideoManager uploadVideoManager) {
             mUploadVideoManager = uploadVideoManager;
          }
 
-         internal bool loadItemsFrom(string data) {
-            if (string.Empty.Equals(data)) {
+         internal bool loadItemsFrom(string savedData) {
+            mItems.Clear();
+            if (string.Empty.Equals(savedData) || null == mUser) {
                return false;
             }
-            mItems.Clear();
+            string userId = mUser.getUserId();
+            if (null == userId) {
+               return false;
+            }
             try {
-               JObject jObject = JObject.Parse(data);
-               JArray jItems = (JArray)jObject.GetValue("items");
+               JObject jObject = JObject.Parse(savedData);
+               JArray jItems = (JArray)jObject.GetValue(userId);
                for (int i = 0; i < jItems.Count; i += 1) {
                   JObject jItem = jItems.Value<JObject>(i);
                   T nItem = newItem();
@@ -363,11 +368,13 @@ namespace SampleApp {
 
          internal virtual void addItem(T item) {
             mItems.Add(item);
+            save();
             onChanged();
          }
 
          internal void removeAllItems() {
             mItems.Clear();
+            save();
             onChanged();
          }
 
@@ -383,6 +390,7 @@ namespace SampleApp {
             if (mItems.Count > 0 && index >= 0 && index < mItems.Count) {
                T item = mItems[index];
                mItems.RemoveAt(index);
+               save();
                onChanged();
                return item;
             }
@@ -395,6 +403,7 @@ namespace SampleApp {
                mItems.RemoveAt(index);
                index -= 1;
                mItems.Insert(index, item);
+               save();
                onChanged();
                return true;
             }
@@ -407,30 +416,66 @@ namespace SampleApp {
                mItems.RemoveAt(index);
                index += 1;
                mItems.Insert(index, item);
+               save();
                onChanged();
                return true;
             }
             return false;
          }
 
-         internal string getAsString() {
+         internal JArray getAsJArray() {
             JArray jItems = new JArray();
 
             foreach (T item in mItems) {
                jItems.Add(item.getJObject());
             }
-            JObject jObject = new JObject();
-            jObject.Add("items", jItems);
-            return jObject.ToString();
+            return jItems;
+         }
+
+         internal string getSaveString(string currentStr, string debugMsg) {
+            if (null == mUser) {
+               return currentStr;
+            }
+            string userId = mUser.getUserId();
+            if (null == userId) {
+               return currentStr;
+            }
+            JObject current = null;
+            try {
+               current = JObject.Parse(currentStr);
+            } catch (Exception ex) {
+               current = new JObject();
+            }
+            JArray items = getAsJArray();
+            JToken exists = null;
+            if (current.TryGetValue(userId, out exists)) {
+               exists.Replace(items);
+            } else {
+               current.Add(userId, getAsJArray());
+            }
+            string result = current.ToString();
+            if (DEBUG) {
+               Log.d(TAG, "Save items: " + result + " debugMsg: " + debugMsg);
+            }
+            return result;
          }
 
          abstract internal void save();
-         abstract internal void onLoggedIn();
-         abstract internal void onLoggedOut();
 
-         virtual internal void onChanged() {
-            save();
+         virtual internal void onLoggedIn(User.If user, string savedData) {
+            mUser = user;
+            loadItemsFrom(savedData);
          }
+
+         abstract internal void onLoggedIn(User.If user);
+
+         virtual internal void onLoggedOut() {
+            mUser = null;
+            mItems.Clear();
+            onChanged();
+         }
+
+         abstract internal void onChanged();
       }
 
       private void onPendingItemsChanged() {
@@ -462,8 +507,8 @@ namespace SampleApp {
          internal PendingUploadItemsModel(UploadVideoManager uploadVideoManager) : base(uploadVideoManager) {
          }
 
-         internal override void onLoggedIn() {
-            loadItemsFrom(AppSettings.Default.pendingUploadData);
+         internal override void onLoggedIn(User.If user) {
+            base.onLoggedIn(user, AppSettings.Default.pendingUploadData);
          }
 
          internal override PendingUploadItem newItem() {
@@ -471,7 +516,8 @@ namespace SampleApp {
          }
 
          internal override void save() {
-            AppSettings.Default.pendingUploadData = getAsString();
+            AppSettings.Default.pendingUploadData = getSaveString(AppSettings.Default.pendingUploadData,
+               "pendingUploadData");
             AppSettings.Default.Save(); 
          }
 
@@ -483,14 +529,9 @@ namespace SampleApp {
          }
 
          internal override void onChanged() {
-            base.onChanged();
             mUploadVideoManager.onPendingItemsChanged();
          }
 
-         internal override void onLoggedOut() {
-            mItems.Clear();
-            mUploadVideoManager.onPendingItemsChanged();
-         }
       }
 
       internal class FailedUploadItemsModel : ItemsModel<FailedUploadItem> {
@@ -505,12 +546,12 @@ namespace SampleApp {
          }
 
          internal override void save() {
-            AppSettings.Default.failedUploadData = getAsString();
+            AppSettings.Default.failedUploadData = getSaveString(AppSettings.Default.failedUploadData,
+               "failedUploadData");
             AppSettings.Default.Save();
          }
 
          internal override void onChanged() {
-            base.onChanged();
             mUploadVideoManager.onFailedItemsChanged();
          }
 
@@ -518,14 +559,10 @@ namespace SampleApp {
             return new FailedUploadItem();
          }
 
-         internal override void onLoggedIn() {
-            loadItemsFrom(AppSettings.Default.failedUploadData);
+         internal override void onLoggedIn(User.If user) {
+            base.onLoggedIn(user, AppSettings.Default.failedUploadData);
          }
 
-         internal override void onLoggedOut() {
-            mItems.Clear();
-            mUploadVideoManager.onFailedItemsChanged();
-         }
       }
 
       internal class CompletedUploadItemsModel : ItemsModel<CompletedUploadItem> {
@@ -540,27 +577,21 @@ namespace SampleApp {
          }
 
          internal override void save() {
-            AppSettings.Default.completedUploadData = getAsString();
+            AppSettings.Default.completedUploadData = getSaveString(AppSettings.Default.completedUploadData,
+               "completedUploadData");
             AppSettings.Default.Save();
          }
 
          internal override void onChanged() {
-            base.onChanged();
             mUploadVideoManager.onCompletedItemsChanged();
          }
-
 
          internal override CompletedUploadItem newItem() {
             return new CompletedUploadItem();
          }
 
-         internal override void onLoggedIn() {
-            loadItemsFrom(AppSettings.Default.completedUploadData);
-         }
-
-         internal override void onLoggedOut() {
-            mItems.Clear();
-            mUploadVideoManager.onCompletedItemsChanged();
+         internal override void onLoggedIn(User.If user) {
+            base.onLoggedIn(user, AppSettings.Default.completedUploadData);
          }
 
       }
@@ -628,7 +659,10 @@ namespace SampleApp {
             (User.Result.UploadVideo.STATUS_BAD_FILE_LENGTH == mUploadFailureStatus) ||
             (User.Result.UploadVideo.STATUS_FILE_LENGTH_TOO_LONG == mUploadFailureStatus) ||
             (User.Result.UploadVideo.STATUS_INVALID_STEREOSCOPIC_TYPE == mUploadFailureStatus) ||
-            (User.Result.UploadVideo.STATUS_INVALID_AUDIO_TYPE == mUploadFailureStatus)) {
+            (User.Result.UploadVideo.STATUS_INVALID_AUDIO_TYPE == mUploadFailureStatus) ||
+            (User.Result.UploadVideo.STATUS_CURRENT_CHUNK_GREATER_THAN_NUM_CHUNKS == mUploadFailureStatus) ||
+            (User.Result.UploadVideo.STATUS_FILE_MODIFIED_AFTER_UPLOAD_REQUEST == mUploadFailureStatus)
+            ) {
             mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, 
                string.Format(ResourceStrings.uploadFailedWithStatus, mUploadFailureStatus)));
             onEndUpload();
@@ -750,7 +784,7 @@ namespace SampleApp {
       public void onProgress(object closure, float progressPercent, long complete, long max) {
          if (null != mActiveUpload) {
             mActiveUpload.setProgress(progressPercent, complete, max);
-            saveInProgressVideo();
+            saveInProgressVideo(mActiveUpload.mUser, mActiveUpload);
 
             foreach (Callback callback in mCallbacks) {
                callback.onUploadProgress(progressPercent, complete, max);
@@ -769,7 +803,7 @@ namespace SampleApp {
 
       public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
          mActiveUpload.onVideoIdAvailable(video);
-         saveInProgressVideo();
+         saveInProgressVideo(mActiveUpload.mUser, mActiveUpload);
       }
 
       public void onCancelled(object closure) {
@@ -797,9 +831,9 @@ namespace SampleApp {
          clearFailedUploadFlags();
          setUploadState(UploadState.END);
          if (null != mActiveUpload) {
+            saveInProgressVideo(mActiveUpload.mUser, null);
             mActiveUpload.destroy();
             mActiveUpload = null;
-            saveInProgressVideo();
          }
          PendingUploadItem nextItem = mPendingUploads.getItemAt(0);
          while (null != nextItem && null == mActiveUpload && tryUpload(nextItem)) {
@@ -833,7 +867,7 @@ namespace SampleApp {
          FailedUploadItem failure = aui.tryUpload();
          if (null == failure) {
             mActiveUpload = aui;
-            saveInProgressVideo();
+            saveInProgressVideo(user, aui);
             onBeginUpload();
             return true;
          }
@@ -855,19 +889,28 @@ namespace SampleApp {
       }
 
       internal void onLoggedIn() {
+         User.If user = mApp.getUser();
          try {
+            if (DEBUG) {
+               Log.d(TAG, "Restoring active upload for " + user.getUserId() + " from " + AppSettings.Default.inProgressUpload);
+            }
             JObject value = JObject.Parse(AppSettings.Default.inProgressUpload);
-            JToken check = null;
-            if (null != value && value.TryGetValue("time", out check)) {
-               ActiveUploadItem aui = new ActiveUploadItem(mApp.getUser(), this, value);
-               tryUpload(aui);
+            JToken active = null;
+
+            if (null != value && value.TryGetValue(user.getUserId(), out active)) {
+               JToken isValid = null;
+               JObject activeObj = ((JObject)active);
+               if (activeObj.TryGetValue("time", out isValid)) {
+                  ActiveUploadItem aui = new ActiveUploadItem(user, this, activeObj);
+                  tryUpload(aui);
+               }
             }
          } catch (Exception ex) {
+            Log.d(TAG, "Exception loading active upload " + ex);
          }
-
-         mFailedUploads.onLoggedIn();
-         mCompletedUploads.onLoggedIn();
-         mPendingUploads.onLoggedIn();
+         mFailedUploads.onLoggedIn(user);
+         mCompletedUploads.onLoggedIn(user);
+         mPendingUploads.onLoggedIn(user);
       }
 
       internal void onLoggedOut() {
@@ -878,17 +921,27 @@ namespace SampleApp {
 
       private const bool DEBUG = false;
 
-      private void saveInProgressVideo() {
+      private void saveInProgressVideo(User.If user, ActiveUploadItem activeUpload) {
          JObject value = null;
-         if (null != mActiveUpload) {
-            value = mActiveUpload.getPersistableJObject();
+         if (null == activeUpload) {
+            value = new JObject();
          } else {
-            value = null;
+            value = activeUpload.getPersistableJObject();
          }
-         string result = null;
-         if (null != value) {
-            result = value.ToString();
+         JObject current = null;
+         try {
+            current = JObject.Parse(AppSettings.Default.inProgressUpload);
+         } catch (Exception ex) {
+            current = new JObject();
          }
+         JToken exists = null;
+         string userId = user.getUserId();
+         if (current.TryGetValue(userId, out exists)) {
+            exists.Replace(value);
+         } else {
+            current.Add(userId, value);
+         }
+         string result = current.ToString();
          if (DEBUG) {
             Log.d(TAG, "Save in progress video: " + result);
          }

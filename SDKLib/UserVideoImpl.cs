@@ -309,6 +309,12 @@ namespace SDKLib {
             UserVideoImpl video = mVideo;
 
             int currentChunk = lastSuccessfulChunk + 1;
+
+            if (currentChunk >= mNumChunks) {
+               dispatchFailure(User.Result.UploadVideo.STATUS_CURRENT_CHUNK_GREATER_THAN_NUM_CHUNKS);
+               return;
+            }
+
             long filePos = currentChunk * chunkSize;
 
             string[,] headers0 = {
