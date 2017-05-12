@@ -380,6 +380,7 @@ namespace UILib {
       internal class LogoutRunnable : Runnable {
 
          public override void run() {
+            
             UILibSettings.Default.userId = null;
             UILibSettings.Default.userSessionToken = null;
             UILibSettings.Default.Save();

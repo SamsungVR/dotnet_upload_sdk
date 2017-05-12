@@ -85,6 +85,15 @@ namespace SDKLib {
          /// <returns>true if the live event query request is succesfuly sent to the server</returns>
          bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure);
 
+         /// <summary>Logout this user</summary>
+         /// <param name="callback">This may be NULL.</param>
+         /// <param name="handler">A handler on which callback should be called. If null, main handler is used.</param>
+         /// <param name="closure">An object that the application can use to uniquely identify this request.</param>
+         /// <returns>true if the request is succesfuly sent to the server</returns>
+
+         bool logout(Result.Logout.If callback, SynchronizationContext handler, object closure);
+
+
       }
 
       public sealed class Result {
@@ -92,10 +101,15 @@ namespace SDKLib {
          private Result() {
          }
 
-         /**
-          * Callback delivering results of uploadVideo. Most status codes
-          * are self explanatory. The non-obvious ones are documented.
-          */
+         public sealed class Logout {
+
+            private Logout() {
+            }
+
+            public interface If : VR.Result.BaseCallback.If, VR.Result.SuccessCallback.If {
+
+            }
+         }
 
          public sealed class UploadVideo {
 

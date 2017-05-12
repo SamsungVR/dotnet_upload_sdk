@@ -6,6 +6,7 @@ using System.Threading;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
+using static SDKLib.UserImpl;
 
 namespace SDKLib {
 
@@ -245,7 +246,7 @@ namespace SDKLib {
          UserImpl user = getContainer() as UserImpl;
          APIClientImpl apiClient = user.getContainer() as APIClientImpl;
 
-         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
          WorkItemQuery workItem = (WorkItemQuery)workQueue.obtainWorkItem(WorkItemQuery.TYPE);
          workItem.set(user, getId(), this, callback, handler, closure);
@@ -256,7 +257,7 @@ namespace SDKLib {
          UserImpl user = getContainer() as UserImpl;
          APIClientImpl apiClient = user.getContainer() as APIClientImpl;
 
-         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
 
          WorkItemFinish workItem = (WorkItemFinish)workQueue.obtainWorkItem(WorkItemFinish.TYPE);
@@ -268,7 +269,7 @@ namespace SDKLib {
       public bool delete(UserLiveEvent.Result.Delete.If callback, SynchronizationContext handler, object closure) {
          UserImpl user = getContainer() as UserImpl;
          APIClientImpl apiClient = user.getContainer() as APIClientImpl;
-         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
          WorkItemDelete workItem = (WorkItemDelete)workQueue.obtainWorkItem(WorkItemDelete.TYPE);
          workItem.set(this, callback, handler, closure);
          return workQueue.enqueue(workItem);
@@ -337,7 +338,7 @@ namespace SDKLib {
          return ret;
       }
 
-      internal class WorkItemQuery : ClientWorkItem {
+      internal class WorkItemQuery : WorkItemForUser {
 
          private class WorkItemTypeQuery : AsyncWorkItemType {
 
@@ -353,23 +354,20 @@ namespace SDKLib {
             : base(apiClient, TYPE) {
          }
 
-         private UserImpl mUser;
          private string mUserLiveEventId;
          private UserLiveEventImpl mUserLiveEventImpl;
 
 
          public WorkItemQuery set(UserImpl user, string userLiveEventId, UserLiveEventImpl userLiveEventImpl,
                 UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
-            base.set(callback, handler, closure);
+            base.set(user, callback, handler, closure);
             mUserLiveEventImpl = userLiveEventImpl;
             mUserLiveEventId = userLiveEventId;
-            mUser = user;
             return this;
          }
 
          protected override void recycle() {
             base.recycle();
-            mUser = null;
             mUserLiveEventId = null;
             mUserLiveEventImpl = null;
          }
@@ -439,7 +437,7 @@ namespace SDKLib {
        * Finish
        */
 
-      internal class WorkItemFinish : ClientWorkItem {
+      internal class WorkItemFinish : WorkItemForUser {
 
 
          private class WorkItemTypeQuery : AsyncWorkItemType {
@@ -451,9 +449,7 @@ namespace SDKLib {
 
          public static readonly AsyncWorkItemType TYPE = new WorkItemTypeQuery();
 
-
-         WorkItemFinish(APIClientImpl apiClient)
-            : base(apiClient, TYPE) {
+         WorkItemFinish(APIClientImpl apiClient) : base(apiClient, TYPE) {
          }
 
          private UserLiveEventImpl mUserLiveEvent;
@@ -461,7 +457,7 @@ namespace SDKLib {
          public WorkItemFinish set(UserLiveEventImpl userLiveEvent, UserLiveEvent.Result.Finish.If callback,
             SynchronizationContext handler, object closure) {
 
-            base.set(callback, handler, closure);
+            base.set((UserImpl)userLiveEvent.getUser(), callback, handler, closure);
             mUserLiveEvent = userLiveEvent;
             return this;
          }
@@ -529,7 +525,7 @@ namespace SDKLib {
        * Delete
        */
 
-      internal class WorkItemDelete : ClientWorkItem {
+      internal class WorkItemDelete : WorkItemForUser {
 
          private class WorkItemTypeDelete : AsyncWorkItemType {
 
@@ -540,15 +536,14 @@ namespace SDKLib {
 
          public static readonly AsyncWorkItemType TYPE = new WorkItemTypeDelete();
 
-         WorkItemDelete(APIClientImpl apiClient)
-            : base(apiClient, TYPE) {
+         WorkItemDelete(APIClientImpl apiClient) : base(apiClient, TYPE) {
          }
 
          private UserLiveEventImpl mUserLiveEvent;
 
          public WorkItemDelete set(UserLiveEventImpl userLiveEvent, UserLiveEvent.Result.Delete.If callback,
              SynchronizationContext handler, object closure) {
-            base.set(callback, handler, closure);
+            base.set((UserImpl)userLiveEvent.getUser(), callback, handler, closure);
             mUserLiveEvent = userLiveEvent;
             return this;
          }
@@ -611,14 +606,11 @@ namespace SDKLib {
       }
 
 
-
-
-
       /*
        * Upload live
        */
 
-      abstract internal class WorkItemSegmentUploadBase : ClientWorkItem {
+      abstract internal class WorkItemSegmentUploadBase : WorkItemForUser {
 
          private ObjectHolder<bool> mCancelHolder;
 
@@ -626,9 +618,9 @@ namespace SDKLib {
             : base(apiClient, type) {
          }
 
-         protected void set(ObjectHolder<bool> cancelHolder, UserLiveEvent.Result.UploadSegment.If callback, SynchronizationContext handler,
+         protected void set(ObjectHolder<bool> cancelHolder, UserImpl user, UserLiveEvent.Result.UploadSegment.If callback, SynchronizationContext handler,
                             object closure) {
-            base.set(callback, handler, closure);
+            base.set(user, callback, handler, closure);
             mCancelHolder = cancelHolder;
          }
 
@@ -701,7 +693,7 @@ namespace SDKLib {
              Stream source, long length, UserLiveEvent.Result.UploadSegment.If callback, SynchronizationContext handler,
              object closure) {
 
-            set(new ObjectHolder<bool>(false), callback, handler, closure);
+            set(new ObjectHolder<bool>(false), (UserImpl)userLiveEvent.getUser(), callback, handler, closure);
             mSegmentId = segmentId;
             mUserLiveEvent = userLiveEvent;
             mSource = source;
@@ -804,9 +796,6 @@ namespace SDKLib {
 
          }
       }
-
-
-
    }
 
 }

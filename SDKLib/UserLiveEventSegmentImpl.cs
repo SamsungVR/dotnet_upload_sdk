@@ -133,7 +133,7 @@ namespace SDKLib {
              Stream source, long length, string initialSignedUrl, string segmentId,
              UserLiveEvent.Result.UploadSegment.If callback, SynchronizationContext handler, object closure) {
 
-            base.set(cancelHolder, callback, handler, closure);
+            base.set(cancelHolder, (UserImpl)userLiveEvent.getUser(), callback, handler, closure);
             mSegment = segment;
             mUploadUrl = uploadUrl;
             mMD5Digest = md5Digest;
@@ -195,8 +195,6 @@ namespace SDKLib {
             }
 
          }
-
-
 
          override protected void onRun() {
 

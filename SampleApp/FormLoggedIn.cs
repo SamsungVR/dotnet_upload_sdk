@@ -78,6 +78,7 @@ namespace SampleApp {
       }
 
       private void ctrlLogout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+         App.getInstance().getUser().logout(null, App.getInstance().getHandler(), null);
          if (App.USE_UILIB && !UILib.UILib.logout()) {
             return;
          }

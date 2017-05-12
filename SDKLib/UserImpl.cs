@@ -72,11 +72,9 @@ namespace SDKLib {
          return mMD5Digest;
       }
 
-
       public override object containedGetIdLocked() {
          return getLocked(PROP_USER_ID);
       }
-
 
       public override void containedOnCreateInServiceLocked() {
       }
@@ -113,19 +111,44 @@ namespace SDKLib {
 
 
       public bool createLiveEvent(string title, string description, UserVideo.Permission permission, UserLiveEvent.Source source,
-        UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
+         UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
                                      SynchronizationContext handler, object closure) {
          APIClientImpl apiClient = getContainer() as APIClientImpl;
-         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
          WorkItemCreateLiveEvent workItem = (WorkItemCreateLiveEvent)workQueue.obtainWorkItem(WorkItemCreateLiveEvent.TYPE);
          workItem.set(this, title, description, permission, source, videoStereoscopyType, callback, handler, closure);
          return workQueue.enqueue(workItem);
       }
 
+      private bool mLoggedIn = true;
+
+      internal bool isLoggedIn() {
+         return mLoggedIn;
+      }
+
+      public bool logout(User.Result.Logout.If callback, SynchronizationContext handler, object closure) {
+         if (!mLoggedIn) {
+            return false;
+         }
+         mLoggedIn = false;
+
+         APIClientImpl apiClient = getContainer() as APIClientImpl;
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
+
+         LogoutCanceller canceller = new LogoutCanceller(this);
+         apiClient.getAsyncUploadQueue().iterateWorkItems(canceller, null);
+         apiClient.getAsyncWorkQueue().iterateWorkItems(canceller, null);
+
+         WorkItemLogout workItem = (WorkItemLogout)workQueue.obtainWorkItem(WorkItemLogout.TYPE);
+         workItem.set(this, callback, handler, closure);
+         return workQueue.enqueue(workItem);
+
+      }
+
       public bool queryLiveEvents(User.Result.QueryLiveEvents.If callback, SynchronizationContext handler, object closure) {
          APIClientImpl apiClient = getContainer() as APIClientImpl;
-         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
          WorkItemQueryLiveEvents workItem = (WorkItemQueryLiveEvents)workQueue.obtainWorkItem(WorkItemQueryLiveEvents.TYPE);
          workItem.set(this, callback, handler, closure);
@@ -134,7 +157,7 @@ namespace SDKLib {
 
       public bool queryLiveEvent(string liveEventId, UserLiveEvent.Result.Query.If callback, SynchronizationContext handler, object closure) {
          APIClientImpl apiClient = getContainer() as APIClientImpl;
-         AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
+         AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
          UserLiveEventImpl.WorkItemQuery workItem = (UserLiveEventImpl.WorkItemQuery)workQueue.obtainWorkItem(UserLiveEventImpl.WorkItemQuery.TYPE);
          workItem.set(this, liveEventId, null, callback, handler, closure);
@@ -201,6 +224,28 @@ namespace SDKLib {
 
       }
 
+      private class LogoutCanceller : AsyncWorkQueue.IterationObserver {
+
+         private readonly UserImpl mUser;
+
+         public LogoutCanceller(UserImpl user) {
+            mUser = user;
+         }
+
+         public bool onIterate(AsyncWorkItem workItem, object args) {
+            if (workItem is WorkItemForUser) {
+               WorkItemForUser workItemForUser = (WorkItemForUser)workItem;
+               if (workItemForUser.getUser() == mUser) {
+                  workItem.cancel();
+                  Log.d(TAG, "Cancelled work item for user" + workItem);
+
+               }
+            }
+            return true;
+         }
+
+      }
+
       public bool cancelUploadVideo(object closure) {
          Log.d(TAG, "Cancelled video upload requested with closure: " + closure);
          APIClientImpl apiClient = getContainer() as APIClientImpl;
@@ -257,7 +302,36 @@ namespace SDKLib {
          return default(U);
       }
 
-      internal abstract class WorkItemVideoUploadBase : ClientWorkItem {
+      internal abstract class WorkItemForUser : ClientWorkItem {
+
+         internal WorkItemForUser(APIClientImpl apiClient, AsyncWorkItemType type) : base(apiClient, type) {
+         }
+
+         protected UserImpl mUser;
+
+         public WorkItemForUser set(UserImpl user, VR.Result.BaseCallback.If callback, SynchronizationContext handler, object closure) {
+            base.set(callback, handler, closure);
+            mUser = user;
+            return this;
+         }
+
+         internal UserImpl getUser() {
+            return mUser;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mUser = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemForUser));
+
+         override public bool isCancelled() {
+            return base.isCancelled() && !mUser.isLoggedIn();
+         }
+      }
+
+      internal abstract class WorkItemVideoUploadBase : WorkItemForUser {
 
          private ObjectHolder<bool> mCancelHolder;
 
@@ -265,9 +339,9 @@ namespace SDKLib {
             : base(apiClient, type) {
          }
 
-         protected void set(ObjectHolder<bool> cancelHolder, User.Result.UploadVideo.If callback, SynchronizationContext handler,
+         protected void set(ObjectHolder<bool> cancelHolder, UserImpl user, User.Result.UploadVideo.If callback, SynchronizationContext handler,
                   object closure) {
-            base.set(callback, handler, closure);
+            base.set(user, callback, handler, closure);
             mCancelHolder = cancelHolder;
          }
 
@@ -331,7 +405,6 @@ namespace SDKLib {
          private Stream mSource;
          private long mLength;
          private String mTitle, mDescription;
-         private UserImpl mUser;
          private UserVideo.Permission mPermission;
 
          public WorkItemNewVideoUpload set(UserImpl user,
@@ -339,8 +412,7 @@ namespace SDKLib {
                  UserVideo.Permission permission, User.Result.UploadVideo.If callback, SynchronizationContext handler,
                  object closure) {
 
-            set(new ObjectHolder<bool>(false), callback, handler, closure);
-            mUser = user;
+            set(new ObjectHolder<bool>(false), user, callback, handler, closure);
             mTitle = title;
             mDescription = description;
             mSource = source;
@@ -353,7 +425,6 @@ namespace SDKLib {
             base.recycle();
             mSource = null;
             mTitle = null;
-            mUser = null;
             mDescription = null;
          }
 
@@ -481,15 +552,13 @@ namespace SDKLib {
 
          private Stream mSource;
          private long mLength;
-         private UserImpl mUser;
          private UserVideoImpl mUserVideo;
 
          public WorkItemStaleVideoUpload set(UserImpl user,
-                 Stream source, long length, UserVideoImpl userVideo, User.Result.UploadVideo.If callback, 
+                 Stream source, long length, UserVideoImpl userVideo, User.Result.UploadVideo.If callback,
                  SynchronizationContext handler, object closure) {
 
-            set(new ObjectHolder<bool>(false), callback, handler, closure);
-            mUser = user;
+            set(new ObjectHolder<bool>(false), user, callback, handler, closure);
             mSource = source;
             mLength = length;
             mUserVideo = userVideo;
@@ -500,7 +569,6 @@ namespace SDKLib {
             base.recycle();
             mSource = null;
             mUserVideo = null;
-            mUser = null;
          }
 
          private static readonly string TAG = Util.getLogTag(typeof(WorkItemStaleVideoUpload));
@@ -520,9 +588,7 @@ namespace SDKLib {
                }
 
             } finally {
-               
             }
-
          }
       }
 
@@ -530,7 +596,7 @@ namespace SDKLib {
        * Create
        */
 
-      internal class WorkItemCreateLiveEvent : ClientWorkItem {
+      internal class WorkItemCreateLiveEvent : WorkItemForUser {
 
          private class WorkItemTypeCreateLiveEvent : AsyncWorkItemType {
 
@@ -541,8 +607,7 @@ namespace SDKLib {
 
          public static readonly AsyncWorkItemType TYPE = new WorkItemTypeCreateLiveEvent();
 
-         WorkItemCreateLiveEvent(APIClientImpl apiClient)
-            : base(apiClient, TYPE) {
+         WorkItemCreateLiveEvent(APIClientImpl apiClient) : base(apiClient, TYPE) {
          }
 
          private string mTitle, mDescription;
@@ -550,15 +615,13 @@ namespace SDKLib {
          private UserVideo.Permission mPermission;
 
          UserVideo.VideoStereoscopyType mVideoStereoscopyType;
-         private UserImpl mUser;
 
          public WorkItemCreateLiveEvent set(UserImpl user, string title, string description,
              UserVideo.Permission permission, UserLiveEvent.Source source,
              UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
              SynchronizationContext handler, object closure) {
 
-            base.set(callback, handler, closure);
-            mUser = user;
+            base.set(user, callback, handler, closure);
             mTitle = title;
             mPermission = permission;
             mDescription = description;
@@ -571,7 +634,6 @@ namespace SDKLib {
             base.recycle();
             mDescription = null;
             mTitle = null;
-            mUser = null;
          }
 
          private static readonly string TAG = Util.getLogTag(typeof(WorkItemCreateLiveEvent));
@@ -658,7 +720,7 @@ namespace SDKLib {
          }
       }
 
-      internal class WorkItemQueryLiveEvents : ClientWorkItem {
+      internal class WorkItemQueryLiveEvents : WorkItemForUser {
 
          private class WorkItemTypeQueryLiveEvents : AsyncWorkItemType {
 
@@ -673,18 +735,10 @@ namespace SDKLib {
             : base(apiClient, TYPE) {
          }
 
-         private UserImpl mUser;
-
          public WorkItemQueryLiveEvents set(UserImpl user, User.Result.QueryLiveEvents.If callback,
              SynchronizationContext handler, object closure) {
-            base.set(callback, handler, closure);
-            mUser = user;
+            base.set(user, callback, handler, closure);
             return this;
-         }
-
-         protected override void recycle() {
-            base.recycle();
-            mUser = null;
          }
 
          private static readonly string TAG = Util.getLogTag(typeof(WorkItemQueryLiveEvents));
@@ -743,6 +797,44 @@ namespace SDKLib {
          }
       }
 
+      internal class WorkItemLogout : WorkItemForUser {
 
+         private class WorkItemTypeLogout : AsyncWorkItemType {
+
+            public AsyncWorkItem newInstance(APIClientImpl apiClient) {
+               return new WorkItemLogout(apiClient);
+            }
+         }
+
+         public static readonly AsyncWorkItemType TYPE = new WorkItemTypeLogout();
+
+         WorkItemLogout(APIClientImpl apiClient) : base(apiClient, TYPE) {
+         }
+
+         private UserImpl mUser;
+
+         public WorkItemLogout set(UserImpl user, User.Result.Logout.If callback, SynchronizationContext handler, object closure) {
+            base.set(callback, handler, closure);
+            mUser = user;
+            return this;
+         }
+
+         protected override void recycle() {
+            base.recycle();
+            mUser = null;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(WorkItemLogout));
+
+         protected override void onRun() {
+
+            try {
+
+               dispatchSuccess();
+            } finally {
+            }
+
+         }
+      }
    }
 }

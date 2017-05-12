@@ -174,7 +174,6 @@ namespace SDKLib {
          private int mChunkSize, mNumChunks, mLastSuccessfulChunk;
          private long mLength;
          private string mVideoId, mUploadId, mInitialSignedUrl;
-         private UserImpl mUser;
 
          protected override void dispatchCounted(Util.CallbackNotifier notifier) {
             base.dispatchCounted(notifier);
@@ -203,9 +202,8 @@ namespace SDKLib {
              string initialSignedUrl, string videoId, string uploadId, int chunkSize, int numChunks,
              int lastSuccessfulChunk, User.Result.UploadVideo.If callback, SynchronizationContext handler, object closure) {
 
-            base.set(cancelHolder, callback, handler, closure);
+            base.set(cancelHolder, user, callback, handler, closure);
             mVideo = video;
-            mUser = user;
             mLastSuccessfulChunk = lastSuccessfulChunk;
             mSource = source;
             mLength = length;
@@ -219,7 +217,6 @@ namespace SDKLib {
 
          protected override void recycle() {
             base.recycle();
-            mUser = null;
             mSource = null;
             mLength = 0;
             mInitialSignedUrl = null;
@@ -447,5 +444,4 @@ namespace SDKLib {
 
       }
    }
-
 }
