@@ -63,13 +63,22 @@ namespace SampleApp {
             }
          }
 
-         public void onLogout(object closure) {
-            Log.d(TAG, "logout");
+         public void onLogoutSuccess(User.If user, object closure) {
+            Log.d(TAG, "logout success");
+            sApp.setUser(null);
             UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
             foreach (UILib.UILib.Callback subCallback in temp) {
-               subCallback.onLogout(closure);
+               subCallback.onLogoutSuccess(user, closure);
             }
-            sApp.setUser(null);
+
+         }
+
+         public void onLogoutFailure(User.If user, object closure) {
+            Log.d(TAG, "logout failure");
+            UILib.UILib.Callback[] temp = mSubCallbacks.ToArray();
+            foreach (UILib.UILib.Callback subCallback in temp) {
+               subCallback.onLogoutFailure(user, closure);
+            }
          }
       }
 

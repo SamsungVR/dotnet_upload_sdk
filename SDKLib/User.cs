@@ -24,6 +24,7 @@ namespace SDKLib {
          string getProfilePicUrl();
          string getSessionToken();
          string getUserId();
+         bool isLoggedIn();
 
 
          /// <summary>Upload a video</summary>
@@ -92,7 +93,6 @@ namespace SDKLib {
          /// <returns>true if the request is succesfuly sent to the server</returns>
 
          bool logout(Result.Logout.If callback, SynchronizationContext handler, object closure);
-
 
       }
 

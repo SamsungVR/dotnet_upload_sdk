@@ -77,6 +77,7 @@ namespace SDKLib {
       }
 
       public override void containedOnCreateInServiceLocked() {
+         mLoggedIn = true;
       }
 
       public override void containedOnDeleteFromServiceLocked() {
@@ -86,6 +87,7 @@ namespace SDKLib {
       }
 
       public override bool containedOnQueryFromServiceLocked(JObject jsonObject) {
+         mLoggedIn = true;
          return processQueryFromServiceLocked(jsonObject);
       }
 
@@ -113,6 +115,10 @@ namespace SDKLib {
       public bool createLiveEvent(string title, string description, UserVideo.Permission permission, UserLiveEvent.Source source,
          UserVideo.VideoStereoscopyType videoStereoscopyType, User.Result.CreateLiveEvent.If callback,
                                      SynchronizationContext handler, object closure) {
+         if (!isLoggedIn()) {
+            return false;
+         }
+
          APIClientImpl apiClient = getContainer() as APIClientImpl;
          AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
@@ -123,12 +129,12 @@ namespace SDKLib {
 
       private bool mLoggedIn = true;
 
-      internal bool isLoggedIn() {
+      public bool isLoggedIn() {
          return mLoggedIn;
       }
 
       public bool logout(User.Result.Logout.If callback, SynchronizationContext handler, object closure) {
-         if (!mLoggedIn) {
+         if (!isLoggedIn()) {
             return false;
          }
          mLoggedIn = false;
@@ -149,6 +155,9 @@ namespace SDKLib {
       public bool queryLiveEvents(User.Result.QueryLiveEvents.If callback, SynchronizationContext handler, object closure) {
          APIClientImpl apiClient = getContainer() as APIClientImpl;
          AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
+         if (!isLoggedIn()) {
+            return false;
+         }
 
          WorkItemQueryLiveEvents workItem = (WorkItemQueryLiveEvents)workQueue.obtainWorkItem(WorkItemQueryLiveEvents.TYPE);
          workItem.set(this, callback, handler, closure);
@@ -159,6 +168,10 @@ namespace SDKLib {
          APIClientImpl apiClient = getContainer() as APIClientImpl;
          AsyncWorkQueue workQueue = apiClient.getAsyncWorkQueue();
 
+         if (!isLoggedIn()) {
+            return false;
+         }
+
          UserLiveEventImpl.WorkItemQuery workItem = (UserLiveEventImpl.WorkItemQuery)workQueue.obtainWorkItem(UserLiveEventImpl.WorkItemQuery.TYPE);
          workItem.set(this, liveEventId, null, callback, handler, closure);
          return workQueue.enqueue(workItem);
@@ -167,6 +180,9 @@ namespace SDKLib {
       public bool uploadVideo(System.IO.Stream source, long length, string title, string description,
          UserVideo.Permission permission, User.Result.UploadVideo.If callback, System.Threading.SynchronizationContext handler, object closure) {
 
+         if (!isLoggedIn()) {
+            return false;
+         }
          APIClientImpl apiClient = getContainer() as APIClientImpl;
          AsyncWorkQueue workQueue = apiClient.getAsyncUploadQueue();
 
@@ -178,6 +194,9 @@ namespace SDKLib {
 
       public bool uploadVideo(Stream source, long length, JObject serializedUserVideo, User.Result.UploadVideo.If callback,
          SynchronizationContext handler, object closure) {
+         if (!isLoggedIn()) {
+            return false;
+         }
 
          UserVideoImpl userVideo = UserVideoImpl.fromJObject(this, serializedUserVideo);
          if (null == userVideo) {
@@ -326,9 +345,11 @@ namespace SDKLib {
 
          private static readonly string TAG = Util.getLogTag(typeof(WorkItemForUser));
 
+         /*
          override public bool isCancelled() {
             return base.isCancelled() && !mUser.isLoggedIn();
          }
+         */
       }
 
       internal abstract class WorkItemVideoUploadBase : WorkItemForUser {
@@ -811,25 +832,11 @@ namespace SDKLib {
          WorkItemLogout(APIClientImpl apiClient) : base(apiClient, TYPE) {
          }
 
-         private UserImpl mUser;
-
-         public WorkItemLogout set(UserImpl user, User.Result.Logout.If callback, SynchronizationContext handler, object closure) {
-            base.set(callback, handler, closure);
-            mUser = user;
-            return this;
-         }
-
-         protected override void recycle() {
-            base.recycle();
-            mUser = null;
-         }
-
          private static readonly string TAG = Util.getLogTag(typeof(WorkItemLogout));
 
          protected override void onRun() {
 
             try {
-
                dispatchSuccess();
             } finally {
             }

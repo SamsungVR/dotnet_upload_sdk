@@ -772,11 +772,17 @@ namespace SampleApp {
       }
 
       public void onException(object closure, Exception ex) {
+         if (DEBUG) {
+            Log.d(TAG, "onException " + closure + " " + mActiveUpload + " " + ex);
+         }
          mUploadException = ex;
          setUploadState(UploadState.PAUSED);
       }
 
       public void onFailure(object closure, int status) {
+         if (DEBUG) {
+            Log.d(TAG, "onFailure " + closure + " " + mActiveUpload + " " + status);
+         }
          mUploadFailureStatus = status;
          setUploadState(UploadState.PAUSED);
       }
@@ -797,16 +803,26 @@ namespace SampleApp {
       }
 
       public void onSuccess(object closure) {
+         if (DEBUG) {
+            Log.d(TAG, "onSuccess " + closure + " " + mActiveUpload);
+         }
          mCompletedUploads.addItem(new CompletedUploadItem(mActiveUpload));
          onEndUpload();
       }
 
       public void onVideoIdAvailable(object closure, SDKLib.UserVideo.If video) {
+         if (DEBUG) {
+            Log.d(TAG, "onVideoIdAvailable " + closure + " " + video + " " + mActiveUpload);
+         }
+
          mActiveUpload.onVideoIdAvailable(video);
          saveInProgressVideo(mActiveUpload.mUser, mActiveUpload);
       }
 
       public void onCancelled(object closure) {
+         if (DEBUG) {
+            Log.d(TAG, "onCancelled " + closure + " " + mActiveUpload);
+         }
          mFailedUploads.addItem(new FailedUploadItem(mActiveUpload, ResourceStrings.uploadCancelled));
          onEndUpload();
       }
@@ -890,6 +906,10 @@ namespace SampleApp {
 
       internal void onLoggedIn() {
          User.If user = mApp.getUser();
+         if (DEBUG) {
+            Log.d(TAG, "onLoggedIn " + user);
+         }
+
          try {
             if (DEBUG) {
                Log.d(TAG, "Restoring active upload for " + user.getUserId() + " from " + AppSettings.Default.inProgressUpload);
@@ -914,14 +934,23 @@ namespace SampleApp {
       }
 
       internal void onLoggedOut() {
+         if (DEBUG) {
+            Log.d(TAG, "onLoggedOut " + mActiveUpload);
+         }
          mFailedUploads.onLoggedOut();
          mCompletedUploads.onLoggedOut();
          mPendingUploads.onLoggedOut();
+         if (null != mActiveUpload) {
+            mActiveUpload.cancelUpload();
+         }
       }
 
-      private const bool DEBUG = false;
+      private const bool DEBUG = true;
 
       private void saveInProgressVideo(User.If user, ActiveUploadItem activeUpload) {
+         if (!user.isLoggedIn()) {
+            return;
+         }
          JObject value = null;
          if (null == activeUpload) {
             value = new JObject();

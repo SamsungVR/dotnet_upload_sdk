@@ -206,6 +206,9 @@
     <EmbeddedResource Include="FormBase.resx">
       <DependentUpon>FormBase.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormSub.resx">
+      <DependentUpon>FormSub.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormUILibLogin.resx">
       <DependentUpon>FormUILibLogin.cs</DependentUpon>
     </EmbeddedResource>

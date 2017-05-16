@@ -1,27 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using SDKLib;
 
 namespace SampleApp {
-   public partial class FormLoggedIn : UserControl {
-      public FormLoggedIn() {
-         InitializeComponent();
-      }
 
-      private void FormLoggedIn_Load(object sender, EventArgs e) {
-         User.If user = App.getInstance().getUser();
-         if (null != user) {
-            ctrlUsername.Text = user.getName();
-            ctrlEmail.Text = user.getEmail();
-            ctrlProfilePic.ImageLocation = user.getProfilePicUrl();
+   public partial class FormLoggedIn : FormSub {
+
+      class CallbackUILib : UILib.UILib.Callback {
+
+         private readonly FormLoggedIn mFormLoggedIn;
+
+         public CallbackUILib(FormLoggedIn formLoggedIn) {
+            mFormLoggedIn = formLoggedIn;
+         }
+
+         private static readonly string TAG = Util.getLogTag(typeof(CallbackUILib));
+
+         public void onLibInitStatus(object closure, bool status) {
+         }
+
+         public void onLibDestroyStatus(object closure, bool status) {
+         }
+
+         public void onLogoutSuccess(User.If user, object closure) {
+            App app = App.getInstance();
+            app.getFormMain().setControl(new FormUILibLogin());
+
+         }
+
+         public void onLogoutFailure(User.If user, object closure) {
+         }
+
+         public void onLoginSuccess(User.If user, object closure) {
+         }
+
+         public void onLoginFailure(object closure) {
+         }
+
+         public void showLoginUI(UserControl loginUI, object closure) {
          }
       }
 
+      private readonly CallbackUILib mCallbackUILib;
+
+      public FormLoggedIn() {
+         InitializeComponent();
+         mCallbackUILib = new CallbackUILib(this);
+      }
 
       private FormBase mControl;
 
@@ -78,11 +103,36 @@ namespace SampleApp {
       }
 
       private void ctrlLogout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-         App.getInstance().getUser().logout(null, App.getInstance().getHandler(), null);
-         if (App.USE_UILIB && !UILib.UILib.logout()) {
-            return;
+         
+         if (App.USE_UILIB) {
+            if (UILib.UILib.logout()) {
+               return;
+            }
+         } else {
+            User.If user = App.getInstance().getUser();
+            if (null != user) {
+               user.logout(null, App.getInstance().getHandler(), null);
+            }
          }
+         
          App.getInstance().showLoginForm();
+      }
+
+      public override void onAdded() {
+         base.onAdded();
+         App.getInstance().mUILibCallback.mSubCallbacks.Add(mCallbackUILib);
+         User.If user = App.getInstance().getUser();
+         if (null != user) {
+            ctrlUsername.Text = user.getName();
+            ctrlEmail.Text = user.getEmail();
+            ctrlProfilePic.ImageLocation = user.getProfilePicUrl();
+         }
+      }
+
+
+      public override void onRemoved() {
+         base.onRemoved();
+         App.getInstance().mUILibCallback.mSubCallbacks.Remove(mCallbackUILib);
       }
 
       private void panel2_Paint(object sender, PaintEventArgs e) {

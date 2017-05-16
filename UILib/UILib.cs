@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDKLib;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -33,6 +34,8 @@ namespace UILib {
          }
       }
 
+      private static User.If sUser;
+
       internal class UILibImpl {
 
          internal readonly object mLock = new object();
@@ -48,12 +51,13 @@ namespace UILib {
          internal FormMain mFormMain = null;
 
          internal void onLoginSuccessInternal(SDKLib.User.If user, bool save) {
+            sUser = user;
             if (save) {
                UILibSettings.Default.userId = user.getUserId();
                UILibSettings.Default.userSessionToken = user.getSessionToken();
                UILibSettings.Default.Save();
             }
-            new LoginSuccessNotifier(this, user).postSelf(mHandler);
+            new LoginSuccessNotifier(this, sUser).postSelf(mHandler);
          }
       }
 
@@ -98,7 +102,8 @@ namespace UILib {
          void onLoginSuccess(SDKLib.User.If user, object closure);
          void onLoginFailure(object closure);
 
-         void onLogout(object closure);
+         void onLogoutSuccess(User.If user, object closure);
+         void onLogoutFailure(User.If user, object closure);
 
          void showLoginUI(UserControl loginUI, object closure);
       }
@@ -274,7 +279,6 @@ namespace UILib {
          }
       }
 
-
       public static bool destroy() {
          lock (sLock) {
             if (null == sUILib || null == sMainHandler) {
@@ -362,42 +366,89 @@ namespace UILib {
             if (null == sUILib || null == sMainHandler) {
                return false;
             }
-            new LoginRunnable().postSelf(sMainHandler);
+            LoginRunnable r = new LoginRunnable();
+            if (null != sUser) {
+               new LogoutRunnable(sUser, r).postSelf(sMainHandler);
+            } else {
+               r.postSelf(sMainHandler);
+            }
             return true;
          }
       }
 
       internal class LogoutStatusNotifier : CallbackNotifier {
 
-         public LogoutStatusNotifier(UILibImpl uiLibImpl) : base(uiLibImpl) {
+         private readonly bool mSuccess;
+         private readonly User.If mUser;
+
+         public LogoutStatusNotifier(UILibImpl uiLibImpl, User.If user, bool success) : base(uiLibImpl) {
+            mSuccess = success;
+            mUser = user;
          }
 
          protected override void onRun(UILib.Callback callback, object closure) {
-            callback.onLogout(closure);
+            if (mSuccess) {
+               callback.onLogoutSuccess(mUser, closure);
+            } else {
+               callback.onLogoutFailure(mUser, closure);
+            }
          }
       }
 
-      internal class LogoutRunnable : Runnable {
+      internal class LogoutRunnable : Runnable, User.Result.Logout.If {
+
+         private readonly User.If mUser;
+         private readonly LoginRunnable mLoginRunnable;
+
+         internal LogoutRunnable(User.If user, LoginRunnable loginRunnable) {
+            mUser = user;
+            mLoginRunnable = loginRunnable;
+         }
 
          public override void run() {
-            
+            if (null != mUser) {
+               mUser.logout(this, sMainHandler, null);
+            }
+         }
+
+         private void cleanupLoginInfo() {
             UILibSettings.Default.userId = null;
             UILibSettings.Default.userSessionToken = null;
             UILibSettings.Default.Save();
-            new LogoutStatusNotifier(sUILib).postSelf(sUILib.mHandler);
+            sUser = null;
          }
+
+         public void onFailure(object closure, int status) {
+            new LogoutStatusNotifier(sUILib, mUser, false).postSelf(sUILib.mHandler);
+         }
+
+         public void onSuccess(object closure) {
+            cleanupLoginInfo();
+            new LogoutStatusNotifier(sUILib, mUser, true).postSelf(sUILib.mHandler);
+            if (null != mLoginRunnable) {
+               mLoginRunnable.postSelf(sUILib.mHandler);
+            }
+         }
+
+         public void onCancelled(object closure) {
+            new LogoutStatusNotifier(sUILib, mUser, false).postSelf(sUILib.mHandler);
+         }
+
+         public void onException(object closure, Exception ex) {
+            new LogoutStatusNotifier(sUILib, mUser, false).postSelf(sUILib.mHandler);
+         }
+
       }
 
 
       public static bool logout() {
          lock (sLock) {
-            if (null == sUILib || null == sMainHandler) {
+            if (null == sUILib || null == sMainHandler || null == sUser) {
                return false;
             }
-            new LogoutRunnable().postSelf(sMainHandler);
+            new LogoutRunnable(sUser, null).postSelf(sMainHandler);
             return true;
          }
-
       }
 
       internal static bool showLoginUIInWindow() {

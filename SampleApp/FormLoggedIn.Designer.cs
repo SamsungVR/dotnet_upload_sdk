@@ -164,7 +164,6 @@
          this.Controls.Add(this.ctrlCurrentAction);
          this.Name = "FormLoggedIn";
          this.Size = new System.Drawing.Size(662, 633);
-         this.Load += new System.EventHandler(this.FormLoggedIn_Load);
          this.panel2.ResumeLayout(false);
          this.panel2.PerformLayout();
          this.groupBox1.ResumeLayout(false);
@@ -186,6 +185,5 @@
       private System.Windows.Forms.LinkLabel ctrlCreateLiveEvent;
       private System.Windows.Forms.LinkLabel ctrlManageLogs;
       private System.Windows.Forms.LinkLabel ctrlLogout;
-
    }
 }

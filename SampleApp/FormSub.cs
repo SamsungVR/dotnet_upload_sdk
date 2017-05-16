@@ -12,5 +12,20 @@ namespace SampleApp {
 
       public virtual void onRemoved() {
       }
+
+      private void InitializeComponent() {
+         this.SuspendLayout();
+         // 
+         // FormSub
+         // 
+         this.Name = "FormSub";
+         this.Load += new System.EventHandler(this.FormSub_Load);
+         this.ResumeLayout(false);
+
+      }
+
+      private void FormSub_Load(object sender, EventArgs e) {
+
+      }
    }
 }
