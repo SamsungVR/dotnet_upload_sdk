@@ -156,33 +156,30 @@ namespace SampleApp {
          mUploadVideoManager.removeCallback(this);
       }
 
+      private string getTitle(string fileName) {
+         string result = fileName;   
+         char[] fileChars = fileName.ToCharArray();
+         int len = fileChars.Length;
+         for (int i = len - 1; i >= 0; i -= 1) {
+            if ('\\' == fileChars[i]) {
+               result = fileName.Substring(i + 1);
+               break;
+            }
+         }
+         return result.Replace('.', '_');
+      }
+
       private void ctrlEnqueue_Click(object sender, EventArgs e) {
          String permission = ctrlPermission.Text;
-         String title = ctrlTitle.Text;
-         if (null == title || 0 == title.Trim().Length) {
-            ctrlEnqueueStatus.Text = ResourceStrings.uploadTitleInvalid;
-            return;
-         }
-         String description = ctrlDescription.Text;
-         if (null == description || 0 == description.Trim().Length) {
-            ctrlEnqueueStatus.Text = ResourceStrings.uploadDescriptionInvalid;
-            return;
-         }
          int count = ctrlSelectedFiles.Items.Count;
          if (count > 0) {
-            if (count == 1) {
-               string fileName = (string)ctrlSelectedFiles.Items[0];
+            for (int i = 0; i < count; i += 1) {
+               object fileObj = ctrlSelectedFiles.Items[i];
+               string fileName = (string)fileObj;
+               string title = getTitle(fileName);
+               string description = title;
                mUploadVideoManager.getPendingUploadsModel().
                   addItem(new UploadVideoManager.PendingUploadItem(fileName, permission, title, description));
-            } else {
-               for (int i = 0; i < count; i += 1) {
-                  object fileObj = ctrlSelectedFiles.Items[i];
-                  string fileName = (string)fileObj;
-                  mUploadVideoManager.getPendingUploadsModel().
-                     addItem(new UploadVideoManager.PendingUploadItem(fileName, permission, 
-                     title + "_" + i, description + "_" + i));
-
-               }
             }
          }
       }

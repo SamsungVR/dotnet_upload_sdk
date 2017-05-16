@@ -702,7 +702,7 @@ namespace SampleApp {
                      string temp = endPoint.Remove(index) + "/ccheck";
                      try {
                         WebRequest request = WebRequest.Create(temp);
-                        request.Timeout = 1500;
+                        request.Timeout = 3000;
 
                         if (request is HttpWebRequest) {
                            HttpWebRequest httpWebRequest = (HttpWebRequest)request;

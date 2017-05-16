@@ -25,12 +25,9 @@
       private void InitializeComponent() {
          this.ctrlVideoChooser = new System.Windows.Forms.OpenFileDialog();
          this.ctrlEnqueueGroup = new System.Windows.Forms.GroupBox();
+         this.ctrlSelectedFiles = new System.Windows.Forms.ListBox();
          this.ctrlEnqueueStatus = new System.Windows.Forms.Label();
          this.ctrlEnqueue = new System.Windows.Forms.Button();
-         this.ctrlDescription = new System.Windows.Forms.TextBox();
-         this.label4 = new System.Windows.Forms.Label();
-         this.ctrlTitle = new System.Windows.Forms.TextBox();
-         this.label3 = new System.Windows.Forms.Label();
          this.ctrlSelectFile = new System.Windows.Forms.Button();
          this.label1 = new System.Windows.Forms.Label();
          this.ctrlPermission = new System.Windows.Forms.ComboBox();
@@ -57,7 +54,6 @@
          this.ctrlClearFailedList = new System.Windows.Forms.Button();
          this.ctrlFailedList = new System.Windows.Forms.ListBox();
          this.ctrlConnectivityStatus = new System.Windows.Forms.Label();
-         this.ctrlSelectedFiles = new System.Windows.Forms.ListBox();
          this.ctrlEnqueueGroup.SuspendLayout();
          this.ctrlUploadDashboard.SuspendLayout();
          this.tabPage1.SuspendLayout();
@@ -76,10 +72,6 @@
          this.ctrlEnqueueGroup.Controls.Add(this.ctrlSelectedFiles);
          this.ctrlEnqueueGroup.Controls.Add(this.ctrlEnqueueStatus);
          this.ctrlEnqueueGroup.Controls.Add(this.ctrlEnqueue);
-         this.ctrlEnqueueGroup.Controls.Add(this.ctrlDescription);
-         this.ctrlEnqueueGroup.Controls.Add(this.label4);
-         this.ctrlEnqueueGroup.Controls.Add(this.ctrlTitle);
-         this.ctrlEnqueueGroup.Controls.Add(this.label3);
          this.ctrlEnqueueGroup.Controls.Add(this.ctrlSelectFile);
          this.ctrlEnqueueGroup.Controls.Add(this.label1);
          this.ctrlEnqueueGroup.Controls.Add(this.ctrlPermission);
@@ -89,6 +81,14 @@
          this.ctrlEnqueueGroup.TabIndex = 1;
          this.ctrlEnqueueGroup.TabStop = false;
          this.ctrlEnqueueGroup.Text = "Enqueue";
+         // 
+         // ctrlSelectedFiles
+         // 
+         this.ctrlSelectedFiles.FormattingEnabled = true;
+         this.ctrlSelectedFiles.Location = new System.Drawing.Point(6, 90);
+         this.ctrlSelectedFiles.Name = "ctrlSelectedFiles";
+         this.ctrlSelectedFiles.Size = new System.Drawing.Size(344, 134);
+         this.ctrlSelectedFiles.TabIndex = 11;
          // 
          // ctrlEnqueueStatus
          // 
@@ -100,47 +100,13 @@
          // 
          // ctrlEnqueue
          // 
-         this.ctrlEnqueue.Location = new System.Drawing.Point(270, 236);
+         this.ctrlEnqueue.Location = new System.Drawing.Point(267, 230);
          this.ctrlEnqueue.Name = "ctrlEnqueue";
          this.ctrlEnqueue.Size = new System.Drawing.Size(83, 23);
          this.ctrlEnqueue.TabIndex = 9;
          this.ctrlEnqueue.Text = "Enqueue";
          this.ctrlEnqueue.UseVisualStyleBackColor = true;
          this.ctrlEnqueue.Click += new System.EventHandler(this.ctrlEnqueue_Click);
-         // 
-         // ctrlDescription
-         // 
-         this.ctrlDescription.Location = new System.Drawing.Point(6, 210);
-         this.ctrlDescription.Multiline = true;
-         this.ctrlDescription.Name = "ctrlDescription";
-         this.ctrlDescription.Size = new System.Drawing.Size(347, 20);
-         this.ctrlDescription.TabIndex = 8;
-         // 
-         // label4
-         // 
-         this.label4.AutoSize = true;
-         this.label4.Location = new System.Drawing.Point(3, 194);
-         this.label4.Name = "label4";
-         this.label4.Size = new System.Drawing.Size(60, 13);
-         this.label4.TabIndex = 7;
-         this.label4.Text = "Description";
-         // 
-         // ctrlTitle
-         // 
-         this.ctrlTitle.Location = new System.Drawing.Point(6, 171);
-         this.ctrlTitle.Multiline = true;
-         this.ctrlTitle.Name = "ctrlTitle";
-         this.ctrlTitle.Size = new System.Drawing.Size(347, 20);
-         this.ctrlTitle.TabIndex = 6;
-         // 
-         // label3
-         // 
-         this.label3.AutoSize = true;
-         this.label3.Location = new System.Drawing.Point(3, 155);
-         this.label3.Name = "label3";
-         this.label3.Size = new System.Drawing.Size(27, 13);
-         this.label3.TabIndex = 5;
-         this.label3.Text = "Title";
          // 
          // ctrlSelectFile
          // 
@@ -414,14 +380,6 @@
          this.ctrlConnectivityStatus.Size = new System.Drawing.Size(358, 22);
          this.ctrlConnectivityStatus.TabIndex = 3;
          // 
-         // ctrlSelectedFiles
-         // 
-         this.ctrlSelectedFiles.FormattingEnabled = true;
-         this.ctrlSelectedFiles.Location = new System.Drawing.Point(6, 90);
-         this.ctrlSelectedFiles.Name = "ctrlSelectedFiles";
-         this.ctrlSelectedFiles.Size = new System.Drawing.Size(344, 56);
-         this.ctrlSelectedFiles.TabIndex = 11;
-         // 
          // FormUploadVideo
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -451,10 +409,6 @@
       private System.Windows.Forms.Button ctrlSelectFile;
       private System.Windows.Forms.Label label1;
       private System.Windows.Forms.ComboBox ctrlPermission;
-      private System.Windows.Forms.Label label3;
-      private System.Windows.Forms.TextBox ctrlDescription;
-      private System.Windows.Forms.Label label4;
-      private System.Windows.Forms.TextBox ctrlTitle;
       private System.Windows.Forms.Label label6;
       private System.Windows.Forms.Button ctrlRemovePending;
       private System.Windows.Forms.Button ctrlPendingMoveUp;

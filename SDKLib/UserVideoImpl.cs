@@ -14,7 +14,8 @@ namespace SDKLib {
       private readonly UserImpl mUser;
       private readonly string mTitle, mDesc;
       private UserVideo.Permission mPermission;
-      private readonly int mChunkSize, mNumChunks;
+      private readonly long mChunkSize;
+      private readonly int mNumChunks;
       private readonly string mVideoId, mUploadId, mInitialSignedUrl;
       private readonly JObject mJObject;
 
@@ -52,12 +53,12 @@ namespace SDKLib {
       }
 
       public UserVideoImpl(UserImpl user, string title, string desc, UserVideo.Permission permission,
-         string videoId, string uploadId, string initialSignedUrl, int chunkSize, int numChunks) :
+         string videoId, string uploadId, string initialSignedUrl, long chunkSize, int numChunks) :
          this(user, title, desc, permission, videoId, uploadId, initialSignedUrl, chunkSize, numChunks, -1) {
       }
 
       public UserVideoImpl(UserImpl user, string title, string desc, UserVideo.Permission permission,
-         string videoId, string uploadId, string initialSignedUrl, int chunkSize, int numChunks, 
+         string videoId, string uploadId, string initialSignedUrl, long chunkSize, int numChunks, 
          int lastSuccessfulChunk) {
          mUser = user;
          mTitle = title;
@@ -171,7 +172,8 @@ namespace SDKLib {
 
          private UserVideoImpl mVideo;
          private Stream mSource;
-         private int mChunkSize, mNumChunks, mLastSuccessfulChunk;
+         private int mNumChunks, mLastSuccessfulChunk;
+         private long mChunkSize;
          private long mLength;
          private string mVideoId, mUploadId, mInitialSignedUrl;
 
@@ -199,7 +201,7 @@ namespace SDKLib {
 
          public WorkItemVideoContentUpload set(ObjectHolder<bool> cancelHolder,
              UserVideoImpl video, UserImpl user, Stream source, long length,
-             string initialSignedUrl, string videoId, string uploadId, int chunkSize, int numChunks,
+             string initialSignedUrl, string videoId, string uploadId, long chunkSize, int numChunks,
              int lastSuccessfulChunk, User.Result.UploadVideo.If callback, SynchronizationContext handler, object closure) {
 
             base.set(cancelHolder, user, callback, handler, closure);
@@ -300,7 +302,8 @@ namespace SDKLib {
             UserImpl user = mUser;
             string videoId = mVideoId;
             string uploadId = mUploadId;
-            int chunkSize = mChunkSize, numChunks = mNumChunks,
+            long chunkSize = mChunkSize;
+            int numChunks = mNumChunks,
                     lastSuccessfulChunk = mLastSuccessfulChunk;
             Stream source = mSource;
             UserVideoImpl video = mVideo;

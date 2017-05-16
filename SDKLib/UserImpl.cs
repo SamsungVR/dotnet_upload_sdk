@@ -478,7 +478,7 @@ namespace SDKLib {
             string videoId = null;
             string uploadId = null;
             string signedUrl = null;
-            int chunkSize = 0;
+            long chunkSize = 0;
             int numChunks = 0;
 
             try {
@@ -521,7 +521,7 @@ namespace SDKLib {
                videoId = Util.jsonGet<string>(jsonObject, "video_id");
                uploadId = Util.jsonGet<string>(jsonObject, "upload_id");
                signedUrl = Util.jsonGet<string>(jsonObject, "signed_url");
-               chunkSize = Util.jsonGet<int>(jsonObject, "chunk_size");
+               chunkSize = Util.jsonGet<long>(jsonObject, "chunk_size");
                numChunks = Util.jsonGet<int>(jsonObject, "chunks");
 
                UserVideoImpl userVideo = new UserVideoImpl(mUser, mTitle, mDescription, mPermission,
