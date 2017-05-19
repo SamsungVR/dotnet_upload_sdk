@@ -50,7 +50,8 @@
          this.ctrlClearCompletedList = new System.Windows.Forms.Button();
          this.ctrlCompletedList = new System.Windows.Forms.ListBox();
          this.tabPage4 = new System.Windows.Forms.TabPage();
-         this.ctrlRequeueFailed = new System.Windows.Forms.Button();
+         this.ctrlRestartFailed = new System.Windows.Forms.Button();
+         this.ctrlRetryFailed = new System.Windows.Forms.Button();
          this.ctrlClearFailedList = new System.Windows.Forms.Button();
          this.ctrlFailedList = new System.Windows.Forms.ListBox();
          this.ctrlConnectivityStatus = new System.Windows.Forms.Label();
@@ -187,7 +188,7 @@
          this.ctrlPendingList.Location = new System.Drawing.Point(8, 6);
          this.ctrlPendingList.Name = "ctrlPendingList";
          this.ctrlPendingList.ScrollAlwaysVisible = true;
-         this.ctrlPendingList.Size = new System.Drawing.Size(341, 173);
+         this.ctrlPendingList.Size = new System.Drawing.Size(341, 186);
          this.ctrlPendingList.TabIndex = 14;
          // 
          // ctrlUploadDashboard
@@ -304,7 +305,7 @@
          // 
          // ctrlRequeueCompleted
          // 
-         this.ctrlRequeueCompleted.Location = new System.Drawing.Point(266, 185);
+         this.ctrlRequeueCompleted.Location = new System.Drawing.Point(266, 194);
          this.ctrlRequeueCompleted.Name = "ctrlRequeueCompleted";
          this.ctrlRequeueCompleted.Size = new System.Drawing.Size(83, 23);
          this.ctrlRequeueCompleted.TabIndex = 18;
@@ -314,11 +315,11 @@
          // 
          // ctrlClearCompletedList
          // 
-         this.ctrlClearCompletedList.Location = new System.Drawing.Point(200, 185);
+         this.ctrlClearCompletedList.Location = new System.Drawing.Point(200, 194);
          this.ctrlClearCompletedList.Name = "ctrlClearCompletedList";
          this.ctrlClearCompletedList.Size = new System.Drawing.Size(60, 23);
          this.ctrlClearCompletedList.TabIndex = 17;
-         this.ctrlClearCompletedList.Text = "Clear";
+         this.ctrlClearCompletedList.Text = "Clear list";
          this.ctrlClearCompletedList.UseVisualStyleBackColor = true;
          this.ctrlClearCompletedList.Click += new System.EventHandler(this.ctrlClearCompletedList_Click);
          // 
@@ -332,7 +333,8 @@
          // 
          // tabPage4
          // 
-         this.tabPage4.Controls.Add(this.ctrlRequeueFailed);
+         this.tabPage4.Controls.Add(this.ctrlRestartFailed);
+         this.tabPage4.Controls.Add(this.ctrlRetryFailed);
          this.tabPage4.Controls.Add(this.ctrlClearFailedList);
          this.tabPage4.Controls.Add(this.ctrlFailedList);
          this.tabPage4.Location = new System.Drawing.Point(4, 22);
@@ -342,23 +344,33 @@
          this.tabPage4.Text = "Failed";
          this.tabPage4.UseVisualStyleBackColor = true;
          // 
-         // ctrlRequeueFailed
+         // ctrlRestartFailed
          // 
-         this.ctrlRequeueFailed.Location = new System.Drawing.Point(266, 182);
-         this.ctrlRequeueFailed.Name = "ctrlRequeueFailed";
-         this.ctrlRequeueFailed.Size = new System.Drawing.Size(83, 23);
-         this.ctrlRequeueFailed.TabIndex = 20;
-         this.ctrlRequeueFailed.Text = "Requeue";
-         this.ctrlRequeueFailed.UseVisualStyleBackColor = true;
-         this.ctrlRequeueFailed.Click += new System.EventHandler(this.ctrlRequeueFailed_Click);
+         this.ctrlRestartFailed.Location = new System.Drawing.Point(288, 195);
+         this.ctrlRestartFailed.Name = "ctrlRestartFailed";
+         this.ctrlRestartFailed.Size = new System.Drawing.Size(61, 23);
+         this.ctrlRestartFailed.TabIndex = 21;
+         this.ctrlRestartFailed.Text = "Restart";
+         this.ctrlRestartFailed.UseVisualStyleBackColor = true;
+         this.ctrlRestartFailed.Click += new System.EventHandler(this.ctrlRestartFailed_Click);
+         // 
+         // ctrlRetryFailed
+         // 
+         this.ctrlRetryFailed.Location = new System.Drawing.Point(221, 195);
+         this.ctrlRetryFailed.Name = "ctrlRetryFailed";
+         this.ctrlRetryFailed.Size = new System.Drawing.Size(61, 23);
+         this.ctrlRetryFailed.TabIndex = 20;
+         this.ctrlRetryFailed.Text = "Retry";
+         this.ctrlRetryFailed.UseVisualStyleBackColor = true;
+         this.ctrlRetryFailed.Click += new System.EventHandler(this.ctrlRetryFailed_Click);
          // 
          // ctrlClearFailedList
          // 
-         this.ctrlClearFailedList.Location = new System.Drawing.Point(200, 182);
+         this.ctrlClearFailedList.Location = new System.Drawing.Point(155, 195);
          this.ctrlClearFailedList.Name = "ctrlClearFailedList";
          this.ctrlClearFailedList.Size = new System.Drawing.Size(60, 23);
          this.ctrlClearFailedList.TabIndex = 19;
-         this.ctrlClearFailedList.Text = "Clear";
+         this.ctrlClearFailedList.Text = "Clear list";
          this.ctrlClearFailedList.UseVisualStyleBackColor = true;
          this.ctrlClearFailedList.Click += new System.EventHandler(this.ctrlClearFailedList_Click);
          // 
@@ -369,7 +381,7 @@
          this.ctrlFailedList.Location = new System.Drawing.Point(3, 3);
          this.ctrlFailedList.Name = "ctrlFailedList";
          this.ctrlFailedList.ScrollAlwaysVisible = true;
-         this.ctrlFailedList.Size = new System.Drawing.Size(346, 173);
+         this.ctrlFailedList.Size = new System.Drawing.Size(346, 186);
          this.ctrlFailedList.TabIndex = 18;
          // 
          // ctrlConnectivityStatus
@@ -427,7 +439,7 @@
       private System.Windows.Forms.ListBox ctrlFailedList;
       private System.Windows.Forms.ListBox ctrlInProgressDetails;
       private System.Windows.Forms.ProgressBar ctrlUploadProgressVisual;
-      private System.Windows.Forms.Button ctrlRequeueFailed;
+      private System.Windows.Forms.Button ctrlRetryFailed;
       private System.Windows.Forms.Button ctrlRequeueCompleted;
       private System.Windows.Forms.Label label5;
       private System.Windows.Forms.Label ctrlUploadProgressRaw;
@@ -435,5 +447,6 @@
       private System.Windows.Forms.Label ctrlEnqueueStatus;
       private System.Windows.Forms.Label ctrlInProgressStatus;
       private System.Windows.Forms.ListBox ctrlSelectedFiles;
+      private System.Windows.Forms.Button ctrlRestartFailed;
    }
 }

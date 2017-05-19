@@ -212,9 +212,9 @@ namespace SampleApp {
          mUploadVideoManager.cancelActiveUpload();
       }
 
-      private void ctrlRequeueFailed_Click(object sender, EventArgs e) {
+      private void ctrlRetryFailed_Click(object sender, EventArgs e) {
          int selectedIndex = ctrlFailedList.SelectedIndex;
-         mUploadVideoManager.moveFailedToPending(selectedIndex);
+         mUploadVideoManager.moveFailedToPending(selectedIndex, true);
       }
 
       private void ctrlClearCompletedList_Click(object sender, EventArgs e) {
@@ -224,6 +224,11 @@ namespace SampleApp {
       private void ctrlRequeueCompleted_Click(object sender, EventArgs e) {
          int selectedIndex = ctrlCompletedList.SelectedIndex;
          mUploadVideoManager.moveCompletedToPending(selectedIndex);
+      }
+
+      private void ctrlRestartFailed_Click(object sender, EventArgs e) {
+         int selectedIndex = ctrlFailedList.SelectedIndex;
+         mUploadVideoManager.moveFailedToPending(selectedIndex, false);
       }
    }
 }

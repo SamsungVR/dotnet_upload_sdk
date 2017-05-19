@@ -35,11 +35,20 @@ namespace SampleApp {
          }
 
          internal UploadItem(UploadItem uploadItem) : this() {
-            setJObject(uploadItem.getJObject());
+            setJObject(uploadItem.getJObject(), false);
          }
 
-         internal void setJObject(JObject jObject) {
-            if (isJObjectValid(jObject)) {
+         internal UploadItem(JObject jObject) {
+            setJObject(jObject, false);
+         }
+
+         internal void setJObject(JObject jObject, bool assign) {
+            if (!isJObjectValid(jObject)) {
+               return;
+            }
+            if (assign) {
+               mJObject = jObject;
+            } else {
                mJObject = (JObject)jObject.DeepClone();
             }
          }
@@ -95,12 +104,10 @@ namespace SampleApp {
 
          }
 
-         internal PendingUploadItem(JObject jObject) : this() {
-            setJObject(jObject);
+         internal PendingUploadItem(JObject jObject) : base(jObject) {
          }
 
          internal PendingUploadItem(UploadItem item) : base(item) {
-
          }
 
          internal PendingUploadItem(string fileName, string permission, string title, string description) : this() {
@@ -380,11 +387,8 @@ namespace SampleApp {
                JArray jItems = (JArray)jObject.GetValue(userId);
                for (int i = 0; i < jItems.Count; i += 1) {
                   JObject jItem = jItems.Value<JObject>(i);
-                  if (!isJObjectValid(jItem)) {
-                     continue;
-                  }
                   T nItem = newItem();
-                  nItem.setJObject(jItem);
+                  nItem.setJObject(jItem, true);
                   addItem(nItem);
                }
             } catch (Exception ex) {
@@ -396,12 +400,6 @@ namespace SampleApp {
 
          internal abstract T newItem();
          internal abstract string[] getAttrs();
-
-         internal virtual void cloneAndAddItem(T item) {
-            T clone = newItem();
-            clone.setJObject(item.getJObject());
-            addItem(clone);
-         }
 
          internal virtual void addItem(T item) {
             mItems.Add(item);
@@ -1009,21 +1007,39 @@ namespace SampleApp {
          AppSettings.Default.Save();
       }
 
-      internal bool moveFailedToPending(int index) {
+      internal bool moveFailedToPending(int index, bool retry) {
          if (mFailedUploads.mItems.Count > 0 && index >= 0 && index < mFailedUploads.mItems.Count) {
             FailedUploadItem item = mFailedUploads.removeItemAt(index);
-            if (null != item) { 
-               mPendingUploads.cloneAndAddItem(item);
+            if (null != item) {
+               PendingUploadItem clone = mPendingUploads.newItem();
+               JObject temp = (JObject)item.getJObject().DeepClone();
+               if (!retry) {
+                  JToken check;
+                  if (temp.TryGetValue("video", out check)) {
+                     temp.Remove("video");
+                  }
+               }
+               clone.setJObject(temp, true);
+               mPendingUploads.addItem(clone);
+               return true;
             }
          }
-         return true;
+         return false;
       }
 
       internal bool moveCompletedToPending(int index) {
          if (mCompletedUploads.mItems.Count > 0 && index >= 0 && index < mCompletedUploads.mItems.Count) {
             CompletedUploadItem item = mCompletedUploads.removeItemAt(index);
             if (null != item) {
-               mPendingUploads.cloneAndAddItem(item);
+               PendingUploadItem clone = mPendingUploads.newItem();
+               JObject temp = (JObject)item.getJObject().DeepClone();
+               JToken check;
+               if (temp.TryGetValue("video", out check)) {
+                  temp.Remove("video");
+               }
+               clone.setJObject(temp, true);
+               mPendingUploads.addItem(clone);
+               return true;
             }
          }
          return true;
