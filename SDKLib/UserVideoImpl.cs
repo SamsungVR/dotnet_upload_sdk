@@ -303,8 +303,7 @@ namespace SDKLib {
             string videoId = mVideoId;
             string uploadId = mUploadId;
             long chunkSize = mChunkSize;
-            int numChunks = mNumChunks,
-                    lastSuccessfulChunk = mLastSuccessfulChunk;
+            int numChunks = mNumChunks, lastSuccessfulChunk = mLastSuccessfulChunk;
             Stream source = mSource;
             UserVideoImpl video = mVideo;
 

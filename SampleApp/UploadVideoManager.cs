@@ -31,32 +31,39 @@ namespace SampleApp {
 
          protected JObject mJObject = null;
 
-         internal void setJObject(JObject jObject) {
-            mJObject = (JObject)jObject.DeepClone();
+         internal UploadItem() {
          }
 
-         internal JObject getJObject() {
+         internal UploadItem(UploadItem uploadItem) : this() {
+            setJObject(uploadItem.getJObject());
+         }
+
+         internal void setJObject(JObject jObject) {
+            if (isJObjectValid(jObject)) {
+               mJObject = (JObject)jObject.DeepClone();
+            }
+         }
+
+         internal virtual JObject getJObject() {
             if (null == mJObject) {
                mJObject = new JObject();
+               mJObject.Add("time", new JValue(DateTime.Now));
+               mJObject.Add("file", new JObject());
             }
             return mJObject;
          }
 
          internal void setAttr(string attr, object value) {
             JObject jObject = getJObject();
-            JToken currentValue = null;
-
-            if (jObject.TryGetValue(attr, out currentValue)) {
-               ((JValue)currentValue).Value = value;
-            } else {
-               jObject.Add(attr, new JValue(value));
-            }
+            JObject fileJObject = (JObject)jObject.GetValue("file");
+            setValue(fileJObject, attr, value);
          }
 
          internal object getAttr(string attr) {
             JObject jObject = getJObject();
+            JObject fileJObject = getAsJObject(jObject, "file");
             JToken value;
-            if (jObject.TryGetValue(attr, out value)) {
+            if (fileJObject.TryGetValue(attr, out value)) {
                return ((JValue)value).Value;
             }
             return null;
@@ -78,12 +85,6 @@ namespace SampleApp {
             return result;
          }
 
-         internal void copyAttrs(UploadItem other, string[] attrs) {
-            for (int i = 0; i < attrs.Length; i += 1) {
-               setAttr(attrs[i], other.getAttr(attrs[i]));
-            }
-         }
-
          internal abstract string getAsString();
       }
 
@@ -91,22 +92,24 @@ namespace SampleApp {
       public class PendingUploadItem : UploadItem {
 
          internal PendingUploadItem() : base() {
+
          }
 
-         internal PendingUploadItem(JObject jObject) {
+         internal PendingUploadItem(JObject jObject) : this() {
             setJObject(jObject);
          }
 
-         internal PendingUploadItem(string fileName, string permission, string title, string description) : base() {
+         internal PendingUploadItem(UploadItem item) : base(item) {
+
+         }
+
+         internal PendingUploadItem(string fileName, string permission, string title, string description) : this() {
             setAttr("filename", fileName);
             setAttr("permission", permission);
             setAttr("title", title);
             setAttr("description", description);
          }
 
-         internal PendingUploadItem(UploadItem uploadItem) : base() {
-            copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
-         }
 
          internal override string getAsString() {
             return getAsString(PendingUploadItemsModel.sAttrs);
@@ -130,6 +133,42 @@ namespace SampleApp {
 
       }
 
+      internal static void setToken(JObject result, string attr, JToken value) {
+         JToken exists = null;
+         if (result.TryGetValue(attr, out exists)) {
+            exists.Replace(value);
+         } else {
+            result.Add(attr, value);
+         }
+      }
+
+      internal static void setValue(JObject result, string attr, object value) {
+         JToken currentValue = null;
+
+         if (result.TryGetValue(attr, out currentValue)) {
+            ((JValue)currentValue).Value = value;
+         } else {
+            result.Add(attr, new JValue(value));
+         }
+      }
+
+      internal static JObject getAsJObject(JObject input, string attr) {
+         JToken temp;
+         if (!input.TryGetValue(attr, out temp)) {
+            return null;
+         }
+         return (JObject)temp;
+      }
+
+      internal static bool isJObjectValid(JObject jObject) {
+         JToken isValid = null;
+
+         if (jObject.TryGetValue("time", out isValid)) {
+            return true;
+         }
+         return false;
+      }
+
       public class ActiveUploadItem : PendingUploadItem {
 
          internal static string[] sAttrs = PendingUploadItemsModel.sAttrs;
@@ -141,8 +180,9 @@ namespace SampleApp {
             mUser = user;
          }
 
-         internal ActiveUploadItem(User.If user, UploadVideoManager videoManager, UploadItem uploadItem) : this(user, videoManager) {
-            copyAttrs(uploadItem, PendingUploadItemsModel.sAttrs);
+         internal ActiveUploadItem(User.If user, UploadVideoManager manager, UploadItem uploadItem) : base(uploadItem) {
+            mUploadManager = manager;
+            mUser = user;
          }
 
          internal ActiveUploadItem(User.If user, UploadVideoManager uploadManager,
@@ -152,20 +192,14 @@ namespace SampleApp {
             mUploadManager = uploadManager;
          }
 
-         internal ActiveUploadItem(User.If user, UploadVideoManager videoManager, JObject jObject) : this(user, videoManager) {
-            JToken file;
-            if (jObject.TryGetValue("file", out file)) {
-               setJObject((JObject)file);
-               JToken video;
-               if (jObject.TryGetValue("video", out video)) {
-                  mVideoJson = (JObject)video;
-               }
-            }
+         internal ActiveUploadItem(User.If user, UploadVideoManager manager, JObject jObject) : base(jObject) {
+            mUploadManager = manager;
+            mUser = user;
          }
 
          private float mProgressPercent;
          private long mComplete, mMax;
-         private JObject mVideoJson;
+
          private int mRetryCount = 5;
 
          internal void destroy() {
@@ -213,7 +247,8 @@ namespace SampleApp {
             SynchronizationContext handler = App.getInstance().getHandler();
             SDKLib.UserVideo.Permission permission = SDKLib.UserVideo.fromString(getPermission());
             User.If user = mUser;
-
+            JObject jObject = getJObject();
+            JObject videoJson = getAsJObject(jObject, "video");
             if (null != mSource) {
                if (null != mVideo) {
                   if (mVideo.retryUpload(mSource, mSourceLength, mUploadManager, handler, this)) {
@@ -221,8 +256,9 @@ namespace SampleApp {
                   }
                   return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
                }
-               if (null != mVideoJson) {
-                  if (user.uploadVideo(mSource, mSourceLength, mVideoJson, mUploadManager, handler, this)) {
+               
+               if (null != videoJson) {
+                  if (user.uploadVideo(mSource, mSourceLength, videoJson, mUploadManager, handler, this)) {
                      return null;
                   }
                   return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
@@ -250,8 +286,8 @@ namespace SampleApp {
                return new FailedUploadItem(this, ResourceStrings.uploadFileOpenFailed);
             }
             mSourceLength = fileInfo.Length;
-            if (null != mVideoJson) {
-               if (user.uploadVideo(mSource, mSourceLength, mVideoJson, mUploadManager, handler, this)) {
+            if (null != videoJson) {
+               if (user.uploadVideo(mSource, mSourceLength, videoJson, mUploadManager, handler, this)) {
                   return null;
                }
                return new FailedUploadItem(this, ResourceStrings.unableToQueueRequest);
@@ -273,15 +309,15 @@ namespace SampleApp {
             return mUser.cancelUploadVideo(this);
          }
 
-         internal JObject getPersistableJObject() {
-            JObject result = new JObject();
-            result.Add("time", new JValue(DateTime.Now));
-            result.Add("file", getJObject());
+
+         internal override JObject getJObject() {
+            JObject result = base.getJObject();
             if (null != mVideo) {
-               result.Add("video", mVideo.toJObject(null));
+               setToken(result, "video", mVideo.toJObject(null));
             }
             return result;
          }
+
       }
 
       public class FailedUploadItem : PendingUploadItem {
@@ -294,8 +330,7 @@ namespace SampleApp {
             setAttr("reason", reason);
          }
 
-         internal FailedUploadItem(ActiveUploadItem item, string reason) : base() {
-            copyAttrs(item, PendingUploadItemsModel.sAttrs);
+         internal FailedUploadItem(ActiveUploadItem item, string reason) : base(item) {
             setAttr("reason", reason);
          }
 
@@ -313,8 +348,7 @@ namespace SampleApp {
             base(fileName, permission, title, description) {
          }
 
-         internal CompletedUploadItem(ActiveUploadItem item) : base() {
-            copyAttrs(item, PendingUploadItemsModel.sAttrs);
+         internal CompletedUploadItem(ActiveUploadItem item) : base(item) {
          }
 
          internal override string getAsString() {
@@ -346,6 +380,9 @@ namespace SampleApp {
                JArray jItems = (JArray)jObject.GetValue(userId);
                for (int i = 0; i < jItems.Count; i += 1) {
                   JObject jItem = jItems.Value<JObject>(i);
+                  if (!isJObjectValid(jItem)) {
+                     continue;
+                  }
                   T nItem = newItem();
                   nItem.setJObject(jItem);
                   addItem(nItem);
@@ -362,7 +399,7 @@ namespace SampleApp {
 
          internal virtual void cloneAndAddItem(T item) {
             T clone = newItem();
-            clone.copyAttrs(item, getAttrs());
+            clone.setJObject(item.getJObject());
             addItem(clone);
          }
 
@@ -447,12 +484,7 @@ namespace SampleApp {
                current = new JObject();
             }
             JArray items = getAsJArray();
-            JToken exists = null;
-            if (current.TryGetValue(userId, out exists)) {
-               exists.Replace(items);
-            } else {
-               current.Add(userId, getAsJArray());
-            }
+            setToken(current, userId, items);
             string result = current.ToString();
             if (DEBUG) {
                Log.d(TAG, "Save items: " + result + " debugMsg: " + debugMsg);
@@ -918,9 +950,8 @@ namespace SampleApp {
             JToken active = null;
 
             if (null != value && value.TryGetValue(user.getUserId(), out active)) {
-               JToken isValid = null;
                JObject activeObj = ((JObject)active);
-               if (activeObj.TryGetValue("time", out isValid)) {
+               if (isJObjectValid(activeObj)) {
                   ActiveUploadItem aui = new ActiveUploadItem(user, this, activeObj);
                   tryUpload(aui);
                }
@@ -955,7 +986,7 @@ namespace SampleApp {
          if (null == activeUpload) {
             value = new JObject();
          } else {
-            value = activeUpload.getPersistableJObject();
+            value = activeUpload.getJObject();
          }
          JObject current = null;
          try {

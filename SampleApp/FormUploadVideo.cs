@@ -97,6 +97,10 @@ namespace SampleApp {
          int selectedIndex = list.SelectedIndex;
          list.Items.Clear();
          foreach (T item in items) {
+            string s = item.getAsString();
+            if (null == s) {
+               continue;
+            }
             list.Items.Add(item.getAsString());
          }
          int count = list.Items.Count;
@@ -161,7 +165,7 @@ namespace SampleApp {
          char[] fileChars = fileName.ToCharArray();
          int len = fileChars.Length;
          for (int i = len - 1; i >= 0; i -= 1) {
-            if ('\\' == fileChars[i]) {
+            if (Path.DirectorySeparatorChar == fileChars[i]) {
                result = fileName.Substring(i + 1);
                break;
             }
