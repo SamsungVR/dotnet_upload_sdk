@@ -62,6 +62,7 @@ namespace SampleApp {
          mEditId = argId;
          ctrlAPIKey.Text = config.getApiKey();
          ctrlUrl.Text = config.getUrl();
+         ctrlSSOAppId.Text = config.getSSOAppId();
          enableControlsForAddOrEdit();
       }
 
@@ -81,6 +82,7 @@ namespace SampleApp {
          ctrlConfigList.Enabled = true;
          ctrlUrl.Text = string.Empty;
          ctrlAPIKey.Text = string.Empty;
+         ctrlSSOAppId.Text = string.Empty;
          mEditId = null;
       }
 
