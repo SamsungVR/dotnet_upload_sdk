@@ -145,19 +145,12 @@ namespace SDKLib {
          return null;
       }
 
-      public bool getUserBySessionId(string sessionId, VR.Result.GetUserBySessionId.If callback, SynchronizationContext handler, object closure) {
-         if (!mStateManager.isInState(State.INITIALIZED)) {
-            return false;
-         }
-         return true;
-      }
-
-      public bool getUserBySessionToken(string userId, string sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
+      public bool getUserBySessionToken(string sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
          if (!mStateManager.isInState(State.INITIALIZED)) {
             return false;
          }
          WorkItemGetUserBySessionToken workItem = (WorkItemGetUserBySessionToken)mAsyncWorkQueue.obtainWorkItem(WorkItemGetUserBySessionToken.TYPE);
-         workItem.set(userId, sessionToken, callback, handler, closure);
+         workItem.set(sessionToken, callback, handler, closure);
          return mAsyncWorkQueue.enqueue(workItem);
       }
 
@@ -200,33 +193,35 @@ namespace SDKLib {
          : base(apiClient, TYPE) {
       }
 
-      private string mUserId, mSessionToken;
+      private string mSessionToken;
 
 
-      public void set(String userId, String sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
+      public void set(String sessionToken, VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
          base.set(callback, handler, closure);
          mSessionToken = sessionToken;
-         mUserId = userId;
       }
 
       protected override void recycle() {
          base.recycle();
          mSessionToken = null;
-         mUserId = null;
       }
 
       protected override void onRun() {
 
          HttpPlugin.GetRequest request = null;
 
+         string[,] cookies = new string[,] {
+                {"session_id", mSessionToken}
+         };
+
          string[,] headers = new string[,] {
-                    {UserImpl.HEADER_SESSION_TOKEN, mSessionToken},
-                        {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
-                };
+            {HEADER_COOKIE, toCookieString(cookies)},
+            {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
+         };
 
          try {
 
-            request = newGetRequest(string.Format("user/{0}", mUserId), headers);
+            request = newGetRequest("user/authenticate", headers);
 
             if (null == request) {
                dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
@@ -248,12 +243,16 @@ namespace SDKLib {
             JObject jsonObject = JObject.Parse(data);
 
             if (isHTTPSuccess(rsp)) {
-               UserImpl user = mAPIClient.containerOnCreateOfContainedInServiceLocked<UserImpl>(UserImpl.sType, jsonObject);
-
-               if (null != user) {
-                  dispatchSuccessWithResult<User.If>(user);
+               bool authenticated = Util.jsonOpt(jsonObject, "authenticated", false);
+               if (!authenticated) {
+                  dispatchFailure(VR.Result.GetUserBySessionToken.STATUS_TOKEN_INVALID_OR_EXPIRED);
                } else {
-                  dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
+                  UserImpl user = mAPIClient.containerOnCreateOfContainedInServiceLocked<UserImpl>(UserImpl.sType, jsonObject);
+                  if (null != user) {
+                     dispatchSuccessWithResult<User.If>(user);
+                  } else {
+                     dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
+                  }
                }
                return;
             }
@@ -384,10 +383,12 @@ namespace SDKLib {
 
       private string mSamsungSSOToken, mAuthServer;
 
-      private bool tryLogin(ObjectHolder<int> statusOut) {
+      private static readonly String TAG = Util.getLogTag(typeof(WorkItemPerformLoginSamsungAccount));
 
+      protected override void onRun() {
          HttpPlugin.PostRequest request = null;
-         try {
+         try
+         {
 
             JObject jsonParam = new JObject();
             jsonParam.Add("auth_type", "SamsungSSO");
@@ -399,28 +400,28 @@ namespace SDKLib {
             string jsonStr = jsonParam.ToString(Newtonsoft.Json.Formatting.None);
             byte[] data = System.Text.Encoding.UTF8.GetBytes(jsonStr);
             string[,] headers = new string[,] {
-                        {HEADER_CONTENT_LENGTH, data.Length.ToString()},
-                        {HEADER_CONTENT_TYPE, "application/json" + ClientWorkItem.CONTENT_TYPE_CHARSET_SUFFIX_UTF8},
-                        {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
-                };
+               {HEADER_CONTENT_LENGTH, data.Length.ToString()},
+               {HEADER_CONTENT_TYPE, "application/json" + ClientWorkItem.CONTENT_TYPE_CHARSET_SUFFIX_UTF8},
+               {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
+             };
             request = newPostRequest("user/authenticate", headers);
             if (null == request) {
                dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
-               return true;
+               return;
             }
 
             writeBytes(request, data, jsonStr);
 
             if (isCancelled()) {
                dispatchCancelled();
-               return true;
+               return;
             }
 
             HttpStatusCode rsp = getResponseCode(request);
             String data2 = readHttpStream(request, "code: " + rsp);
             if (null == data2) {
                dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
-               return true;
+               return;
             }
             JObject jsonObject = JObject.Parse(data2);
 
@@ -432,92 +433,14 @@ namespace SDKLib {
                } else {
                   dispatchFailure(VR.Result.STATUS_SERVER_RESPONSE_INVALID);
                }
-               return true;
-            }
-            int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
-            if (status == VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE) {
-               dispatchFailure(status);
-               return true;
-            }
-            statusOut.set(status);
-            return false;
-
-         } finally {
-            destroy(request);
-         }
-      }
-
-      private bool tryRegister() {
-
-         HttpPlugin.PostRequest request = null;
-         try {
-            JObject jsonParam = new JObject();
-            jsonParam.Add("auth_type", "SamsungSSO");
-            jsonParam.Add("samsung_sso_token", mSamsungSSOToken);
-            if (mAuthServer != null) {
-               jsonParam.Add("auth_server", mAuthServer);
-            }
-
-            string jsonStr = jsonParam.ToString(Newtonsoft.Json.Formatting.None);
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(jsonStr);
-            string[,] headers = new string[,] {
-                        {HEADER_CONTENT_LENGTH, data.Length.ToString()},
-                        {HEADER_CONTENT_TYPE, "application/json" + ClientWorkItem.CONTENT_TYPE_CHARSET_SUFFIX_UTF8},
-                        {APIClientImpl.HEADER_API_KEY, mAPIClient.getApiKey()}
-                };
-
-            request = newPostRequest("user", headers);
-            if (null == request) {
-               dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_NULL_CONNECTION);
-               return true;
-            }
-
-            writeBytes(request, data, jsonStr);
-
-            if (isCancelled()) {
-               dispatchCancelled();
-               return true;
-            }
-
-            HttpStatusCode rsp = getResponseCode(request);
-            String data2 = readHttpStream(request, "code: " + rsp);
-            if (null == data2) {
-               dispatchFailure(VR.Result.STATUS_HTTP_PLUGIN_STREAM_READ_FAILURE);
-               return true;
-            }
-            if (isHTTPSuccess(rsp)) {
-               return false;
-            }
-            JObject jsonObject = JObject.Parse(data2);
-            int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
-            dispatchFailure(VR.Result.LoginSSO.CLASS_REG | status);
-            return true;
-         } finally {
-            destroy(request);
-         }
-      }
-
-      private static readonly String TAG = Util.getLogTag(typeof(WorkItemPerformLoginSamsungAccount));
-
-      protected override void onRun() {
-
-         ObjectHolder<int> status = new ObjectHolder<int>(0);
-
-         if (tryLogin(status)) {
-            return;
-         }
-         int statusInt = status.get();
-         Log.d(TAG, "Login failed with status " + statusInt);
-         if (11 == statusInt) {
-            if (tryRegister()) {
                return;
             }
-            if (tryLogin(status)) {
-               return;
-            }
-            statusInt = status.get();
+            int status = Util.jsonOpt(jsonObject, "status", VR.Result.STATUS_SERVER_RESPONSE_NO_STATUS_CODE);
+            dispatchFailure(status);
          }
-         dispatchFailure(VR.Result.LoginSSO.CLASS_AUTH | statusInt);
+         finally {
+            destroy(request);
+         }
       }
    }
 }

@@ -43,9 +43,7 @@ namespace SDKLib {
          bool loginSamsungAccount(string samsung_sso_token, string auth_server, VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure);
 
          User getUserById(string userId);
-         bool getUserBySessionId(string sessionId, VR.Result.GetUserBySessionId.If callback,
-                                    SynchronizationContext handler, object closure);
-         bool getUserBySessionToken(string userId, string sessionToken, VR.Result.GetUserBySessionToken.If callback,
+         bool getUserBySessionToken(string sessionToken, VR.Result.GetUserBySessionToken.If callback,
                                     SynchronizationContext handler, object closure);
          bool destroy(APIClient.Result.Destroy.If callback, SynchronizationContext handler, object closure);
 

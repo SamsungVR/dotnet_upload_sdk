@@ -180,27 +180,13 @@ namespace SDKLib {
             }
          }
 
-
-        /**
-         * Callback for the getUserBySessionId request. The success callback has result
-         * of type User
-         */
-
-        public sealed class GetUserBySessionId {
-           
-           private GetUserBySessionId() {
-           }
-
-           public interface If : BaseCallback.If, SuccessWithResultCallback.If<User.If> {
-           }
-
-        }
-
         /**
          * Intentionally undocumented
          */
 
         public sealed class GetUserBySessionToken {
+
+           public const int STATUS_TOKEN_INVALID_OR_EXPIRED = 1;
 
            private GetUserBySessionToken() {
            }
@@ -456,14 +442,15 @@ namespace SDKLib {
          }
       }
 
-    public static bool getUserBySessionToken(string userId, string sessionToken,
-        VR.Result.GetUserBySessionToken.If callback, SynchronizationContext handler, object closure) {
-        lock (sLock) {
+      public static bool getUserBySessionToken(string sessionToken, VR.Result.GetUserBySessionToken.If callback, 
+            SynchronizationContext handler, object closure) {
+
+         lock (sLock) {
             if (null == sAPIClient) {
-                return false;
+               return false;
             }
-            return sAPIClient.getUserBySessionToken(userId, sessionToken, callback, handler, closure);
-        }
-    }
+            return sAPIClient.getUserBySessionToken(sessionToken, callback, handler, closure);
+         }
+      }
    }
 }

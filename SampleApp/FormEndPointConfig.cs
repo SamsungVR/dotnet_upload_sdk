@@ -62,6 +62,7 @@ namespace SampleApp {
          mEditId = argId;
          ctrlAPIKey.Text = config.getApiKey();
          ctrlUrl.Text = config.getUrl();
+         ctrlSSOAppId.Text = config.getSSOAppId();
          enableControlsForAddOrEdit();
       }
 

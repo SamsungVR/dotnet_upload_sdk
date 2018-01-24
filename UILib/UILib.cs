@@ -327,7 +327,7 @@ namespace UILib {
             string userId = UILibSettings.Default.userId;
             string userSessionToken = UILibSettings.Default.userSessionToken;
             if (null != userId && null != userSessionToken && 
-                  SDKLib.VR.getUserBySessionToken(userId, userSessionToken, this, sMainHandler, null)) {
+                  SDKLib.VR.getUserBySessionToken(userSessionToken, this, sMainHandler, null)) {
                return;
             }
             showLoginUI();
