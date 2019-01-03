@@ -237,7 +237,7 @@ namespace SDKLib {
       protected virtual string toCookieString(string[,] cookies) {
          string cookieStr = "";
          if (null != cookies) {
-            for (int i = 0; i < cookies.Length; i += 1) {
+            for (int i = 0; i < cookies.Length; i += 2) {
                if (i > 0) {
                   cookieStr += "; ";
                }
