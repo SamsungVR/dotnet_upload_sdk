@@ -209,8 +209,9 @@ namespace UILib {
                 */
                Log.d(TAG, "Response json: " + json);
                string accessToken = Util.jsonGet<string>(json, "access_token");
+               string apiServerUrl = Util.jsonGet<string>(json, "api_server_url");
                string authServerUrl = Util.jsonGet<string>(json, "auth_server_url");
-               if (VR.loginSamsungAccount(accessToken, authServerUrl, mCallbackSSOLogin, UILib.sMainHandler, null)) {
+               if (VR.loginSamsungAccount(accessToken, apiServerUrl, authServerUrl, mCallbackSSOLogin, UILib.sMainHandler, null)) {
                   ctrlSSOProgress.Visible = true;
                   ctrlWebView.Visible = false;
                } else {

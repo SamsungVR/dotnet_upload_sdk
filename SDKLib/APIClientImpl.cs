@@ -128,13 +128,13 @@ namespace SDKLib {
          return mAsyncWorkQueue.enqueue(workItem);
       }
 
-      public bool loginSamsungAccount(string samsung_sso_token, string auth_server, VR.Result.LoginSSO.If callback,
+      public bool loginSamsungAccount(string samsung_sso_token, string api_server, string auth_server, VR.Result.LoginSSO.If callback,
          SynchronizationContext handler, object closure) {
          if (!mStateManager.isInState(State.INITIALIZED)) {
             return false;
          }
          WorkItemPerformLoginSamsungAccount workItem = (WorkItemPerformLoginSamsungAccount)mAsyncWorkQueue.obtainWorkItem(WorkItemPerformLoginSamsungAccount.TYPE);
-         workItem.set(samsung_sso_token, auth_server, callback, handler, closure);
+         workItem.set(samsung_sso_token, api_server, auth_server, callback, handler, closure);
          return mAsyncWorkQueue.enqueue(workItem);
       }
 
@@ -369,19 +369,21 @@ namespace SDKLib {
          : base(apiClient, TYPE) {
       }
 
-      public void set(string samsung_sso_token, string auth_server, VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure) {
+      public void set(string samsung_sso_token, string api_server, string auth_server, VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure) {
          base.set(callback, handler, closure);
          mSamsungSSOToken = samsung_sso_token;
+         mApiServer = api_server;
          mAuthServer = auth_server;
       }
 
       protected override void recycle() {
          base.recycle();
+         mApiServer = null;
          mAuthServer = null;
          mSamsungSSOToken = null;
       }
 
-      private string mSamsungSSOToken, mAuthServer;
+      private string mSamsungSSOToken, mApiServer, mAuthServer;
 
       private static readonly String TAG = Util.getLogTag(typeof(WorkItemPerformLoginSamsungAccount));
 
@@ -393,8 +395,11 @@ namespace SDKLib {
             JObject jsonParam = new JObject();
             jsonParam.Add("auth_type", "SamsungSSO");
             jsonParam.Add("samsung_sso_token", mSamsungSSOToken);
+            if (mApiServer != null) {
+               jsonParam.Add("api_hostname", mApiServer);
+            }
             if (mAuthServer != null) {
-               jsonParam.Add("auth_server", mAuthServer);
+               jsonParam.Add("auth_hostname", mAuthServer);
             }
 
             string jsonStr = jsonParam.ToString(Newtonsoft.Json.Formatting.None);

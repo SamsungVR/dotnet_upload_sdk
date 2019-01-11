@@ -40,7 +40,8 @@ namespace SDKLib {
          AsyncWorkQueue getAsyncUploadQueue();
 
          bool login(string email, string password, VR.Result.Login.If callback, SynchronizationContext handler, object closure);
-         bool loginSamsungAccount(string samsung_sso_token, string auth_server, VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure);
+         bool loginSamsungAccount(string samsung_sso_token, string api_server, string auth_server,
+            VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure);
 
          User getUserById(string userId);
          bool getUserBySessionToken(string sessionToken, VR.Result.GetUserBySessionToken.If callback,

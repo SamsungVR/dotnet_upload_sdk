@@ -432,13 +432,13 @@ namespace SDKLib {
       /// <summary>
       /// The loginSamsungAccount() method sends a SSO login request to the SamsungVR server.
       /// </summary>
-      public static bool loginSamsungAccount(string samsung_sso_token, string auth_server, 
-         VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure) {
+      public static bool loginSamsungAccount(string samsung_sso_token, string api_server, string auth_server,
+            VR.Result.LoginSSO.If callback, SynchronizationContext handler, object closure) {
          lock (sLock) {
             if (null == sAPIClient) {
                return false;
             }
-            return sAPIClient.loginSamsungAccount(samsung_sso_token, auth_server, callback, handler, closure);
+            return sAPIClient.loginSamsungAccount(samsung_sso_token, api_server, auth_server, callback, handler, closure);
          }
       }
 
